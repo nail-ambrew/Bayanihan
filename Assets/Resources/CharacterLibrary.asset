@@ -1,0 +1,259 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f30fc32153f2dcd4198c4cd893d609a9, type: 3}
+  m_Name: CharacterLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterLibrary
+  sourceModel: {fileID: -8148156210950934553, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  stripNodeNames:
+  - StudioGround
+  forwardSign: 1
+  characters:
+  - id: C01
+    nodeName: C01_Kid_SchoolBlouseSkirt
+    category: 0
+    hipsBindingPath: FilipinoCharacters_30/Row_Kids/C01_Kid_SchoolBlouseSkirt/C01_Hips
+    idle: {fileID: 7328642266018959414, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 2399307761598305396, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -2472467327686269673, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -1889076857363265355, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C02
+    nodeName: C02_Kid_OrangeBluePE
+    category: 0
+    hipsBindingPath: FilipinoCharacters_30/Row_Kids/C02_Kid_OrangeBluePE/C02_Hips
+    idle: {fileID: 799551469453350441, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 6132233949299865988, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -3417821185486469269, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -1821509497804802254, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C03
+    nodeName: C03_Kid_BlueTowel
+    category: 0
+    hipsBindingPath: FilipinoCharacters_30/Row_Kids/C03_Kid_BlueTowel/C03_Hips
+    idle: {fileID: 3862519656162131021, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -3957927490664802815, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 3427740403360193882, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -4084728768262661519, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C04
+    nodeName: C04_Kid_CasualTee
+    category: 0
+    hipsBindingPath: FilipinoCharacters_30/Row_Kids/C04_Kid_CasualTee/C04_Hips
+    idle: {fileID: -8887605242816716932, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -9139895833053841212, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 8843983543993306492, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -7635564624220228701, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C05
+    nodeName: C05_Kid_CreamOrangeUniform
+    category: 0
+    hipsBindingPath: FilipinoCharacters_30/Row_Kids/C05_Kid_CreamOrangeUniform/C05_Hips
+    idle: {fileID: -8030608030973966631, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 7145950616005458965, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -1368944570397857705, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -5291593826702184077, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C06
+    nodeName: C06_Kid_StripedTee
+    category: 0
+    hipsBindingPath: FilipinoCharacters_30/Row_Kids/C06_Kid_StripedTee/C06_Hips
+    idle: {fileID: 7458282396548191972, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -5799351296850906927, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -7440643457651066037, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 3401221526951343802, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C07
+    nodeName: C07_Teen_NavyHoodie
+    category: 1
+    hipsBindingPath: FilipinoCharacters_30/Row_Teens/C07_Teen_NavyHoodie/C07_Hips
+    idle: {fileID: -6941429599276225774, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -1995386347865557543, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -1833874827472103795, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -2420488686903666961, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C08
+    nodeName: C08_Teen_HSUniformGirl
+    category: 1
+    hipsBindingPath: FilipinoCharacters_30/Row_Teens/C08_Teen_HSUniformGirl/C08_Hips
+    idle: {fileID: 6214569486410544002, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -4025988017642430243, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -4109972811277607295, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -4632513040737523752, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C09
+    nodeName: C09_Teen_HSUniformBoy
+    category: 1
+    hipsBindingPath: FilipinoCharacters_30/Row_Teens/C09_Teen_HSUniformBoy/C09_Hips
+    idle: {fileID: 4620501550790551641, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -6150175676573396676, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 5343095345378445367, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -113628436216199569, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C10
+    nodeName: C10_Teen_GraphicTeeGirl
+    category: 1
+    hipsBindingPath: FilipinoCharacters_30/Row_Teens/C10_Teen_GraphicTeeGirl/C10_Hips
+    idle: {fileID: 8007016776394810974, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -1294281452370858876, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 9182342995898579031, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 7521182504719010213, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C11
+    nodeName: C11_Teen_BackwardsCap
+    category: 1
+    hipsBindingPath: FilipinoCharacters_30/Row_Teens/C11_Teen_BackwardsCap/C11_Hips
+    idle: {fileID: -593258331691570513, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -4621240671877653665, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -7008232016878503282, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 7839686592183987478, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C12
+    nodeName: C12_Teen_OrangeHoodie
+    category: 1
+    hipsBindingPath: FilipinoCharacters_30/Row_Teens/C12_Teen_OrangeHoodie/C12_Hips
+    idle: {fileID: 7817736831915438098, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -6446429403000916543, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -646866967397792767, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -8606432344859470470, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C13
+    nodeName: C13_Adult_MuscleSando
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C13_Adult_MuscleSando/C13_Hips
+    idle: {fileID: -8655049385371890890, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -6038549803890132102, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -7936682195171925818, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 2242456105313808795, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C14
+    nodeName: C14_Adult_MarketVendor
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C14_Adult_MarketVendor/C14_Hips
+    idle: {fileID: -4376061148161736493, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -683446021392144800, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 3811739704336891198, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -3016693579980910258, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C15
+    nodeName: C15_Adult_WhiteSandoHeavy
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C15_Adult_WhiteSandoHeavy/C15_Hips
+    idle: {fileID: 7951527866334126306, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 4073248115517734943, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -866836250556400335, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -7605509073483950992, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C16
+    nodeName: C16_Adult_BluePolo
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C16_Adult_BluePolo/C16_Hips
+    idle: {fileID: -7634752572309028373, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -6347882738586570438, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -2179038781602903279, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 3113827870167020028, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C17
+    nodeName: C17_Adult_OrangePolo
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C17_Adult_OrangePolo/C17_Hips
+    idle: {fileID: -7027592525204904667, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 1141964545156825772, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -5333395468477123999, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -6719977158309162501, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C18
+    nodeName: C18_Adult_YellowSando
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C18_Adult_YellowSando/C18_Hips
+    idle: {fileID: -7853178181844374181, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 2424085043682212771, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -8393319586954225391, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 1486030467068892384, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C19
+    nodeName: C19_Adult_MarketCap
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C19_Adult_MarketCap/C19_Hips
+    idle: {fileID: -113526226874637581, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 9107122845558767826, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -4798437528265015373, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -1780745468228671651, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C20
+    nodeName: C20_Adult_MaroonBlouse
+    category: 2
+    hipsBindingPath: FilipinoCharacters_30/Row_Adults/C20_Adult_MaroonBlouse/C20_Hips
+    idle: {fileID: -472260390851216661, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 5480088839280819512, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 8419497125973543024, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 7426727627621473973, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C21
+    nodeName: C21_Rescuer_Muscular_OrangeHelmet
+    category: 3
+    hipsBindingPath: FilipinoCharacters_30/Row_Rescuers/C21_Rescuer_Muscular_OrangeHelmet/C21_Hips
+    idle: {fileID: -1388319385086620362, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -1980790191655856137, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 5987527483180983043, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -8680560080066716190, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C22
+    nodeName: C22_Rescuer_Average_OrangeHelmet
+    category: 3
+    hipsBindingPath: FilipinoCharacters_30/Row_Rescuers/C22_Rescuer_Average_OrangeHelmet/C22_Hips
+    idle: {fileID: -3014085336199940706, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 657368510949865879, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 329464987338314545, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 4328341820848444857, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C23
+    nodeName: C23_Rescuer_Heavy_DarkHelmet
+    category: 3
+    hipsBindingPath: FilipinoCharacters_30/Row_Rescuers/C23_Rescuer_Heavy_DarkHelmet/C23_Hips
+    idle: {fileID: -618486512048383953, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -4654675627962939827, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -8915310433738197613, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 6117036054200340149, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C24
+    nodeName: C24_Rescuer_Lean_DarkHelmet
+    category: 3
+    hipsBindingPath: FilipinoCharacters_30/Row_Rescuers/C24_Rescuer_Lean_DarkHelmet/C24_Hips
+    idle: {fileID: -6616478500819206835, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 8997891523608609129, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 3054348079146572212, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 815564600586868118, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C25
+    nodeName: C25_Elder_OrangeSando
+    category: 4
+    hipsBindingPath: FilipinoCharacters_30/Row_Elders/C25_Elder_OrangeSando/C25_Hips
+    idle: {fileID: 8108183949203880496, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 6823822657040321778, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -6738775977279857710, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -2628864609355447284, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C26
+    nodeName: C26_Elder_BlouseSkirt
+    category: 4
+    hipsBindingPath: FilipinoCharacters_30/Row_Elders/C26_Elder_BlouseSkirt/C26_Hips
+    idle: {fileID: -4688970607285943377, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -5610827572692329675, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: -3206746667283720353, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: 5851253589053838109, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C27
+    nodeName: C27_Elder_Barong
+    category: 4
+    hipsBindingPath: FilipinoCharacters_30/Row_Elders/C27_Elder_Barong/C27_Hips
+    idle: {fileID: 1293765838765233369, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -7753556410881148081, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 3332376706548764206, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -5503172729963599641, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C28
+    nodeName: C28_Elder_TealBlouse
+    category: 4
+    hipsBindingPath: FilipinoCharacters_30/Row_Elders/C28_Elder_TealBlouse/C28_Hips
+    idle: {fileID: 2689553637146543988, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: 1867211537206648546, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 4263431791645971464, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -1127640190025928816, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C29
+    nodeName: C29_Elder_WhiteTeeCap
+    category: 4
+    hipsBindingPath: FilipinoCharacters_30/Row_Elders/C29_Elder_WhiteTeeCap/C29_Hips
+    idle: {fileID: -599124893725094489, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -6739392446202471826, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 6647368865235800026, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -6661368791266582804, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+  - id: C30
+    nodeName: C30_Elder_SalakotLongHair
+    category: 4
+    hipsBindingPath: FilipinoCharacters_30/Row_Elders/C30_Elder_SalakotLongHair/C30_Hips
+    idle: {fileID: -5508843814346352818, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    walk: {fileID: -8276706626232090999, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    floating: {fileID: 4433525503978463808, guid: cf45cc096525bc8478ef282421dee26a, type: 3}
+    swim: {fileID: -2449678064975387801, guid: cf45cc096525bc8478ef282421dee26a, type: 3}

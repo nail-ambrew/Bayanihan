@@ -1,0 +1,37 @@
+# Exported by three-d-stage
+newmtl concrete
+Kd 0.4678 0.4621 0.4397
+Ks 0.2000 0.2000 0.2000
+Ns 6
+d 1.0000
+
+newmtl concrete_worn
+Kd 0.3763 0.3663 0.3325
+Ks 0.2000 0.2000 0.2000
+Ns 0
+d 1.0000
+
+newmtl mortar
+Kd 0.3095 0.2961 0.2664
+Ks 0.2000 0.2000 0.2000
+Ns 0
+d 1.0000
+
+newmtl grout
+Kd 0.5520 0.5333 0.4851
+Ks 0.2000 0.2000 0.2000
+Ns 0
+d 1.0000
+
+newmtl rebar_steel
+Kd 0.2016 0.1812 0.1500
+Ks 0.2000 0.2000 0.2000
+Ns 76
+d 1.0000
+
+newmtl aggregate_fracture
+Kd 0.3231 0.3050 0.2664
+Ks 0.2000 0.2000 0.2000
+Ns 0
+d 1.0000
+
