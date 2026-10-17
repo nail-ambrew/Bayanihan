@@ -1,0 +1,67 @@
+{
+  "about": "Hand-curated facts about Barangay Mabuhay that OpenStreetMap does not hold. fetch_mabuhay_osm.py reads this file and never writes it, so a refresh from OpenStreetMap keeps everything here. Keys under 'landmarks' are OpenStreetMap ids (n = node, w = way, r = relation); any field given here replaces what the script worked out. Only set \"evacuation\": \"designated\" and \"verified\": true once the barangay or Carmona CDRRMO has confirmed a site, and say who confirmed it and when in \"source\".",
+
+  "landmarks": {
+    "w620109194": {
+      "category": "barangay_hall",
+      "evacuation": "candidate",
+      "source": "Barangay halls usually serve as the barangay's command post and first refuge in a disaster. Not confirmed for Mabuhay.",
+      "note": "The origin of the layout (0, 0)."
+    },
+    "w671986825": {
+      "category": "court",
+      "evacuation": "candidate",
+      "source": "Barangay courts are commonly used as evacuation sites. Not confirmed for Mabuhay.",
+      "note": "Court beside the barangay hall."
+    },
+    "w984143589": {
+      "evacuation": "candidate",
+      "source": "Manila Bulletin, 11 Nov 2020: during Typhoon Ulysses, Carmona moved families from high-risk areas of Mabuhay and other barangays to public schools. Which schools was not reported.",
+      "note": "The public school nearest the barangay hall."
+    },
+    "w145889468": {
+      "evacuation": "candidate",
+      "source": "Manila Bulletin, 11 Nov 2020: during Typhoon Ulysses, Carmona moved families from high-risk areas of Mabuhay and other barangays to public schools. Which schools was not reported.",
+      "note": "In Barangay Milagrosa, just south of Mabuhay's centre."
+    },
+    "r10704405": {
+      "evacuation": "candidate",
+      "source": "Manila Bulletin, 11 Nov 2020: during Typhoon Ulysses, Carmona moved families from high-risk areas of Mabuhay and other barangays to public schools. Which schools was not reported.",
+      "note": "In the Poblacion, east of Mabuhay."
+    },
+    "r10704404": {
+      "evacuation": "candidate",
+      "source": "Manila Bulletin, 11 Nov 2020: during Typhoon Ulysses, Carmona moved families from high-risk areas of Mabuhay and other barangays to public schools. Which schools was not reported.",
+      "note": "In the Poblacion, east of Mabuhay."
+    },
+    "w423072823": {
+      "category": "court",
+      "evacuation": "candidate",
+      "source": "Barangay courts are commonly used as evacuation sites. Not confirmed.",
+      "note": "In Barangay Milagrosa, south-east of the hall."
+    },
+    "w872069862": {
+      "category": "sports_hall",
+      "evacuation": "candidate",
+      "source": "Large gymnasiums are commonly used as evacuation sites. Not confirmed.",
+      "note": "In Barangay Lantic, south of Mabuhay."
+    },
+    "n7137693186": {
+      "category": "water_supply",
+      "note": "Carmona Water District. It is tagged as a shop in OpenStreetMap."
+    }
+  },
+
+  "extraSites": [
+    {
+      "id": "x-carmona-evacuation-center",
+      "name": "Carmona Evacuation Center (DPWH)",
+      "category": "evacuation_centre",
+      "evacuation": "candidate",
+      "lat": null,
+      "lon": null,
+      "source": "DPWH news release 19249 (2020): an evacuation centre DPWH built in Barangay Lantic, later enlarged by the city into a 3,000 m² multi-purpose building with a basketball court, and used as a quarantine facility in 2020.",
+      "note": "Not in OpenStreetMap, so its position is unknown. Ask Carmona CDRRMO where it is, then add lat and lon here."
+    }
+  ]
+}
