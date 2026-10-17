@@ -46,6 +46,8 @@ public enum LandmarkCategory
     Pharmacy,
     FireStation,
     Police,
+    /// <summary>The barangay outpost: where the tanod keep watch and a flood response checks in.</summary>
+    BarangayOutpost,
     Government,
     /// <summary>Water tanks, towers and the water district.</summary>
     WaterSupply,
@@ -54,6 +56,10 @@ public enum LandmarkCategory
     /// <summary>A gate kept for emergency vehicles.</summary>
     EmergencyAccess,
     Market,
+    /// <summary>Supermarkets, groceries and convenience stores: where supplies are.</summary>
+    Grocery,
+    Bank,
+    Pawnshop,
     Fuel,
     Church,
     Other
@@ -144,6 +150,11 @@ public class MapLandmark
     /// <summary>A place a flood response leans on: shelter, command, rescue, health or water.</summary>
     public bool Essential => IsEvacuationSite || IsEssential(category);
 
+    /// <summary>A shop or service a level will want as a landmark, though a flood response does not lean on it.</summary>
+    public bool Business =>
+        category == LandmarkCategory.Grocery || category == LandmarkCategory.Bank ||
+        category == LandmarkCategory.Pawnshop || category == LandmarkCategory.Market;
+
     /// <summary>The name, or what it is when OpenStreetMap gives it no name ("Court", "Water supply").</summary>
     public string Label
     {
@@ -170,6 +181,7 @@ public class MapLandmark
             case LandmarkCategory.HealthCentre:
             case LandmarkCategory.FireStation:
             case LandmarkCategory.Police:
+            case LandmarkCategory.BarangayOutpost:
             case LandmarkCategory.WaterSupply:
             case LandmarkCategory.Dam:
             case LandmarkCategory.AssemblyPoint:

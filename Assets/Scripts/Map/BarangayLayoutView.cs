@@ -142,6 +142,10 @@ public class BarangayLayoutView : MonoBehaviour
             case LandmarkCategory.Pharmacy:         return new Color(0.95f, 0.25f, 0.4f);   // health
             case LandmarkCategory.FireStation:      return new Color(0.9f, 0.15f, 0.1f);
             case LandmarkCategory.Police:           return new Color(0.3f, 0.45f, 1f);
+            case LandmarkCategory.BarangayOutpost:  return new Color(0.55f, 0.35f, 0.95f);  // tanod post
+            case LandmarkCategory.Grocery:          return new Color(0.45f, 0.8f, 0.3f);    // supplies
+            case LandmarkCategory.Bank:             return new Color(0.2f, 0.7f, 0.55f);
+            case LandmarkCategory.Pawnshop:         return new Color(0.8f, 0.6f, 0.25f);
             case LandmarkCategory.WaterSupply:
             case LandmarkCategory.Dam:              return new Color(0.1f, 0.6f, 0.95f);
             case LandmarkCategory.AssemblyPoint:
@@ -253,12 +257,12 @@ public class BarangayLayoutView : MonoBehaviour
         if (showLandmarks)
             foreach (var l in map.landmarks)
             {
-                if (!l.positionKnown || (essentialOnly && !l.Essential)) continue;
+                if (!l.positionKnown || (essentialOnly && !l.Essential)) continue;     // no position: nothing to draw
                 Color c = LandmarkColour(l.category);
                 if (showFootprints && l.footprint.Count > 2) Polyline(l.footprint, true, c);
                 Marker(l.position, c);
                 if (l.IsEvacuationSite) EvacuationRing(l.position, l.verified && l.evacuationRole == EvacuationRole.Designated);
-                if (l.Essential || l.IsEvacuationSite)
+                if (l.Essential || l.IsEvacuationSite || l.Business)
                     Labels.Add(new MapLabel
                     {
                         text = l.Label + (l.IsEvacuationSite ? (l.verified ? "  [evacuation]" : "  [evacuation?]") : ""),

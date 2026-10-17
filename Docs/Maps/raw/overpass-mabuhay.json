@@ -2,8 +2,8 @@
   "version": 0.6,
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
-    "timestamp_osm_base": "2026-10-17T01:07:50Z",
-    "timestamp_areas_base": "2026-10-15T06:58:54Z",
+    "timestamp_osm_base": "2026-10-17T01:30:19Z",
+    "timestamp_areas_base": "2026-10-15T18:28:46Z",
     "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
   },
   "elements": [
@@ -2650,6 +2650,26 @@
 },
 {
   "type": "node",
+  "id": 1464784108,
+  "lat": 14.3188528,
+  "lon": 121.0227214,
+  "tags": {
+    "name": "Aling Baby Mini Market",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1464798541,
+  "lat": 14.3023726,
+  "lon": 121.0110591,
+  "tags": {
+    "name": "Alfa Mart",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 1592025502,
   "lat": 14.3172063,
   "lon": 121.0478460,
@@ -2689,6 +2709,16 @@
 },
 {
   "type": "node",
+  "id": 2728674503,
+  "lat": 14.3185306,
+  "lon": 121.0619240,
+  "tags": {
+    "addr:city": "Carmona",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 3644376404,
   "lat": 14.3148184,
   "lon": 121.0600128,
@@ -2710,6 +2740,41 @@
 },
 {
   "type": "node",
+  "id": 3758507147,
+  "lat": 14.3100656,
+  "lon": 121.0410877,
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:housename": "Manuel Alambra Commercial Building",
+    "addr:housenumber": "5",
+    "addr:place": "Mabuhay",
+    "addr:postcode": "4116",
+    "addr:street": "Sugar Road",
+    "name": "Amipar Enterprises",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 4461331789,
+  "lat": 14.2966873,
+  "lon": 121.0560365,
+  "tags": {
+    "addr:street": "Carmona - Timbao Road",
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "brand:wikipedia": "en:7-Eleven",
+    "brand:wikipedia:es": "7-Eleven",
+    "name": "7-Eleven",
+    "name:ar": "7-إلفن",
+    "name:en": "7-Eleven",
+    "name:es": "7-Eleven",
+    "opening_hours": "24/7",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 4707585140,
   "lat": 14.2935072,
   "lon": 121.0462746,
@@ -2720,6 +2785,20 @@
     "addr:street": "Calumpang Road",
     "amenity": "pharmacy",
     "name": "Rite Dose Pharmacy"
+  }
+},
+{
+  "type": "node",
+  "id": 4707585142,
+  "lat": 14.2934787,
+  "lon": 121.0460842,
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "addr:street": "Calumpang Road",
+    "name": "Kinnari Mini Mart",
+    "shop": "convenience"
   }
 },
 {
@@ -2796,6 +2875,22 @@
 },
 {
   "type": "node",
+  "id": 5061979223,
+  "lat": 14.2936834,
+  "lon": 121.0465550,
+  "tags": {
+    "addr:place": "Calumpang Estates",
+    "brand": "7-Eleven",
+    "brand:website": "https://7-eleven.com.ph",
+    "brand:wikidata": "Q259340",
+    "brand:wikipedia": "en:7-Eleven",
+    "name": "7-Eleven",
+    "opening_hours": "24/7",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 5061992121,
   "lat": 14.2922801,
   "lon": 121.0440461,
@@ -2812,6 +2907,19 @@
   "tags": {
     "amenity": "place_of_worship",
     "name": "Church of Christ at GMA"
+  }
+},
+{
+  "type": "node",
+  "id": 5244022721,
+  "lat": 14.3051747,
+  "lon": 121.0128342,
+  "tags": {
+    "branch": "Memije",
+    "brand": "7-Eleven",
+    "name": "7-Eleven",
+    "opening_hours": "24/7",
+    "shop": "convenience"
   }
 },
 {
@@ -2840,12 +2948,60 @@
 },
 {
   "type": "node",
+  "id": 5552361881,
+  "lat": 14.3052105,
+  "lon": 121.0126213,
+  "tags": {
+    "name": "Mini Mart",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 5869806648,
   "lat": 14.2983426,
   "lon": 121.0496753,
   "tags": {
     "amenity": "school",
     "name": "Lantic Tech4ED Center"
+  }
+},
+{
+  "type": "node",
+  "id": 6162401388,
+  "lat": 14.3128885,
+  "lon": 121.0624303,
+  "tags": {
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 6163151985,
+  "lat": 14.3110160,
+  "lon": 121.0638894,
+  "tags": {
+    "branch": "Binan 5",
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "brand:wikipedia": "en:7-Eleven",
+    "name": "7-Eleven",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 6440364685,
+  "lat": 14.3129860,
+  "lon": 121.0557929,
+  "tags": {
+    "addr:street": "J. M. Loyola Street",
+    "addr:town": "Carmona",
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "brand:wikipedia": "en:7-Eleven",
+    "name": "7-Eleven",
+    "shop": "convenience"
   }
 },
 {
@@ -2914,6 +3070,22 @@
     "name": "Haru Korean Grocery",
     "phone": "(+63)46-423-0462",
     "shop": "supermarket"
+  }
+},
+{
+  "type": "node",
+  "id": 10083038075,
+  "lat": 14.2917313,
+  "lon": 121.0136654,
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:street": "Governor's Drive",
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "name": "7-Eleven",
+    "opening_hours": "24/7",
+    "shop": "convenience"
   }
 },
 {
@@ -2993,6 +3165,19 @@
 },
 {
   "type": "node",
+  "id": 11045885701,
+  "lat": 14.3072275,
+  "lon": 121.0144734,
+  "tags": {
+    "addr:street": "Congressional Road",
+    "bureau_de_change": "yes",
+    "mapillary": "679733186442601",
+    "name": "SMJ",
+    "shop": "pawnbroker"
+  }
+},
+{
+  "type": "node",
   "id": 11171892344,
   "lat": 14.3070553,
   "lon": 121.0382545,
@@ -3027,6 +3212,38 @@
 },
 {
   "type": "node",
+  "id": 12010779706,
+  "lat": 14.3136946,
+  "lon": 121.0493710,
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "alt_name": "Banco de Oro",
+    "amenity": "bank",
+    "brand": "BDO",
+    "brand:wikidata": "Q4854129",
+    "name": "BDO"
+  }
+},
+{
+  "type": "node",
+  "id": 12062160000,
+  "lat": 14.3136292,
+  "lon": 121.0529065,
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "addr:street": "Purificacion Street",
+    "brand": "Dali",
+    "brand:wikidata": "Q119854219",
+    "name": "Dali",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 12169205607,
   "lat": 14.3126500,
   "lon": 121.0233141,
@@ -3043,6 +3260,37 @@
 },
 {
   "type": "node",
+  "id": 12499347221,
+  "lat": 14.2969721,
+  "lon": 121.0567363,
+  "tags": {
+    "addr:city": "Biñan",
+    "addr:province": "Laguna",
+    "addr:street": "Carmona - Timbao Road",
+    "brand": "Alfamart",
+    "brand:wikidata": "Q23745600",
+    "name": "Alfamart",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 12597619636,
+  "lat": 14.3136281,
+  "lon": 121.0471286,
+  "tags": {
+    "addr2:street": "*",
+    "addr:street": "Governor's Drive",
+    "brand": "Treats",
+    "brand:wikidata": "Q131626530",
+    "mapillary": "1157186318391020",
+    "name": "Treats",
+    "operator": "Petron",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
   "id": 12598095912,
   "lat": 14.3099434,
   "lon": 121.0637026,
@@ -3053,6 +3301,18 @@
     "brand": "Shell",
     "brand:wikidata": "Q154950",
     "name": "Shell"
+  }
+},
+{
+  "type": "node",
+  "id": 12598095913,
+  "lat": 14.3109304,
+  "lon": 121.0643591,
+  "tags": {
+    "addr:city": "Biñan",
+    "addr:province": "Laguna",
+    "name": "Puremart",
+    "shop": "convenience"
   }
 },
 {
@@ -11110,6 +11370,40 @@
 },
 {
   "type": "way",
+  "id": 363437593,
+  "bounds": {
+    "minlat": 14.2933320,
+    "minlon": 121.0459889,
+    "maxlat": 14.2934222,
+    "maxlon": 121.0460844
+  },
+  "nodes": [
+    3676063245,
+    3676063237,
+    3676063022,
+    3676063230,
+    3676063245
+  ],
+  "geometry": [
+    { "lat": 14.2934222, "lon": 121.0460543 },
+    { "lat": 14.2933908, "lon": 121.0459889 },
+    { "lat": 14.2933320, "lon": 121.0460190 },
+    { "lat": 14.2933635, "lon": 121.0460844 },
+    { "lat": 14.2934222, "lon": 121.0460543 }
+  ],
+  "tags": {
+    "addr:block_number": "1",
+    "addr:city": "Carmona",
+    "addr:housenumber": "37-G",
+    "addr:postcode": "4116",
+    "addr:street": "Calumpang Road",
+    "building": "house",
+    "name": "Lorveck's Superstore",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "way",
   "id": 363476093,
   "bounds": {
     "minlat": 14.2970061,
@@ -11872,6 +12166,40 @@
     "sport": "multi",
     "surface": "acrylic",
     "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 411588752,
+  "bounds": {
+    "minlat": 14.3181287,
+    "minlon": 121.0611753,
+    "maxlat": 14.3182581,
+    "maxlon": 121.0613636
+  },
+  "nodes": [
+    4132220150,
+    4132220125,
+    4132220096,
+    4132220120,
+    4132220150
+  ],
+  "geometry": [
+    { "lat": 14.3182581, "lon": 121.0612028 },
+    { "lat": 14.3181992, "lon": 121.0613636 },
+    { "lat": 14.3181287, "lon": 121.0613360 },
+    { "lat": 14.3181875, "lon": 121.0611753 },
+    { "lat": 14.3182581, "lon": 121.0612028 }
+  ],
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "brand": "Treats",
+    "brand:wikidata": "Q131626530",
+    "building": "yes",
+    "name": "Treats",
+    "shop": "convenience"
   }
 },
 {
@@ -31161,6 +31489,41 @@
 },
 {
   "type": "way",
+  "id": 1101864350,
+  "bounds": {
+    "minlat": 14.2965379,
+    "minlon": 121.0174981,
+    "maxlat": 14.2967008,
+    "maxlon": 121.0176794
+  },
+  "nodes": [
+    10083038080,
+    10083038081,
+    10083038082,
+    10083038083,
+    10083038080
+  ],
+  "geometry": [
+    { "lat": 14.2966075, "lon": 121.0174981 },
+    { "lat": 14.2965379, "lon": 121.0175528 },
+    { "lat": 14.2966311, "lon": 121.0176794 },
+    { "lat": 14.2967008, "lon": 121.0176247 },
+    { "lat": 14.2966075, "lon": 121.0174981 }
+  ],
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:street": "Governor's Drive",
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "building": "commercial",
+    "name": "7-Eleven",
+    "opening_hours": "24/7",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "way",
   "id": 1101874935,
   "bounds": {
     "minlat": 14.3194639,
@@ -34090,6 +34453,40 @@
 },
 {
   "type": "way",
+  "id": 1189575838,
+  "bounds": {
+    "minlat": 14.3077973,
+    "minlon": 121.0149682,
+    "maxlat": 14.3079709,
+    "maxlon": 121.0151336
+  },
+  "nodes": [
+    11045927968,
+    11045927965,
+    11045927966,
+    11045927967,
+    11045927968
+  ],
+  "geometry": [
+    { "lat": 14.3079709, "lon": 121.0150588 },
+    { "lat": 14.3078500, "lon": 121.0151336 },
+    { "lat": 14.3077973, "lon": 121.0150430 },
+    { "lat": 14.3079182, "lon": 121.0149682 },
+    { "lat": 14.3079709, "lon": 121.0150588 }
+  ],
+  "tags": {
+    "addr:street": "Congressional Road",
+    "brand": "7-Eleven",
+    "brand:website": "https://7-eleven.com.ph",
+    "brand:wikidata": "Q259340",
+    "mapillary": "3143528082580875",
+    "name": "7-Eleven",
+    "opening_hours": "24/7",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "way",
   "id": 1198894255,
   "bounds": {
     "minlat": 14.3133720,
@@ -35996,6 +36393,40 @@
 },
 {
   "type": "way",
+  "id": 1351048131,
+  "bounds": {
+    "minlat": 14.3105754,
+    "minlon": 121.0637195,
+    "maxlat": 14.3107101,
+    "maxlon": 121.0638810
+  },
+  "nodes": [
+    12499347227,
+    12499347226,
+    12499347225,
+    12499347224,
+    12499347227
+  ],
+  "geometry": [
+    { "lat": 14.3107101, "lon": 121.0637502 },
+    { "lat": 14.3106705, "lon": 121.0638810 },
+    { "lat": 14.3105754, "lon": 121.0638503 },
+    { "lat": 14.3106150, "lon": 121.0637195 },
+    { "lat": 14.3107101, "lon": 121.0637502 }
+  ],
+  "tags": {
+    "addr:city": "Biñan",
+    "addr:province": "Laguna",
+    "addr:street": "Carmona - Timbao Road",
+    "brand": "Alfamart",
+    "brand:wikidata": "Q23745600",
+    "building": "retail",
+    "name": "Alfamart",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "way",
   "id": 1371357560,
   "bounds": {
     "minlat": 14.3181399,
@@ -36433,6 +36864,78 @@
     "amenity": "school",
     "education": "school",
     "name": "St. Anthony de Carmelli Academy"
+  }
+},
+{
+  "type": "way",
+  "id": 1499790780,
+  "bounds": {
+    "minlat": 14.3099942,
+    "minlon": 121.0408077,
+    "maxlat": 14.3101858,
+    "maxlon": 121.0409852
+  },
+  "nodes": [
+    13733700697,
+    13733700698,
+    13733700699,
+    13733700700,
+    13733700697
+  ],
+  "geometry": [
+    { "lat": 14.3101858, "lon": 121.0408219 },
+    { "lat": 14.3100927, "lon": 121.0408077 },
+    { "lat": 14.3099942, "lon": 121.0409519 },
+    { "lat": 14.3100694, "lon": 121.0409852 },
+    { "lat": 14.3101858, "lon": 121.0408219 }
+  ],
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "addr:street": "Sugar Road",
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "building": "yes",
+    "name": "7-Eleven",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "way",
+  "id": 1499790781,
+  "bounds": {
+    "minlat": 14.2973746,
+    "minlon": 121.0186957,
+    "maxlat": 14.2977634,
+    "maxlon": 121.0190444
+  },
+  "nodes": [
+    13733799901,
+    13733799902,
+    13733799903,
+    13733799904,
+    13733799905,
+    13733799901
+  ],
+  "geometry": [
+    { "lat": 14.2976199, "lon": 121.0186957 },
+    { "lat": 14.2973746, "lon": 121.0188931 },
+    { "lat": 14.2975139, "lon": 121.0190444 },
+    { "lat": 14.2976802, "lon": 121.0189242 },
+    { "lat": 14.2977634, "lon": 121.0188534 },
+    { "lat": 14.2976199, "lon": 121.0186957 }
+  ],
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "addr:street": "Governor's Drive",
+    "brand": "Dali",
+    "brand:wikidata": "Q119854219",
+    "building": "yes",
+    "name": "Dali",
+    "shop": "convenience"
   }
 },
 {
@@ -38783,6 +39286,58 @@
     "short_name": "EARIST Cavite",
     "type": "multipolygon",
     "wikidata": "Q20577682"
+  }
+},
+{
+  "type": "relation",
+  "id": 18002938,
+  "bounds": {
+    "minlat": 14.3171320,
+    "minlon": 121.0575592,
+    "maxlat": 14.3173586,
+    "maxlon": 121.0578401
+  },
+  "members": [
+    {
+      "type": "way",
+      "ref": 1313066420,
+      "role": "outer",
+      "geometry": [
+         { "lat": 14.3171320, "lon": 121.0576149 },
+         { "lat": 14.3172192, "lon": 121.0578401 }
+      ]
+    },
+    {
+      "type": "way",
+      "ref": 1313066419,
+      "role": "outer",
+      "geometry": [
+         { "lat": 14.3171320, "lon": 121.0576149 },
+         { "lat": 14.3172763, "lon": 121.0575592 },
+         { "lat": 14.3173586, "lon": 121.0577863 },
+         { "lat": 14.3172192, "lon": 121.0578401 }
+      ]
+    }
+  ],
+  "tags": {
+    "addr:city": "Carmona",
+    "addr:postcode": "4116",
+    "addr:province": "Cavite",
+    "addr:street": "Gov. Juanito Remulla Highway (Governor's Drive)",
+    "amenity": "bank",
+    "atm": "yes",
+    "branch": "Carmona",
+    "brand": "RCBC",
+    "brand:wikidata": "Q7339070",
+    "currency:PHP": "yes",
+    "currency:USD": "yes",
+    "landuse": "retail",
+    "name": "RCBC",
+    "official_name": "Rizal Commercial Banking Corporation",
+    "operator": "RCBC",
+    "smoking": "no",
+    "type": "multipolygon",
+    "wheelchair": "yes"
   }
 }
 

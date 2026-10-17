@@ -7630,7 +7630,7 @@ MonoBehaviour:
   landmarks:
   - id: n10083073824
     name: LTO Carmona District Office
-    category: 12
+    category: 13
     positionKnown: 1
     position: {x: -54.5, y: 13.72}
     footprint: []
@@ -7642,7 +7642,7 @@ MonoBehaviour:
     osmTag: office=government
   - id: n10230935465
     name: The Feast Carmona
-    category: 19
+    category: 23
     positionKnown: 1
     position: {x: -143.55, y: 186.01}
     footprint: []
@@ -7688,9 +7688,33 @@ MonoBehaviour:
     source: 
     note: 
     osmTag: amenity=pharmacy
+  - id: n12010779706
+    name: BDO
+    category: 20
+    positionKnown: 1
+    position: {x: -58.71, y: 227.69}
+    footprint: []
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: amenity=bank
+  - id: n12062160000
+    name: Dali
+    category: 19
+    positionKnown: 1
+    position: {x: 322.72, y: 220.45}
+    footprint: []
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: shop=convenience
   - id: n1592080556
     name: 
-    category: 13
+    category: 14
     positionKnown: 1
     position: {x: -390.16, y: -335.21}
     footprint: []
@@ -7702,7 +7726,7 @@ MonoBehaviour:
     osmTag: man_made=water_tower
   - id: n1912742732
     name: 
-    category: 16
+    category: 17
     positionKnown: 1
     position: {x: -1109.05, y: -417.77}
     footprint: []
@@ -7724,6 +7748,18 @@ MonoBehaviour:
     source: 
     note: 
     osmTag: amenity=police
+  - id: n3758507147
+    name: Amipar Enterprises
+    category: 19
+    positionKnown: 1
+    position: {x: -952.37, y: -173.83}
+    footprint: []
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: shop=convenience
   - id: n5061992121
     name: 
     category: 11
@@ -7750,7 +7786,7 @@ MonoBehaviour:
     osmTag: amenity=school
   - id: n7137693186
     name: Carmona water district
-    category: 13
+    category: 14
     positionKnown: 1
     position: {x: -1054.33, y: -367.62}
     footprint: []
@@ -7820,6 +7856,23 @@ MonoBehaviour:
     source: 
     note: 
     osmTag: amenity=school
+  - id: r10749163
+    name: Metrobank
+    category: 20
+    positionKnown: 1
+    position: {x: 144.9, y: 293.58}
+    footprint:
+    - {x: 129.81, y: 313.22}
+    - {x: 126.89, y: 307.23}
+    - {x: 142.19, y: 267.53}
+    - {x: 164.25, y: 276.37}
+    - {x: 147.2, y: 319.81}
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: amenity=bank
   - id: r10749165
     name: Carmona Hospital and Medical Center
     category: 7
@@ -7836,9 +7889,50 @@ MonoBehaviour:
     source: 
     note: 
     osmTag: amenity=hospital
+  - id: r10749166
+    name: WalterMart
+    category: 18
+    positionKnown: 1
+    position: {x: 38.68, y: 179.22}
+    footprint:
+    - {x: 78.75, y: 293.09}
+    - {x: -97.42, y: 224.88}
+    - {x: -34.64, y: 61.98}
+    - {x: -30.62, y: 57.27}
+    - {x: -24.74, y: 56.75}
+    - {x: 167.86, y: 130.61}
+    - {x: 172.2, y: 132.43}
+    - {x: 174.36, y: 134.7}
+    - {x: 110.27, y: 298.69}
+    - {x: 107.89, y: 302.06}
+    - {x: 103.88, y: 302.83}
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: shop=mall
+  - id: r10749238
+    name: Iglesia Ni Cristo
+    category: 23
+    positionKnown: 1
+    position: {x: 344.39, y: 120.6}
+    footprint:
+    - {x: 381.61, y: 123.18}
+    - {x: 367.86, y: 152.95}
+    - {x: 309.19, y: 124.36}
+    - {x: 326.59, y: 86.31}
+    - {x: 353.99, y: 97.98}
+    - {x: 349.11, y: 109.12}
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: amenity=place_of_worship
   - id: r10977833
     name: WalterMart Supermarket
-    category: 17
+    category: 19
     positionKnown: 1
     position: {x: 10.55, y: 209.36}
     footprint:
@@ -7871,7 +7965,7 @@ MonoBehaviour:
     osmTag: leisure=pitch
   - id: w1118500829
     name: 
-    category: 13
+    category: 14
     positionKnown: 1
     position: {x: -1514.68, y: -530.65}
     footprint:
@@ -8037,7 +8131,7 @@ MonoBehaviour:
     osmTag: leisure=pitch
   - id: w1313404697
     name: Petron
-    category: 18
+    category: 22
     positionKnown: 1
     position: {x: -3168.1, y: -1358.76}
     footprint:
@@ -8124,6 +8218,39 @@ MonoBehaviour:
     source: 
     note: 
     osmTag: amenity=school
+  - id: w1499790780
+    name: 7-Eleven
+    category: 19
+    positionKnown: 1
+    position: {x: -973.55, y: -171.48}
+    footprint:
+    - {x: -981.05, y: -160.53}
+    - {x: -982.58, y: -170.83}
+    - {x: -967.02, y: -181.73}
+    - {x: -963.43, y: -173.41}
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: shop=convenience
+  - id: w1499790781
+    name: Dali
+    category: 19
+    positionKnown: 1
+    position: {x: -3349.16, y: -1556.39}
+    footprint:
+    - {x: -3368.17, y: -1550.85}
+    - {x: -3346.87, y: -1577.99}
+    - {x: -3330.55, y: -1562.58}
+    - {x: -3343.52, y: -1544.18}
+    - {x: -3351.16, y: -1534.97}
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: shop=convenience
   - id: w184387010
     name: Barangay 7 Hall
     category: 0
@@ -8222,9 +8349,25 @@ MonoBehaviour:
     source: 
     note: 
     osmTag: amenity=townhall
+  - id: w412355594
+    name: Shell
+    category: 22
+    positionKnown: 1
+    position: {x: -1496.43, y: -150.06}
+    footprint:
+    - {x: -1512.37, y: -163.89}
+    - {x: -1477.33, y: -178.33}
+    - {x: -1485.32, y: -127.88}
+    - {x: -1514.28, y: -127.24}
+    insideBarangay: 1
+    evacuationRole: 0
+    verified: 0
+    source: 
+    note: 
+    osmTag: amenity=fuel
   - id: w412355772
     name: Carmona Seventh-day Adventist Church
-    category: 19
+    category: 23
     positionKnown: 1
     position: {x: -1083.93, y: -507.41}
     footprint:
@@ -8258,7 +8401,7 @@ MonoBehaviour:
     osmTag: amenity=police
   - id: w415199276
     name: Uno Fuel
-    category: 18
+    category: 22
     positionKnown: 1
     position: {x: -3224.02, y: -1359.46}
     footprint:
@@ -8306,7 +8449,7 @@ MonoBehaviour:
     osmTag: leisure=sports_hall
   - id: w611591390
     name: Lantic Dam
-    category: 14
+    category: 15
     positionKnown: 1
     position: {x: 205.97, y: -1809.53}
     footprint: []
@@ -8436,7 +8579,7 @@ MonoBehaviour:
     osmTag: leisure=pitch
   - id: w774679226
     name: 
-    category: 13
+    category: 14
     positionKnown: 1
     position: {x: 197.99, y: 103.68}
     footprint:
@@ -8565,7 +8708,7 @@ MonoBehaviour:
     osmTag: leisure=sports_centre
   - id: w872069858
     name: 
-    category: 13
+    category: 14
     positionKnown: 1
     position: {x: -3725.41, y: -1187.7}
     footprint:
@@ -8638,6 +8781,19 @@ MonoBehaviour:
       Which schools was not reported.'
     note: The public school nearest the barangay hall.
     osmTag: amenity=school
+  - id: x-barangay-outpost
+    name: Barangay outpost
+    category: 12
+    positionKnown: 0
+    position: {x: 0, y: 0}
+    footprint: []
+    insideBarangay: 0
+    evacuationRole: 0
+    verified: 0
+    source: Requested for the level by the team.
+    note: Not in OpenStreetMap, so its position is unknown. Ask the barangay hall
+      where the outpost is. Until then it can be placed beside the hall in the level.
+    osmTag: 
   - id: x-carmona-evacuation-center
     name: Carmona Evacuation Center (DPWH)
     category: 2
@@ -8653,8 +8809,21 @@ MonoBehaviour:
     note: Not in OpenStreetMap, so its position is unknown. Ask Carmona CDRRMO where
       it is, then add lat and lon here.
     osmTag: 
+  - id: x-mlhuillier-pawnshop
+    name: M Lhuillier pawnshop
+    category: 21
+    positionKnown: 0
+    position: {x: 0, y: 0}
+    footprint: []
+    insideBarangay: 0
+    evacuationRole: 0
+    verified: 0
+    source: Requested for the level by the team.
+    note: Not in OpenStreetMap inside Mabuhay, so its position is unknown. Add lat
+      and lon here once the branch is located, or place it by hand in the level.
+    osmTag: 
   attribution: "\xA9 OpenStreetMap contributors"
   licence: ODbL-1.0 (https://opendatacommons.org/licenses/odbl/)
-  snapshotDate: 2026-10-17T01:07:50Z
+  snapshotDate: 2026-10-17T01:30:19Z
   sourceFile: Docs/Maps/mabuhay-carmona.geojson
-  revision: 1
+  revision: 2

@@ -151,7 +151,7 @@ public static class BarangayLayoutMapExport
                .Append("\" font-size=\"14\" font-style=\"italic\" fill=\"#5a4a2a\" text-anchor=\"middle\">").Append(Esc(r.name)).Append("</text>\n");
         }
 
-        foreach (var l in map.landmarks.Where(l => l.positionKnown && (l.Essential || l.IsEvacuationSite)))
+        foreach (var l in map.landmarks.Where(l => l.positionKnown && (l.Essential || l.IsEvacuationSite || l.Business)))
         {
             bool evac = l.IsEvacuationSite;
             string text = l.Label + (l.position.sqrMagnitude < 1f ? "  (0, 0)" : "");
@@ -239,9 +239,13 @@ public static class BarangayLayoutMapExport
             (LandmarkCategory.Hospital, "Hospital, health centre, pharmacy"),
             (LandmarkCategory.FireStation, "Fire station"),
             (LandmarkCategory.Police, "Police"),
+            (LandmarkCategory.BarangayOutpost, "Barangay outpost"),
+            (LandmarkCategory.Grocery, "Grocery, supermarket, convenience store"),
+            (LandmarkCategory.Bank, "Bank"),
+            (LandmarkCategory.Pawnshop, "Pawnshop"),
             (LandmarkCategory.WaterSupply, "Water supply, dam"),
             (LandmarkCategory.EmergencyAccess, "Emergency access"),
-            (LandmarkCategory.Market, "Market, fuel, church")
+            (LandmarkCategory.Market, "Mall, market, fuel, church")
         };
         foreach (var (category, label) in places)
         {
@@ -262,6 +266,19 @@ public static class BarangayLayoutMapExport
             y += 40f;
         }
         y += 6f;
+
+        var unlocated = map.landmarks.Where(l => !l.positionKnown && !l.IsEvacuationSite).OrderBy(l => l.Label).ToList();
+        if (unlocated.Count > 0)
+        {
+            y = Heading(svg, lx, y, "Not yet located (" + unlocated.Count + ")");
+            foreach (var l in unlocated)
+            {
+                Text(svg, lx, y, 14, "bold", "#222", "• " + l.Label);
+                Text(svg, lx + 14f, y + 18f, 12, "normal", "#666", "needs a position in mabuhay-overrides.json");
+                y += 40f;
+            }
+            y += 6f;
+        }
 
         foreach (var line in Wrap("Evacuation sites are candidates taken from public sources (see Docs/Maps/README.md), " +
                                   "not a list from the barangay or Carmona CDRRMO. Confirm them before relying on this map.", 66))

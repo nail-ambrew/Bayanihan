@@ -38,6 +38,21 @@ Then run **Bayanihan > Rebuild Barangay Layout** and **Export Barangay Layout Ma
 - The script retries when Overpass is busy.
 - Rebuilding keeps the asset's `scale`.
 
+## Landmark categories
+
+Each landmark has a category (`LandmarkCategory`), so a level can swap in a prefab per kind of place. Positions come from OpenStreetMap unless a place is listed under `extraSites` in `mabuhay-overrides.json`.
+
+| Category | Examples in Mabuhay | Position |
+|---|---|---|
+| Barangay hall, court, school, hospital, health centre, police, fire station, water supply | Mabuhay Barangay Hall, Mabuhay Elementary School, Carmona Hospital and Medical Center | From OpenStreetMap |
+| **Bank** | BDO, Metrobank | From OpenStreetMap |
+| **Grocery** (supermarkets, groceries, convenience stores) | WalterMart Supermarket, 7-Eleven, Dali, Amipar Enterprises | From OpenStreetMap |
+| Market (malls, marketplaces) | WalterMart (the mall) | From OpenStreetMap |
+| **Pawnshop** | M Lhuillier pawnshop | **Unknown**: not in OpenStreetMap |
+| **Barangay outpost** | The tanod outpost | **Unknown**: not in OpenStreetMap |
+
+The four bold categories are new. A place with an unknown position is listed in the layout but not drawn. The printable map lists it under "Not yet located". To place one, give its `lat` and `lon` in `mabuhay-overrides.json` (ask the barangay hall for the outpost), run the script with `--offline`, then rebuild the layout in Unity.
+
 ## Evacuation sites: not yet confirmed
 
 No official list of Mabuhay's evacuation centres is published online. Every site in the layout is therefore a **candidate**, marked `verified: false`, and each one says where the claim comes from:

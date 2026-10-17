@@ -249,6 +249,55 @@ public class BarangayLayoutTests
     }
 
     [Test]
+    public void The_banks_and_the_groceries_are_on_the_map_where_they_really_are()
+    {
+        var layout = Shipped();
+        var banks = layout.Landmarks(LandmarkCategory.Bank).Where(b => b.positionKnown).ToList();
+        Assert.IsTrue(banks.Any(b => b.name == "BDO"), "BDO");
+        Assert.IsTrue(banks.Any(b => b.name == "Metrobank"), "Metrobank");
+        foreach (var b in banks)
+            Assert.IsTrue(b.Business && !b.IsEvacuationSite, b.Label + " is a business, not a shelter");
+
+        var groceries = layout.Landmarks(LandmarkCategory.Grocery).Where(g => g.positionKnown).ToList();
+        Assert.IsTrue(groceries.Any(g => g.name == "WalterMart Supermarket"), "WalterMart Supermarket");
+        Assert.GreaterOrEqual(groceries.Count, 3, "groceries and convenience stores");
+
+        // WalterMart's mall and its supermarket are side by side, and the mall stays a market.
+        var mall = layout.Landmarks(LandmarkCategory.Market).FirstOrDefault(m => m.name == "WalterMart");
+        Assert.IsNotNull(mall, "the WalterMart mall");
+        var supermarket = groceries.First(g => g.name == "WalterMart Supermarket");
+        Assert.That(Vector2.Distance(mall.position, supermarket.position), Is.LessThan(120f));
+    }
+
+    [Test]
+    public void The_pawnshop_and_the_barangay_outpost_are_listed_though_nobody_knows_where_they_are()
+    {
+        var layout = Shipped();
+        var pawn = layout.Landmarks(LandmarkCategory.Pawnshop).SingleOrDefault();
+        var outpost = layout.Landmarks(LandmarkCategory.BarangayOutpost).SingleOrDefault();
+        Assert.IsNotNull(pawn, "the M Lhuillier pawnshop");
+        Assert.IsNotNull(outpost, "the barangay outpost");
+        StringAssert.Contains("Lhuillier", pawn.name);
+        foreach (var l in new[] { pawn, outpost })
+        {
+            Assert.IsFalse(l.positionKnown, l.Label + " has no position in OpenStreetMap, and none was made up");
+            Assert.IsFalse(l.IsEvacuationSite, l.Label + " is not an evacuation site");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(l.note), l.Label + " should say how to find it");
+        }
+        Assert.IsTrue(outpost.Essential, "the outpost is part of the response");
+        Assert.IsFalse(pawn.Essential);
+    }
+
+    [Test]
+    public void Every_category_has_a_colour_of_its_own_among_the_ones_a_level_places()
+    {
+        var colours = new[] { LandmarkCategory.Bank, LandmarkCategory.Grocery, LandmarkCategory.Pawnshop, LandmarkCategory.BarangayOutpost,
+                              LandmarkCategory.Police, LandmarkCategory.Market }
+            .Select(BarangayLayoutView.LandmarkColour).ToList();
+        Assert.AreEqual(colours.Count, colours.Distinct().Count(), "two of these look the same on the map");
+    }
+
+    [Test]
     public void The_map_credits_OpenStreetMap()
     {
         var layout = Shipped();

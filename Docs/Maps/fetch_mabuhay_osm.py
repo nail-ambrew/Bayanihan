@@ -68,8 +68,9 @@ AREA_KIND = {
 # Kept even when they are outside the barangay: the places a flood response in Mabuhay would lean on.
 ESSENTIAL_OUTSIDE = {
     "barangay_hall", "city_hall", "evacuation_centre", "school", "sports_hall", "hospital", "health_centre",
-    "fire_station", "police", "dam", "assembly_point",
+    "fire_station", "police", "dam", "assembly_point", "barangay_outpost",
 }
+# Also kept outside Mabuhay when they have an override entry, so named businesses can be added by hand.
 
 LAYER_ORDER = {"boundary": 0, "area": 1, "waterway": 2, "road": 3, "landmark": 4}
 
@@ -100,12 +101,13 @@ area({3600000000 + BOUNDARY_RELATION})->.mab;
   way["highway"~"^(motorway|trunk|primary|secondary|tertiary)(_link)?$"]{bb};
   way["waterway"~"^(river|canal|dam)$"]{bb};
   way["natural"="water"]{bb};
-  nwr["amenity"~"^(townhall|school|college|kindergarten|hospital|clinic|doctors|fire_station|police|community_centre|place_of_worship|pharmacy|fuel|marketplace|water_tank)$"]{bb};
+  nwr["amenity"~"^(townhall|school|college|kindergarten|hospital|clinic|doctors|fire_station|police|community_centre|place_of_worship|pharmacy|fuel|marketplace|water_tank|bank)$"]{bb};
+  nwr["name"~"outpost|tanod",i]{bb};
   nwr["healthcare"]{bb};
   nwr["office"="government"]{bb};
   nwr["leisure"~"^(pitch|sports_centre|sports_hall)$"]{bb};
   nwr["building"~"^(church|chapel|school|hospital|civic|government|gymnasium)$"]["name"]{bb};
-  nwr["shop"~"^(mall|supermarket)$"]{bb};
+  nwr["shop"~"^(mall|supermarket|convenience|grocery|pawnbroker)$"]{bb};
   nwr["man_made"~"^(water_tower|storage_tank|water_works|reservoir_covered)$"]{bb};
   nwr["emergency"~"^(water_tank|assembly_point)$"]{bb};
   node["emergency"="yes"]["barrier"]{bb};
@@ -284,6 +286,14 @@ def is_closed(points):
 def category_of(t):
     a = t.get("amenity")
     name = t.get("name", "").lower()
+    if "outpost" in name or "tanod" in name:
+        return "barangay_outpost"
+    if a == "bank":
+        return "bank"
+    if t.get("shop") == "pawnbroker":
+        return "pawnshop"
+    if t.get("shop") in ("supermarket", "convenience", "grocery"):
+        return "grocery"
     if a == "townhall":
         return "city_hall" if ("city hall" in name or "municipal" in name) else "barangay_hall"
     if a in ("school", "college", "kindergarten", "university") or t.get("building") == "school":
@@ -304,7 +314,7 @@ def category_of(t):
         return "church"
     if a == "fuel":
         return "fuel"
-    if a == "marketplace" or t.get("shop") in ("mall", "supermarket"):
+    if a == "marketplace" or t.get("shop") == "mall":
         return "market"
     if t.get("office") == "government" or t.get("building") in ("civic", "government"):
         return "government"
@@ -497,7 +507,8 @@ def build(raw, overrides):
                 "properties": {"layer": "area", "id": eid, "name": name,
                                "kind": "water" if is_water else AREA_KIND[t["landuse"]]},
             })
-            continue
+            if category_of(t) is None:      # a bank or a mall can be a commercial area and a landmark at once
+                continue
 
         # Landmarks.
         override = overrides.get("landmarks", {}).get(eid, {})
@@ -569,7 +580,7 @@ def build(raw, overrides):
             "properties": {
                 "layer": "landmark", "id": site["id"], "name": site.get("name", ""),
                 "category": site.get("category", "evacuation_centre"), "tag": "",
-                "evacuation": site.get("evacuation", "candidate"),
+                "evacuation": site.get("evacuation", "none"),
                 "verified": bool(site.get("verified", False)),
                 "source": site.get("source", ""), "note": site.get("note", ""),
             },

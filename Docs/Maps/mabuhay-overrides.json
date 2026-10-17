@@ -62,6 +62,26 @@
       "lon": null,
       "source": "DPWH news release 19249 (2020): an evacuation centre DPWH built in Barangay Lantic, later enlarged by the city into a 3,000 m² multi-purpose building with a basketball court, and used as a quarantine facility in 2020.",
       "note": "Not in OpenStreetMap, so its position is unknown. Ask Carmona CDRRMO where it is, then add lat and lon here."
+    },
+    {
+      "id": "x-mlhuillier-pawnshop",
+      "name": "M Lhuillier pawnshop",
+      "category": "pawnshop",
+      "evacuation": "none",
+      "lat": null,
+      "lon": null,
+      "source": "Requested for the level by the team.",
+      "note": "Not in OpenStreetMap inside Mabuhay, so its position is unknown. Add lat and lon here once the branch is located, or place it by hand in the level."
+    },
+    {
+      "id": "x-barangay-outpost",
+      "name": "Barangay outpost",
+      "category": "barangay_outpost",
+      "evacuation": "none",
+      "lat": null,
+      "lon": null,
+      "source": "Requested for the level by the team.",
+      "note": "Not in OpenStreetMap, so its position is unknown. Ask the barangay hall where the outpost is. Until then it can be placed beside the hall in the level."
     }
   ]
 }
