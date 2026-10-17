@@ -4,6 +4,11 @@
     "references": [
         "Unity.Cinemachine",
         "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.Services.Authentication",
+        "Unity.Services.Core",
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Vivox",
         "UnityEngine.UI"
     ],
     "includePlatforms": [],
