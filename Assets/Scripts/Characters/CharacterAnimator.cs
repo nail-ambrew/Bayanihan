@@ -43,6 +43,12 @@ public class CharacterAnimator : MonoBehaviour
     public float SpeedScale { get; set; } = 1f;
 
     /// <summary>
+    /// Hides the head (the Head bone is shrunk to nothing) so a first-person camera set at the face does not look out
+    /// through the person's own helmet. Only the head moves: the body, arms and the rest of the pose are untouched.
+    /// </summary>
+    public bool HeadHidden { get; private set; }
+
+    /// <summary>
     /// Height above this object's origin where the water surface belongs for the current pose, eased so that it
     /// follows a cross-fade. Whoever floats this character lowers it by this much.
     /// </summary>
@@ -54,6 +60,7 @@ public class CharacterAnimator : MonoBehaviour
     Camera cam;
 
     Transform[] bones;
+    Vector3 headScale = Vector3.one;
     Vector3[] fadeFromPosition;
     Quaternion[] fadeFromRotation;
     float fadeLeft, fadeLength;
@@ -78,6 +85,8 @@ public class CharacterAnimator : MonoBehaviour
                 if (t != Character && t.GetComponent<SkinnedMeshRenderer>() == null) list.Add(t);
         }
         bones = list.ToArray();
+        var head = Bone("Head");
+        if (head != null) headScale = head.localScale;
         fadeFromPosition = new Vector3[bones.Length];
         fadeFromRotation = new Quaternion[bones.Length];
     }
@@ -120,6 +129,21 @@ public class CharacterAnimator : MonoBehaviour
         Sample();
         ApplyFade(0f);
         CharacterPoses.Apply(this);
+        ApplyHeadVisibility();
+    }
+
+    /// <summary>Hides or shows the head now. See HeadHidden.</summary>
+    public void SetHeadHidden(bool hidden)
+    {
+        HeadHidden = hidden;
+        ApplyHeadVisibility();
+    }
+
+    void ApplyHeadVisibility()
+    {
+        var head = Bone("Head");
+        if (head == null) return;
+        head.localScale = HeadHidden ? Vector3.zero : headScale;
     }
 
     public Transform Bone(string suffix)
@@ -158,6 +182,7 @@ public class CharacterAnimator : MonoBehaviour
         Sample();
         ApplyFade(Time.deltaTime);
         CharacterPoses.Apply(this);     // only ever straight after a sample, so overlays never pile up
+        ApplyHeadVisibility();
     }
 
     void Sample()

@@ -25,6 +25,8 @@ public class PlayerRescuer : MonoBehaviour
     [Header("Character")]
     [Tooltip("Which rescuer the player is. C21-C24 are the Rescuer characters in the model.")]
     public string playerCharacterId = "C24";
+    [Tooltip("The body the swimmer wears, put on the character above. Empty = the water rescuer in Resources/Characters.")]
+    public CharacterSkin skin;
 
     [Header("Swimming")]
     [Tooltip("Metres per second through the water. A strong swimmer in rescue gear manages 1 to 1.5; this is " +
@@ -67,6 +69,8 @@ public class PlayerRescuer : MonoBehaviour
     public float eyeHeight = 1.1f;
     [Tooltip("Third person only: how far behind the swimmer the camera sits.")]
     public float cameraDistance = 4.5f;
+    [Tooltip("First person only: where the eye sits, from the head bone - x = up, y = forward along the way you look (metres).")]
+    public Vector2 firstPersonEye = new Vector2(0.22f, 0.22f);
     public float minCameraDistance = 2f;
     public float maxCameraDistance = 10f;
     [Tooltip("Degrees per pixel of mouse movement.")]
@@ -175,6 +179,12 @@ public class PlayerRescuer : MonoBehaviour
             Debug.LogWarning("PlayerRescuer: the character failed to spawn - you will be swimming invisibly. " +
                              "Run Bayanihan > Rebuild Character Library.", this);
         }
+        else
+        {
+            var body = skin != null ? skin : CharacterSkin.Load();
+            if (body != null && !body.ApplyTo(anim))
+                Debug.LogWarning("PlayerRescuer: the water rescuer's body would not go on " + playerCharacterId + ".", this);
+        }
 
         // Swimming through the hull beats shoving the boat around every time the player brushes against it.
         if (boat != null && boat.Hull != null) Physics.IgnoreCollision(body, boat.Hull, true);
@@ -233,6 +243,7 @@ public class PlayerRescuer : MonoBehaviour
         // No Position/Rotation Control components: the camera simply rides this transform.
         pov = camGo.AddComponent<CinemachineCamera>();
         pov.Lens.FieldOfView = fieldOfView;
+        pov.Lens.NearClipPlane = 0.05f;             // close enough to the face that a shoulder or an arm is not clipped away
         pov.Priority = povPriorityActive;
 
         PlaceCamera();
@@ -240,7 +251,7 @@ public class PlayerRescuer : MonoBehaviour
 
     Vector3 CameraLocalOffset() =>
         povMode == PovMode.FirstPerson
-            ? new Vector3(0f, 0f, 0.15f)
+            ? Vector3.zero                          // the eye point already carries the forward offset (PlaceCamera)
             : new Vector3(0f, 0f, -Mathf.Clamp(cameraDistance, minCameraDistance, maxCameraDistance));
 
     void OnDestroy()
@@ -331,12 +342,19 @@ public class PlayerRescuer : MonoBehaviour
         Vector3 anchor = IsMounted && boat != null ? boat.transform.position : transform.position;
         Vector3 eye = anchor + Vector3.up * eyeHeight;
 
-        // First person: look out from the character's own head, which is barely above the water. A swimmer sees
-        // very little - which is exactly why the boat is the better place to search from.
-        if (!IsMounted && povMode == PovMode.FirstPerson && anim != null)
+        // First person, in the water: the eye is at the swimmer's own face, so the head is hidden - otherwise the
+        // helmet fills the view. A swimmer sees very little, which is exactly why the boat is the better place to
+        // search from. At the helm the head is shown again, as the boat's chase camera sees it.
+        bool firstPerson = povMode == PovMode.FirstPerson && !IsMounted && anim != null;
+        if (anim != null) anim.SetHeadHidden(firstPerson);
+        if (firstPerson)
         {
             var head = anim.Bone("Head");
-            if (head != null) eye = head.position + Vector3.up * 0.12f;
+            if (head != null)
+            {
+                Vector3 lookingAlong = Quaternion.Euler(0f, camYaw, 0f) * Vector3.forward;
+                eye = head.position + Vector3.up * firstPersonEye.x + lookingAlong * firstPersonEye.y;
+            }
         }
         camRig.position = eye;
         camRig.rotation = Quaternion.Euler(camPitch, camYaw, 0f);

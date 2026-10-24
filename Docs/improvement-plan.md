@@ -140,7 +140,7 @@ Decisions made without asking (all are Inspector or asset fields, change freely)
 - A swimmer set to be stopped by a jam was tried and dropped (the solver does not reliably push a velocity-driven swimmer out of a kinematic block); the swimmer's colliders ignore the jam, the boat's do not.
 - Scenes store only settings (`DebrisField`, `DebrisBarrier`, `LiveWireZone`), not pieces or materials, so the 22 MB scene stays small.
 
-Tests: EditMode 71 (new: `RescueRulesTests` 11, `ScoreSheetTests` 14, `AfterActionReportTests` 22, `MissionDefinitionTests` 12; earlier: `HudMarkerTests` 5, `LoadoutTests` 7); PlayMode 101 (new: `ResidentTests` 11, `ThrowRescueTests` 10, `SwimRescueTests` 11, `HazardTests` 19, `RegistrationTests` 9, `MissionLevelTests` 11, `InputLockTests` 3; changed: `MissionFlowTests` now plays all ten residents in three trips). Tests that stage their own world call `GameplayTestHelpers.ClearTheStage()` first, which removes the mission's residents and hazards from the loaded scene.
+Tests: EditMode 192 and PlayMode 147 as of 2026-10-24 (the rescuer view and skin tests are the latest additions). Earlier: EditMode 71 (new: `RescueRulesTests` 11, `ScoreSheetTests` 14, `AfterActionReportTests` 22, `MissionDefinitionTests` 12; earlier: `HudMarkerTests` 5, `LoadoutTests` 7); PlayMode 101 (new: `ResidentTests` 11, `ThrowRescueTests` 10, `SwimRescueTests` 11, `HazardTests` 19, `RegistrationTests` 9, `MissionLevelTests` 11, `InputLockTests` 3; changed: `MissionFlowTests` now plays all ten residents in three trips). Tests that stage their own world call `GameplayTestHelpers.ClearTheStage()` first, which removes the mission's residents and hazards from the loaded scene.
 
 ## M4 original scope (all done)
 
@@ -155,6 +155,15 @@ Tests: EditMode 71 (new: `RescueRulesTests` 11, `ScoreSheetTests` 14, `AfterActi
 - Rain streaks near the camera are too thick (a streak a few centimetres from the lens shows up as a thick white bar).
 - A rushed pick-up of an injured survivor is not counted in the report.
 - Hygiene: duplicate `filipino_characters_30 1.glb`; stray `Assets/Gameplay.unity`; unused `New Actions.inputactions`; font in the Scripts folder; `AddCollidersToChildren` left on five scene objects; `.git` and `*.slnx` not in `ignore.conf`; "Botika" means drugstore.
+
+## Water rescuer body and first-person view (2026-10-24)
+
+- The player wears `Assets/3D Models/water_rescue_responder.glb` on the library character C24. The mesh is built once by Bayanihan > Rebuild Water Rescuer Skin (`Assets/Scripts/Editor/RescuerSkinBuilder.cs`) into `Assets/Resources/Characters/WaterRescueResponder.asset` (`CharacterSkin`). C24's bones are unchanged, so every clip, overlay and the waterline work as before. The model is scaled to C24's 1.74 m; the arms and sleeves are swung from the model's A-pose into C24's T-pose about each shoulder, then each vertex is weighted to the nearest bone segments. Run the menu again after changing the model.
+- The skin goes on at runtime in `PlayerRescuer.Start` (`skin` field, or the asset in Resources when it is empty), so neither gameplay scene needed editing.
+- First person: the head is hidden (`CharacterAnimator.SetHeadHidden`: the Head bone is shrunk to zero) while swimming, and shown again at the helm. The eye is now 0.22 m above the head bone and 0.22 m forward along the view (`PlayerRescuer.firstPersonEye`). Before it was 0.12 m above the head bone, which is inside the helmet. The near clip is 0.05 m.
+- Looking steeply down, the life vest and shoulders still show at the bottom edge of the view, and the hands sit there too. The middle of the view is clear from pitch 0 to 60.
+- Tests: EditMode `RescuerSkinTests` (5), PlayMode `RescuerViewTests` (6, including a control that shows the old eye point did block the view). The check looks at the middle of the screen only, not the whole frustum as first planned, because the hands must reach the bottom edge.
+- Not done: the chest and collar are still weighted to the C24 torso bones, so the head pivots about 18 cm below the model's own head centre. It is only visible in large head turns.
 
 ## Barangay Mabuhay map (new scene)
 
