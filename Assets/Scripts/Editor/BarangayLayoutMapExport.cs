@@ -85,6 +85,13 @@ public static class BarangayLayoutMapExport
                .Append("\" stroke-width=\"1\"/>\n");
         }
 
+        if (map.buildings.Count > 0)
+        {
+            var outlines = new StringBuilder();
+            foreach (var b in map.buildings) outlines.Append(Path(b.outline, true)).Append(' ');
+            svg.Append("<path d=\"").Append(outlines).Append("\" fill=\"#d4cdbd\" stroke=\"#b3ab98\" stroke-width=\"0.4\"/>\n");
+        }
+
         Rect focus = map.focusArea;
         if (focus.width > 0f)
             svg.Append("<rect x=\"").Append(X(new Vector2(focus.xMin, 0f))).Append("\" y=\"").Append(Y(new Vector2(0f, focus.yMax)))
@@ -222,7 +229,9 @@ public static class BarangayLayoutMapExport
             Text(svg, lx + 56f, y + 5f, 14, "normal", "#222", AreaName(kind));
             y += 24f;
         }
-        y += 10f;
+        svg.Append("<rect x=\"").Append(F(lx + 8f)).Append("\" y=\"").Append(F(y - 8f)).Append("\" width=\"28\" height=\"16\" fill=\"#d4cdbd\" stroke=\"#b3ab98\"/>\n");
+        Text(svg, lx + 56f, y + 5f, 14, "normal", "#222", "Building footprint (" + map.buildings.Count.ToString("N0", CultureInfo.InvariantCulture) + ")");
+        y += 34f;
 
         y = Heading(svg, lx, y, "Places");
         svg.Append("<circle cx=\"").Append(F(lx + 22f)).Append("\" cy=\"").Append(F(y)).Append("\" r=\"14\" fill=\"none\" stroke=\"#f07d00\" stroke-width=\"3.5\" stroke-dasharray=\"6 3\"/>\n");

@@ -116,6 +116,41 @@ public class MapArea
     public List<Vector2> outline = new List<Vector2>();
 }
 
+/// <summary>What a building is, as OpenStreetMap tags it. It decides how a placeholder map draws it: a house, a block, a canopy.</summary>
+public enum BuildingKind
+{
+    /// <summary>A home: nearly all of the barangay.</summary>
+    House,
+    Residential,
+    /// <summary>Tagged only as "a building": sheds, garages, anything.</summary>
+    Generic,
+    /// <summary>A roof on posts: a shelter or a canopy with no walls.</summary>
+    Roof,
+    Commercial,
+    Retail,
+    Industrial,
+    Warehouse,
+    Civic,
+    School,
+    Hospital,
+    Religious,
+    Other
+}
+
+/// <summary>One building's footprint. The houses, shops and sheds of the barangay: the landmarks are separate.</summary>
+[Serializable]
+public class MapBuilding
+{
+    [Tooltip("OpenStreetMap id (w = way, r = relation).")]
+    public string osmId;
+    public string name;
+    public BuildingKind kind;
+    [Tooltip("Storeys, if OpenStreetMap says. Almost never: 0 means unknown.")]
+    public int levels;
+    [Tooltip("The footprint, counter-clockwise, in real metres east (x) and north (y) of the layout's origin. The last point joins back to the first.")]
+    public List<Vector2> outline = new List<Vector2>();
+}
+
 /// <summary>
 /// One place on the map that matters when the water comes: where people can shelter, who can help, what can fail.
 /// </summary>

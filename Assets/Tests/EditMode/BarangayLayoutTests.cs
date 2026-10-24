@@ -297,6 +297,53 @@ public class BarangayLayoutTests
         Assert.AreEqual(colours.Count, colours.Distinct().Count(), "two of these look the same on the map");
     }
 
+    // ------------------------------------------------------------------ the buildings
+
+    [Test]
+    public void Every_house_and_shed_of_the_barangay_is_on_the_map()
+    {
+        var layout = Shipped();
+        Assert.Greater(layout.buildings.Count, 2300, "OpenStreetMap has more than 2,300 buildings in Mabuhay alone");
+        Assert.Greater(layout.buildings.Count(b => b.kind == BuildingKind.House), 2000, "nearly all of them are houses");
+        Assert.IsTrue(layout.buildings.Any(b => b.kind == BuildingKind.Industrial), "the industrial parks in the west");
+    }
+
+    [Test]
+    public void Buildings_have_their_own_ids_and_are_not_also_landmarks()
+    {
+        var layout = Shipped();
+        var ids = layout.buildings.Select(b => b.osmId).ToList();
+        Assert.AreEqual(ids.Count, ids.Distinct().Count(), "a building is listed twice");
+        var landmarkIds = new HashSet<string>(layout.landmarks.Select(l => l.id));
+        foreach (var b in layout.buildings)
+            Assert.IsFalse(landmarkIds.Contains(b.osmId), b.osmId + " is both a building and a landmark");
+    }
+
+    [Test]
+    public void Building_outlines_run_counter_clockwise_and_are_bigger_than_a_cupboard()
+    {
+        foreach (var b in Shipped().buildings)
+        {
+            Assert.GreaterOrEqual(b.outline.Count, 3, b.osmId + " has no outline");
+            float area = MapGeometry.SignedArea(b.outline);
+            Assert.Greater(area, 0f, b.osmId + " runs clockwise");
+            Assert.Greater(area, 3.9f, b.osmId + " is smaller than 4 m2");
+        }
+    }
+
+    [Test]
+    public void The_focus_area_holds_about_a_thousand_buildings_and_sits_inside_the_detail_area()
+    {
+        var layout = Shipped();
+        Rect focus = layout.focusArea, detail = layout.detailArea;
+        Assert.Greater(detail.width, focus.width, "the detail area is the focus area and a margin");
+        Assert.IsTrue(detail.xMin <= focus.xMin && detail.yMin <= focus.yMin && detail.xMax >= focus.xMax && detail.yMax >= focus.yMax,
+                      "the focus area sticks out of the detail area, so a mock of it would have gaps");
+        int inFocus = layout.BuildingsIn(focus).Count();
+        Assert.That(inFocus, Is.InRange(700, 1400), "buildings in the focus area");
+        Assert.AreEqual(inFocus, layout.BuildingsIn(detail).Count(b => focus.Contains(MapGeometry.Centroid(b.outline))));
+    }
+
     [Test]
     public void The_map_credits_OpenStreetMap()
     {

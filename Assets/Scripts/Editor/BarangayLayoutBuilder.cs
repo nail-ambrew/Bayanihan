@@ -101,7 +101,7 @@ public static class BarangayLayoutBuilder
                Mathf.RoundToInt(b.height) + " m; " + Mathf.RoundToInt(b.width * map.scale) + " x " +
                Mathf.RoundToInt(b.height * map.scale) + " m in the game at scale " + map.scale + "), " +
                map.roads.Count + " roads, " + map.waterways.Count + " waterways, " + map.areas.Count + " areas, " +
-               map.landmarks.Count + " landmarks (" + map.landmarks.Count(l => l.insideBarangay) + " inside the barangay), " +
+               map.buildings.Count + " buildings, " + map.landmarks.Count + " landmarks (" + map.landmarks.Count(l => l.insideBarangay) + " inside the barangay), " +
                sites.Count + " evacuation sites (" + sites.Count(s => !s.verified) + " unverified, " +
                sites.Count(s => !s.positionKnown) + " with no position).";
     }
@@ -131,6 +131,7 @@ public static class BarangayLayoutBuilder
         map.roads = new List<MapRoad>();
         map.waterways = new List<MapWaterway>();
         map.areas = new List<MapArea>();
+        map.buildings = new List<MapBuilding>();
         map.landmarks = new List<MapLandmark>();
 
         foreach (var item in (List<object>)root["features"])
@@ -178,6 +179,23 @@ public static class BarangayLayoutBuilder
                     });
                     break;
 
+                case "building":
+                    var outline = Rings(map, geometry).FirstOrDefault();
+                    if (outline == null || outline.Count < 3)
+                    {
+                        warnings.Add("building " + id + " has no outline and was left out.");
+                        break;
+                    }
+                    map.buildings.Add(new MapBuilding
+                    {
+                        osmId = id,
+                        name = name,
+                        kind = Parse(Str(props, "kind"), BuildingKind.Other, id, warnings),
+                        levels = (int)Num(props, "levels"),
+                        outline = outline
+                    });
+                    break;
+
                 case "landmark":
                     var landmark = new MapLandmark
                     {
@@ -212,7 +230,24 @@ public static class BarangayLayoutBuilder
 
         foreach (var l in map.landmarks) l.insideBarangay = l.positionKnown && map.Contains(l.position);
         map.focusArea = Focus(map, warnings);
+        map.detailArea = Detail(meta, map.focusArea, warnings);
         map.revision++;
+    }
+
+    /// <summary>The detail area the fetch script wrote: roads, streams and buildings are complete inside it.</summary>
+    static Rect Detail(Dictionary<string, object> meta, Rect focus, List<string> warnings)
+    {
+        var d = Get(meta, "detailArea") as Dictionary<string, object>;
+        if (d == null)
+        {
+            warnings.Add("the GeoJSON has no detailArea, so the detail area is the focus area. Run Docs/Maps/fetch_mabuhay_osm.py again.");
+            return focus;
+        }
+        Rect detail = Rect.MinMaxRect((float)Num(d, "xMin"), (float)Num(d, "yMin"), (float)Num(d, "xMax"), (float)Num(d, "yMax"));
+        if (!(detail.Contains(focus.min) && detail.Contains(focus.max)))
+            warnings.Add("the focus area sticks out of the detail area, so a mock of the focus area would have gaps at its edge. " +
+                         "Widen DETAIL_M in Docs/Maps/fetch_mabuhay_osm.py.");
+        return detail;
     }
 
     static Rect Focus(BarangayLayout map, List<string> warnings)

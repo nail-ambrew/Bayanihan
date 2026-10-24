@@ -1,0 +1,729 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6019ed86c3ed04390a5cc148a0164289, type: 3}
+  m_Name: PlaceholderLibrary
+  m_EditorClassIdentifier: Bayanihan::PlaceholderLibrary
+  houses:
+  - name: House_01_Tower
+    prefab: {fileID: 1448545568158408898, guid: 238c621eb0f6742f2acd6ec5f3511eec, type: 3}
+    size: {x: 7.0692453, y: 11.8, z: 7.2597857}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_01_tower
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 4
+    storeys: 4
+  - name: House_02_ThreeStorey
+    prefab: {fileID: 2056899972898436053, guid: 422ba51bf22ff47cf8c6413368b2b3e6, type: 3}
+    size: {x: 4.4264526, y: 8.428854, z: 6.7757816}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_02_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  - name: House_03_Shop
+    prefab: {fileID: 2771180175421823147, guid: 80934176d3e914e689702fc3fc7ae7b7, type: 3}
+    size: {x: 4.138324, y: 3.4348502, z: 4.963147}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_03_shop
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 0
+    storeys: 1
+  - name: House_04_TwoStorey
+    prefab: {fileID: 7019845019635018784, guid: b782b7cd7903d44d7bdf910fc8c01930, type: 3}
+    size: {x: 3.9550986, y: 5.8201838, z: 5.9523745}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_04_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_05_TwoStorey
+    prefab: {fileID: 9015110702219689995, guid: c5f1cbb43e04546dfa505bc747f7c7b3, type: 3}
+    size: {x: 3.955463, y: 5.7812457, z: 5.991679}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_05_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_06_Corner
+    prefab: {fileID: 2041094482557708368, guid: b735e987af19340edb60a1c0a33159fa, type: 3}
+    size: {x: 4.3652153, y: 8.376359, z: 5.680739}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_06_cornerturn
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 3
+    storeys: 3
+  - name: House_07_Tower
+    prefab: {fileID: 6259654105227147350, guid: 73d9e9e9a6052429facf0e47e74084e4, type: 3}
+    size: {x: 6.713728, y: 11.8, z: 7.1796856}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_07_tower
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 4
+    storeys: 4
+  - name: House_08_TwoStorey
+    prefab: {fileID: 7253630487140314539, guid: d42b02cfc8418400c923f7aa2aec0859, type: 3}
+    size: {x: 3.9810674, y: 5.761444, z: 5.6962514}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_08_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_09_ThreeStorey
+    prefab: {fileID: 3155204607747887338, guid: dc83d59918b5442a0a1d78fd62966398, type: 3}
+    size: {x: 4.634883, y: 8.364204, z: 6.2342315}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_09_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  - name: House_10_Shop
+    prefab: {fileID: 2436635389107468301, guid: f2cffaf632f9c481d9b41bb903a27c44, type: 3}
+    size: {x: 4.071566, y: 3.3511114, z: 5.15454}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_10_shop
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 0
+    storeys: 1
+  - name: House_11_ThreeStorey
+    prefab: {fileID: 3781455899529237826, guid: 6399f41a12dff42d1b7ccdacc1a8042b, type: 3}
+    size: {x: 4.432477, y: 8.21486, z: 6.3550596}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_11_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  - name: House_12_TwoStorey
+    prefab: {fileID: 8818203423684718822, guid: 0d6d659a84f784822bbdbc5fa81e4b49, type: 3}
+    size: {x: 4.0994596, y: 5.759143, z: 6.1316824}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_12_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_13_Corner
+    prefab: {fileID: 887936571161807399, guid: 40e2cba3ffb8b4a21926db5e31e0770e, type: 3}
+    size: {x: 4.4300337, y: 8.399299, z: 6.071538}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_13_cornerturn
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 3
+    storeys: 3
+  - name: House_14_TwoStorey
+    prefab: {fileID: 6306133402908402987, guid: 5c5e8845d3e3840b588c823b8661a99a, type: 3}
+    size: {x: 3.8535979, y: 5.6595016, z: 5.597476}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_14_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_15_ThreeStorey
+    prefab: {fileID: 8241435194609589453, guid: eebcb799c2b4240c09cdc2ea3195be01, type: 3}
+    size: {x: 4.640937, y: 8.350101, z: 6.3328247}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_15_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  - name: House_16_ThreeStorey
+    prefab: {fileID: 4503566266991612502, guid: 66532c4e835334b4fb2561e9073be19b, type: 3}
+    size: {x: 4.4028726, y: 8.421088, z: 6.7689047}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_16_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  - name: House_17_Shop
+    prefab: {fileID: 757724224999364734, guid: 0c99120601890484a893336f3f3e3155, type: 3}
+    size: {x: 4.2370443, y: 3.4981298, z: 5.180376}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_17_shop
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 0
+    storeys: 1
+  - name: House_18_TwoStorey
+    prefab: {fileID: 3600013404551776857, guid: 5689c7e722b8346b9ad6663a8fbae524, type: 3}
+    size: {x: 3.965107, y: 5.742032, z: 5.695178}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_18_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_19_Corner
+    prefab: {fileID: 6463074657488089004, guid: 283d792fb77bb4406aeba14f22349ea3, type: 3}
+    size: {x: 4.237475, y: 8.383788, z: 5.924428}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_19_cornerturn
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 3
+    storeys: 3
+  - name: House_20_ThreeStorey
+    prefab: {fileID: 3426754455865092817, guid: 0c9e6954e2754401daf8484557de7ce9, type: 3}
+    size: {x: 4.625758, y: 8.342367, z: 6.554895}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_20_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  - name: House_21_TwoStorey
+    prefab: {fileID: 3639647238064350570, guid: 1a94632c5810c420384767f8a8cf6d31, type: 3}
+    size: {x: 3.7081258, y: 5.526028, z: 5.928008}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_21_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_22_Shop
+    prefab: {fileID: 1806132873992032354, guid: 0e4726a3af2364132ac5122d94713bf6, type: 3}
+    size: {x: 4.0469923, y: 3.4280517, z: 4.8013697}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_22_shop
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 0
+    storeys: 1
+  - name: House_23_TwoStorey
+    prefab: {fileID: 2976562331050361166, guid: eff4917883068424fa5eac9c451380e7, type: 3}
+    size: {x: 3.9561553, y: 5.4936833, z: 6.1538777}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_23_twostory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 1
+    storeys: 2
+  - name: House_24_ThreeStorey
+    prefab: {fileID: 2883021238387663567, guid: c773b2048b6244f0cb0473c23bf90a6e, type: 3}
+    size: {x: 4.8017597, y: 8.293812, z: 6.5011625}
+    sourceModel: {fileID: -2565545353216361600, guid: 8025791508476df4292826cafd9168ea, type: 3}
+    sourcePath: manila_slum_map/houses/house_24_threestory
+    sourceFrontYaw: 180
+    strip: []
+    bodyPattern: _f[0-9]+_(wall|pier_[lr]|lintel)$
+    type: 2
+    storeys: 3
+  landmarks:
+  - category: 0
+    placement: 0
+    model:
+      name: Hall_Barangay67
+      prefab: {fileID: 316354844334565411, guid: 345580aad7b2c434f999165664ac1fdd, type: 3}
+      size: {x: 25.899998, y: 13.41219, z: 15.27}
+      sourceModel: {fileID: -7556782619921938414, guid: 386eb18021549c74bbb112b0a65d5304, type: 3}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip:
+      - ground_plane
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 1
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 12
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 2
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 9
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 3
+    placement: 1
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts:
+    - name: School_A_Linear
+      prefab: {fileID: 3705443944179639355, guid: 2cec5533db2a84503ac0a2fea0049b1a, type: 3}
+      size: {x: 40.900005, y: 15.679999, z: 10.360001}
+      sourceModel: {fileID: -5790057676825847790, guid: eb28135aa9dbbc24490ba6043a227a19, type: 3}
+      sourcePath: buildings/A_linear_block
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    - name: School_B_CornerL
+      prefab: {fileID: 2698659351502549051, guid: 3475563536f3d40478f82216209cf22e, type: 3}
+      size: {x: 30.805, y: 12.52, z: 19.755001}
+      sourceModel: {fileID: -5790057676825847790, guid: eb28135aa9dbbc24490ba6043a227a19, type: 3}
+      sourcePath: buildings/B_corner_L_block
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    - name: School_C_Compact
+      prefab: {fileID: 7992580431490253318, guid: d2d7b71f0746e4410b35019dfe1d7ebd, type: 3}
+      size: {x: 18.6, y: 8.780001, z: 14.855001}
+      sourceModel: {fileID: -5790057676825847790, guid: eb28135aa9dbbc24490ba6043a227a19, type: 3}
+      sourcePath: buildings/C_compact_block
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 8
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 4
+    placement: 4
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 5
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 6
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 7
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 12
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 8
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 9
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 10
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 8
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 11
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 12
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 5
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 13
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 14
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 15
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 3
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 16
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 3
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 17
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 2.5
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 18
+    placement: 0
+    model:
+      name: Market_Palengke
+      prefab: {fileID: 1765481486100709840, guid: a5e19c4cc7a8e46e0981c30c96e75f9f, type: 3}
+      size: {x: 57.75, y: 14.89, z: 53.55}
+      sourceModel: {fileID: 8976155776858523775, guid: e63c20e8b5b72c0498ded96c7d47abbf, type: 3}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 19
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 20
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 21
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 22
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 5
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 23
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 24
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  roadWidths:
+    trunk: 12
+    primary: 10
+    secondary: 9
+    tertiary: 8
+    unclassified: 7
+    residential: 6
+    service: 4
+    track: 3.5
+    footway: 1.5
+  riverWidth: 12
+  canalWidth: 8
+  streamWidth: 4
+  drainWidth: 2
+  ditchWidth: 1.5
+  minStretch: 0.8
+  maxStretch: 1.6
+  rowUnit: 4.5
+  rowSplit: 1.8
+  blockArea: 300
+  shedArea: 15
+  hostReach: 8
+  hostMaxArea: 150

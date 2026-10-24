@@ -11,6 +11,9 @@ using UnityEngine.InputSystem.UI;
 /// "Paghahanda - Pack the Boat": the pre-mission screen where the player picks 4 of the 6 items.
 /// The whole UI is built in code, so the only setup is: new empty scene "Loadout" -> add this to an empty GameObject.
 /// Pressing LAUNCH stores the pack in LoadoutState and loads the Gameplay scene.
+///
+/// There is more than one map to play (see MapChoice): the strip under the cards picks one, the briefing and the dispatch
+/// panel change to that map's mission, and LAUNCH loads its scene. Nothing picked means the Manila map in the Gameplay scene.
 /// </summary>
 public class LoadoutScreen : MonoBehaviour
 {
@@ -65,16 +68,28 @@ public class LoadoutScreen : MonoBehaviour
         public Button button;
     }
 
+    class MapButton
+    {
+        public PlayableMap map;
+        public Image bg;
+        public Outline outline;
+        public Text title, place;
+    }
+
     readonly List<RescueItemId> picked = new List<RescueItemId>();
     readonly List<Card> cards = new List<Card>();
+    readonly List<MapButton> mapButtons = new List<MapButton>();
     readonly Slot[] slots = new Slot[RescueItems.Slots];
     Text counter, launchLabel;
+    Text briefTitleText, briefBodyText, briefMetaText, dispatchText;
+    GameObject dispatchPanel;
     Font uiFont;
 
     // ------------------------------------------------------------------ lifecycle
     void Start()
     {
         uiFont = font != null ? font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        MapChoice.Select(MapChoice.Selected.id);        // the mission in force is the picked map's, whatever was played last
         TakeMissionText();
 
         // Remember the previous pack if the player comes back from a mission
@@ -89,7 +104,7 @@ public class LoadoutScreen : MonoBehaviour
     void TakeMissionText()
     {
         if (!useMissionAsset) return;
-        var mission = MissionDefinition.LoadShipped();
+        var mission = MapChoice.Selected.LoadMission() ?? MissionDefinition.LoadShipped();
         if (mission == null) return;
 
         missionTitle = mission.title;
@@ -139,7 +154,19 @@ public class LoadoutScreen : MonoBehaviour
     void Launch()
     {
         LoadoutState.Set(picked);
-        SceneManager.LoadScene(gameplaySceneName);
+        MapChoice.Select(MapChoice.Selected.id);
+        // The default map is whatever this screen's own field says, as it always was; any other is the scene its map names.
+        string scene = MapChoice.IsDefault ? gameplaySceneName : MapChoice.Selected.sceneName;
+        SceneManager.LoadScene(scene);
+    }
+
+    /// <summary>Picks a map: the mission in force changes with it, and so does everything on this screen that reads the mission.</summary>
+    void PickMap(PlayableMap map)
+    {
+        MapChoice.Select(map.id);
+        TakeMissionText();
+        RefreshMissionText();
+        RefreshMaps();
     }
 
     // ------------------------------------------------------------------ refresh
@@ -178,6 +205,7 @@ public class LoadoutScreen : MonoBehaviour
             }
         }
 
+        RefreshMaps();
         counter.text = $"{picked.Count} / {RescueItems.Slots} slots packed";
         launchLabel.text = picked.Count == 0 ? "ILUNSAD · LAUNCH EMPTY" : "ILUNSAD · LAUNCH  >";
     }
@@ -206,6 +234,7 @@ public class LoadoutScreen : MonoBehaviour
 
         BuildCards(root);
         BuildDispatchPanel(root);
+        BuildMapStrip(root);
         BuildBoatPanel(root);
     }
 
@@ -215,14 +244,64 @@ public class LoadoutScreen : MonoBehaviour
     /// </summary>
     void BuildDispatchPanel(Transform root)
     {
-        if (string.IsNullOrWhiteSpace(missionIntel)) return;
-
         var panel = NewImage("Dispatch", root, PanelDark);
         Place(panel.rectTransform, new Vector2(0, 1), new Vector2(660, -520), new Vector2(580, 300));
         var head = NewLabel("Head", panel.transform, "Dispatch", 26, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
         Place(head.rectTransform, new Vector2(0, 1), new Vector2(18, -12), new Vector2(544, 34));
-        var text = NewLabel("Text", panel.transform, missionIntel, 18, Color.white, TextAnchor.UpperLeft);
-        Place(text.rectTransform, new Vector2(0, 1), new Vector2(18, -52), new Vector2(544, 240));
+        dispatchText = NewLabel("Text", panel.transform, missionIntel, 18, Color.white, TextAnchor.UpperLeft);
+        Place(dispatchText.rectTransform, new Vector2(0, 1), new Vector2(18, -52), new Vector2(544, 240));
+        dispatchPanel = panel.gameObject;
+        dispatchPanel.SetActive(!string.IsNullOrWhiteSpace(missionIntel));      // nothing to say, nothing shown
+    }
+
+    /// <summary>The strip under the cards where the map is picked: one button for each place the mission can be played.</summary>
+    void BuildMapStrip(Transform root)
+    {
+        if (MapChoice.All.Count < 2) return;            // only one map: nothing to choose
+
+        var head = NewLabel("MapHead", root, "Mapa · Where is the flood?", 26, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
+        Place(head.rectTransform, new Vector2(0, 1), new Vector2(60, -846), new Vector2(1180, 34));
+
+        float width = (1180f - 24f * (MapChoice.All.Count - 1)) / MapChoice.All.Count;
+        for (int i = 0; i < MapChoice.All.Count; i++)
+        {
+            var map = MapChoice.All[i];
+            var rt = NewImage("Map_" + map.id, root, PanelDark);
+            Place(rt.rectTransform, new Vector2(0, 1), new Vector2(60 + i * (width + 24f), -888), new Vector2(width, 108));
+            var outline = rt.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.35f, 0.85f, 0.25f);
+            outline.effectDistance = new Vector2(5, -5);
+            outline.enabled = false;
+            AddButton(rt.gameObject, rt, () => PickMap(map));
+
+            var title = NewLabel("Title", rt.transform, map.title, 30, Cream, TextAnchor.UpperLeft, FontStyle.Bold);
+            Place(title.rectTransform, new Vector2(0, 1), new Vector2(20, -16), new Vector2(width - 40, 40));
+            var place = NewLabel("Place", rt.transform, map.place, 20, Light, TextAnchor.UpperLeft);
+            Place(place.rectTransform, new Vector2(0, 1), new Vector2(20, -62), new Vector2(width - 40, 34));
+            mapButtons.Add(new MapButton { map = map, bg = rt, outline = outline, title = title, place = place });
+        }
+    }
+
+    void RefreshMaps()
+    {
+        foreach (var b in mapButtons)
+        {
+            bool on = b.map == MapChoice.Selected;
+            b.outline.enabled = on;
+            b.bg.color = on ? Cream : PanelDark;
+            b.title.color = on ? Ink : Cream;
+            b.place.color = on ? InkSoft : Light;
+        }
+    }
+
+    /// <summary>The briefing and the dispatch panel say what the picked map's mission says.</summary>
+    void RefreshMissionText()
+    {
+        if (briefTitleText != null) briefTitleText.text = missionTitle;
+        if (briefBodyText != null) briefBodyText.text = missionBriefing;
+        if (briefMetaText != null) briefMetaText.text = missionMeta;
+        if (dispatchText != null) dispatchText.text = missionIntel;
+        if (dispatchPanel != null) dispatchPanel.SetActive(!string.IsNullOrWhiteSpace(missionIntel));
     }
 
     void BuildCards(Transform root)
@@ -341,6 +420,9 @@ public class LoadoutScreen : MonoBehaviour
         Place(bb.rectTransform, new Vector2(0, 1), new Vector2(16, -46), new Vector2(460, 144));
         var bm = NewLabel("Meta", brief.transform, missionMeta, 18, Light, TextAnchor.UpperLeft);
         Place(bm.rectTransform, new Vector2(0, 1), new Vector2(16, -194), new Vector2(460, 60));
+        briefTitleText = bt;
+        briefBodyText = bb;
+        briefMetaText = bm;
 
         // buttons
         NewTextButton(p, "SUGGESTED PACK", new Vector2(24, -570), new Vector2(492, 56), SlotEmpty, Suggested, out _);

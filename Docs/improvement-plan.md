@@ -156,6 +156,10 @@ Tests: EditMode 71 (new: `RescueRulesTests` 11, `ScoreSheetTests` 14, `AfterActi
 - A rushed pick-up of an injured survivor is not counted in the report.
 - Hygiene: duplicate `filipino_characters_30 1.glb`; stray `Assets/Gameplay.unity`; unused `New Actions.inputactions`; font in the Scripts folder; `AddCollidersToChildren` left on five scene objects; `.git` and `*.slnx` not in `ignore.conf`; "Botika" means drugstore.
 
+## Barangay Mabuhay map (new scene)
+
+The mission can be played on the real Barangay Mabuhay layout as well as on the Manila map: `Assets/Scenes/Maps/MabuhayGameplay.unity`, picked on the loadout screen (`MapChoice`). Build and rebuild steps, and the keyboard bot, are in `Docs/Maps/README.md` under "Playing on the map". The Gameplay scene and the Manila mission are unchanged. `BoatReach` (runtime) floods the water a boat can reach from the physics engine's colliders; the level tests and the bot both use it.
+
 ## Running tests from the CLI
 
 - EditMode runs synchronously: `unity command run_tests --mode EditMode`.

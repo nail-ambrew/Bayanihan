@@ -40,6 +40,9 @@ public class BarangayLayout : ScriptableObject
     [Range(0.05f, 1f)] public float scale = 0.15f;
     [Tooltip("The built-up centre around the hall, school, hospital and market, in real metres: where a level starts.")]
     public Rect focusArea;
+    [Tooltip("Roads, streams and buildings are complete inside this, even where it spills past the barangay boundary: " +
+             "the focus area plus a margin. Real metres.")]
+    public Rect detailArea;
 
     [Header("Map (real metres east and north of the origin)")]
     [Tooltip("The barangay's boundary. Usually one ring.")]
@@ -47,6 +50,8 @@ public class BarangayLayout : ScriptableObject
     public List<MapRoad> roads = new List<MapRoad>();
     public List<MapWaterway> waterways = new List<MapWaterway>();
     public List<MapArea> areas = new List<MapArea>();
+    [Tooltip("Every building in the barangay, and every one in the detail area. The landmarks are not repeated here.")]
+    public List<MapBuilding> buildings = new List<MapBuilding>();
     public List<MapLandmark> landmarks = new List<MapLandmark>();
 
     [Header("Source")]
@@ -161,6 +166,13 @@ public class BarangayLayout : ScriptableObject
                 }
             return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
+    }
+
+    /// <summary>The buildings whose middle is inside a rectangle of real metres.</summary>
+    public IEnumerable<MapBuilding> BuildingsIn(Rect region)
+    {
+        foreach (var b in buildings)
+            if (b.outline.Count >= 3 && region.Contains(MapGeometry.Centroid(b.outline))) yield return b;
     }
 
     public MapLandmark Find(string id)

@@ -25,6 +25,8 @@ public class BarangayLayoutView : MonoBehaviour
     [Tooltip("The built-up centre, where a level would start.")]
     public bool showFocusArea = true;
     public bool showAreas = true;
+    [Tooltip("Outlines of every house and shed. At a small scale these only clutter.")]
+    public bool showBuildings = true;
     public bool showWaterways = true;
     public bool showRoads = true;
     [Tooltip("Roads below this class are left out. At a small scale, footpaths and service lanes only clutter.")]
@@ -154,6 +156,7 @@ public class BarangayLayoutView : MonoBehaviour
         }
     }
 
+    public static readonly Color BuildingColour = new Color(0.72f, 0.72f, 0.72f, 0.8f);
     public static readonly Color BoundaryColour = new Color(1f, 1f, 1f, 0.95f);
     public static readonly Color FocusColour = new Color(1f, 0.92f, 0.2f, 0.7f);
     public static readonly Color BridgeColour = new Color(0.95f, 0.35f, 0.95f);              // where a flood can cut a road
@@ -228,6 +231,9 @@ public class BarangayLayoutView : MonoBehaviour
 
         if (showAreas)
             foreach (var area in map.areas) Polyline(area.outline, true, AreaColour(area.kind));
+
+        if (showBuildings)
+            foreach (var b in map.buildings) Polyline(b.outline, true, BuildingColour);
 
         if (showWaterways)
             foreach (var w in map.waterways)
