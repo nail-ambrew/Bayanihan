@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Fetches the layout of Barangay Mabuhay, City of Carmona, Cavite from OpenStreetMap and writes
-mabuhay-carmona.geojson next to this script: the boundary, the roads, the waterways, the named areas, and the places
-that matter in a flood (evacuation sites, the barangay hall, schools, health, police, fire, water).
+mabuhay-carmona.geojson next to this script: the boundary, the roads, the waterways, the named areas, the building
+footprints, and the places that matter in a flood (evacuation sites, the barangay hall, schools, health, police, fire,
+water).
 
     python3 -I Docs/Maps/fetch_mabuhay_osm.py             fetch from Overpass, save the raw answer, write the GeoJSON
     python3 -I Docs/Maps/fetch_mabuhay_osm.py --offline   write the GeoJSON again from the saved raw answer
@@ -35,12 +36,36 @@ CITY_RELATION = 2008000                 # City of Carmona: places outside Mabuha
 HALL_ID = "w620109194"                  # Mabuhay Barangay Hall: (0, 0) of the layout
 CONTEXT = (14.290, 121.010, 14.320, 121.065)   # south, west, north, east: Mabuhay, plus the Poblacion to the east
 
+# The detail box: every road, stream and building inside it is kept, even outside Mabuhay, so a mock of the built-up
+# centre is not half empty. It is the layout's focus area plus 60 m. Metres west, south, east, north of the hall.
+DETAIL_ORIGIN = (14.3116367, 121.0499152)       # the hall; close enough to size the box before the data is read
+DETAIL_M = (-210.0, -345.0, 467.0, 530.0)
+
 MINOR_MARGIN = 60.0     # metres past the boundary kept for streets and streams, so they are not cut off flush
 DENSIFY = 10.0          # metres: no segment longer than this before clipping
 GAP_CLOSE = 200.0       # metres: a stretch dropped between two kept ones is kept after all if it is shorter than this,
                         # so a river that weaves along the city line is one line, not twenty scraps
 SIMPLIFY = 1.0          # metres: Douglas-Peucker tolerance for lines once clipped
 FOOTPRINT_SIMPLIFY = 0.5
+BUILDING_MIN_AREA = 4.0     # square metres: smaller outlines are mapping noise, not buildings
+
+BUILDING_KIND = {
+    "house": "house", "detached": "house", "semidetached_house": "house", "terrace": "house", "bungalow": "house",
+    "cabin": "house", "hut": "house", "static_caravan": "house",
+    "residential": "residential", "apartments": "residential", "dormitory": "residential", "hotel": "residential",
+    "yes": "generic", "garage": "generic", "garages": "generic", "service": "generic", "shed": "generic",
+    "roof": "roof", "carport": "roof", "canopy": "roof",
+    "commercial": "commercial", "office": "commercial",
+    "retail": "retail", "supermarket": "retail", "kiosk": "retail",
+    "industrial": "industrial", "factory": "industrial", "manufacture": "industrial",
+    "warehouse": "warehouse", "storage_tank": "warehouse", "barn": "warehouse",
+    "civic": "civic", "public": "civic", "government": "civic", "fire_station": "civic", "gymnasium": "civic",
+    "sports_hall": "civic",
+    "school": "school", "kindergarten": "school", "college": "school", "university": "school",
+    "hospital": "hospital", "clinic": "hospital",
+    "church": "religious", "chapel": "religious", "cathedral": "religious", "mosque": "religious",
+    "temple": "religious", "religious": "religious",
+}
 
 ROAD_CLASS = {
     "motorway": "trunk", "motorway_link": "trunk", "trunk": "trunk", "trunk_link": "trunk",
@@ -72,14 +97,25 @@ ESSENTIAL_OUTSIDE = {
 }
 # Also kept outside Mabuhay when they have an override entry, so named businesses can be added by hand.
 
-LAYER_ORDER = {"boundary": 0, "area": 1, "waterway": 2, "road": 3, "landmark": 4}
+LAYER_ORDER = {"boundary": 0, "area": 1, "waterway": 2, "road": 3, "landmark": 4, "building": 5}
 
 
 # ---------------------------------------------------------------------------------------------- fetching
 
+def detail_box_ll():
+    """The detail box as latitude and longitude: south, west, north, east."""
+    p = Projection(*DETAIL_ORIGIN)
+    west, south, east, north = DETAIL_M
+    s, w = p.to_ll(west, south)
+    n, e = p.to_ll(east, north)
+    return (round(s, 6), round(w, 6), round(n, 6), round(e, 6))
+
+
 def overpass_query(override_ids):
     s, w, n, e = CONTEXT
     bb = f"({s},{w},{n},{e})"
+    ds, dw, dn, de = detail_box_ll()
+    dbb = f"({ds},{dw},{dn},{de})"
     by_type = {"n": "node", "w": "way", "r": "rel"}
     extra = ""
     for prefix, kind in by_type.items():
@@ -98,6 +134,12 @@ area({3600000000 + BOUNDARY_RELATION})->.mab;
   way["natural"="water"](area.mab);
   way["landuse"](area.mab);
   rel["landuse"](area.mab);
+  way["building"](area.mab);
+  rel["building"](area.mab);
+  way["highway"]{dbb};
+  way["waterway"]{dbb};
+  way["building"]{dbb};
+  rel["building"]{dbb};
   way["highway"~"^(motorway|trunk|primary|secondary|tertiary)(_link)?$"]{bb};
   way["waterway"~"^(river|canal|dam)$"]{bb};
   way["natural"="water"]{bb};
@@ -399,6 +441,13 @@ def build(raw, overrides):
     def in_context(p):
         return cx0 <= p[0] <= cx1 and cy0 <= p[1] <= cy1 and inside(p, city_rings)
 
+    ds, dw, dn, de = detail_box_ll()
+    dx0, dy0 = proj.to_m(ds, dw)
+    dx1, dy1 = proj.to_m(dn, de)
+
+    def in_detail(p):
+        return dx0 <= p[0] <= dx1 and dy0 <= p[1] <= dy1
+
     def near_barangay(p):
         if not (near_box[0] <= p[0] <= near_box[2] and near_box[1] <= p[1] <= near_box[3]):
             return False
@@ -414,7 +463,8 @@ def build(raw, overrides):
     })
 
     def clipped_runs(points_m, major):
-        keep_test = (lambda p: near_barangay(p) or in_context(p)) if major else near_barangay
+        keep_test = (lambda p: near_barangay(p) or in_detail(p) or in_context(p)) if major \
+            else (lambda p: near_barangay(p) or in_detail(p))
         dense = densify(points_m, DENSIFY)
         keep = [keep_test(p) for p in dense]
         i = 0
@@ -515,6 +565,8 @@ def build(raw, overrides):
         category = override.get("category") or category_of(t)
         if category is None:
             continue
+        if not override and not t.get("name") and tag_summary(t).startswith("building="):
+            continue        # an unnamed school, hospital or church building is a building, drawn by the building layer
         footprint = None
         if e["type"] == "node":
             pos = proj.to_m(e["lat"], e["lon"])
@@ -562,6 +614,53 @@ def build(raw, overrides):
             "properties": props,
         })
 
+    # Buildings: every footprint in Mabuhay or in the detail box that is not already a landmark.
+    landmark_emitted = {f["properties"]["id"] for f in features if f["properties"]["layer"] == "landmark"}
+    too_small = 0
+    for e in elements.values():
+        t = e.get("tags", {})
+        eid = element_id(e)
+        if e is boundary or e is city or e["type"] == "node" or t.get("building", "no") == "no":
+            continue
+        if eid in landmark_emitted:
+            continue
+        if e["type"] == "way":
+            pts = way_points(e)
+            if not is_closed(pts):
+                continue
+            ll_ring = pts
+        else:
+            outer = relation_outer_rings(e)
+            if not outer:
+                continue
+            ll_ring = max(outer, key=lambda r: abs(signed_area(to_m(r))))
+        ring = to_m(ll_ring[:-1])
+        if len(ring) < 3:
+            continue
+        c = centroid(ring)
+        if not (inside(c, rings_m) or in_detail(c)):
+            continue
+        ring = simplify(ring + ring[:1], FOOTPRINT_SIMPLIFY)[:-1]
+        if len(ring) < 3:
+            continue
+        if abs(signed_area(ring)) < BUILDING_MIN_AREA:
+            too_small += 1
+            continue
+        if signed_area(ring) < 0:
+            ring.reverse()
+        try:
+            levels = int(float(str(t.get("building:levels", "0")).split(";")[0]))
+        except ValueError:
+            levels = 0
+        features.append({
+            "type": "Feature",
+            "geometry": {"type": "Polygon", "coordinates": [to_coords(ring + ring[:1])]},
+            "properties": {"layer": "building", "id": eid, "name": t.get("name", ""),
+                           "kind": BUILDING_KIND.get(t["building"], "other"), "levels": max(levels, 0)},
+        })
+    if too_small:
+        warnings.append(f"{too_small} building outlines under {BUILDING_MIN_AREA:g} m² were left out.")
+
     found = {f["properties"]["id"] for f in features}
     for oid in landmark_ids:
         if oid not in found:
@@ -602,6 +701,8 @@ def build(raw, overrides):
         "osmRelation": BOUNDARY_RELATION,
         "origin": {"id": HALL_ID, "name": "Mabuhay Barangay Hall",
                    "lat": round(proj.lat0, 7), "lon": round(proj.lon0, 7)},
+        "detailArea": {"xMin": round(dx0, 2), "yMin": round(dy0, 2), "xMax": round(dx1, 2), "yMax": round(dy1, 2),
+                       "note": "Metres east and north of the origin. Roads, streams and buildings are complete in here."},
         "snapshot": raw.get("osm3s", {}).get("timestamp_osm_base", ""),
         "attribution": "© OpenStreetMap contributors",
         "licence": "ODbL-1.0 (https://opendatacommons.org/licenses/odbl/)",
