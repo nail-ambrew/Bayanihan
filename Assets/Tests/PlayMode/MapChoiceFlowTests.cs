@@ -9,8 +9,8 @@ using static GameplayTestHelpers;
 
 /// <summary>
 /// Choosing where to play on the real loadout screen: the strip under the cards offers both maps, the briefing and dispatch change
-/// with the pick, LAUNCH loads the picked map's scene with its mission in force, and a pick that was never made leaves the game
-/// exactly as it was - Manila, in the Gameplay scene. The buttons are pressed as a click would press them.
+/// with the pick, LAUNCH loads the picked map's scene with its mission in force, and a pick that was never made plays Barangay
+/// Mabuhay - the real barangay; the Manila sample map is the other choice. The buttons are pressed as a click would press them.
 /// </summary>
 public class MapChoiceFlowTests
 {
@@ -63,39 +63,52 @@ public class MapChoiceFlowTests
     static bool Highlighted(string id) => GameObject.Find("Map_" + id).GetComponent<Outline>().enabled;
 
     [UnityTest]
-    public IEnumerator It_opens_on_the_Manila_map_and_offers_both()
+    public IEnumerator It_opens_on_Barangay_Mabuhay_and_offers_both()
     {
         Assert.AreEqual(2, MapChoice.All.Count);
-        Assert.IsNotNull(MapButton(MapChoice.ManilaId));
         Assert.IsNotNull(MapButton(MapChoice.MabuhayId));
-        Assert.IsTrue(Highlighted(MapChoice.ManilaId), "Manila is picked until something else is");
-        Assert.IsFalse(Highlighted(MapChoice.MabuhayId));
+        Assert.IsNotNull(MapButton(MapChoice.ManilaId));
+        Assert.IsTrue(Highlighted(MapChoice.MabuhayId), "Barangay Mabuhay is picked until something else is");
+        Assert.IsFalse(Highlighted(MapChoice.ManilaId));
         Assert.IsTrue(MapChoice.IsDefault);
-        StringAssert.DoesNotContain("Mabuhay", Briefing("Text"));
+
+        var mission = MapChoice.Find(MapChoice.MabuhayId).LoadMission();
+        Assert.AreSame(mission, MissionDefinition.Current, "the loadout puts the default map's mission in force");
+        StringAssert.Contains("Barangay Mabuhay, Carmona", Briefing("Text"));
+        Assert.AreEqual(LoadoutScreen.Objectives(mission), Briefing("Objectives"), "the objectives are Mabuhay's");
         yield return null;
     }
 
     [UnityTest]
-    public IEnumerator Picking_Mabuhay_puts_its_briefing_and_dispatch_on_the_screen()
+    public IEnumerator Picking_the_Manila_sample_puts_its_briefing_on_the_screen()
     {
-        MapButton(MapChoice.MabuhayId).onClick.Invoke();
+        MapButton(MapChoice.ManilaId).onClick.Invoke();
         yield return null;
 
-        var mission = MapChoice.Find(MapChoice.MabuhayId).LoadMission();
-        Assert.IsTrue(Highlighted(MapChoice.MabuhayId));
-        Assert.IsFalse(Highlighted(MapChoice.ManilaId));
-        Assert.AreSame(mission, MissionDefinition.Current, "the mission in force is the picked map's");
-
-        Assert.AreEqual(mission.title, Briefing("Title"));
-        StringAssert.Contains("Barangay Mabuhay, Carmona", Briefing("Text"));
-        StringAssert.Contains(mission.residents.Count + " residents", Briefing("Meta"));
-        Assert.AreEqual(LoadoutScreen.Objectives(mission), Briefing("Objectives"), "the objectives say what is out there on this map");
+        Assert.IsTrue(Highlighted(MapChoice.ManilaId));
+        Assert.IsFalse(Highlighted(MapChoice.MabuhayId));
+        Assert.AreSame(MissionDefinition.LoadShipped(), MissionDefinition.Current, "the mission in force is Manila's");
+        StringAssert.DoesNotContain("Mabuhay", Briefing("Text"));
         Assert.IsTrue(GameObject.Find(DispatchPath) != null);
     }
 
     [UnityTest]
-    public IEnumerator Launching_with_nothing_picked_plays_Manila_as_it_always_has()
+    public IEnumerator Launching_with_nothing_picked_plays_Barangay_Mabuhay()
     {
+        PressLaunch();
+        yield return WaitUntil(() => SceneManager.GetActiveScene().name == MapChoice.MabuhayScene, 20f, "the Mabuhay scene");
+        yield return null;
+
+        var mission = MapChoice.Find(MapChoice.MabuhayId).LoadMission();
+        Assert.AreSame(mission, MissionDefinition.Current, "Mabuhay's mission is the one in force");
+        Assert.AreEqual(mission.residents.Count, RescueManager.Instance.TotalSurvivors);
+        Assert.AreEqual(mission.timeLimit, RescueManager.Instance.timeLimit);
+    }
+
+    [UnityTest]
+    public IEnumerator Launching_after_picking_Manila_plays_the_sample_map_in_the_Gameplay_scene()
+    {
+        MapButton(MapChoice.ManilaId).onClick.Invoke();
         PressLaunch();
         yield return WaitUntil(() => SceneManager.GetActiveScene().name == "Gameplay", 15f, "the Gameplay scene");
         yield return null;
@@ -105,45 +118,25 @@ public class MapChoiceFlowTests
     }
 
     [UnityTest]
-    public IEnumerator Launching_after_picking_Mabuhay_loads_the_Mabuhay_scene_and_plays_its_mission()
+    public IEnumerator The_pick_survives_the_trip_back_to_the_loadout_and_can_be_changed_back_to_Mabuhay()
     {
-        MapButton(MapChoice.MabuhayId).onClick.Invoke();
-        PressLaunch();
-        yield return WaitUntil(() => SceneManager.GetActiveScene().name == MapChoice.MabuhayScene, 20f, "the Mabuhay scene");
-        yield return null;
-
-        var mission = MapChoice.Find(MapChoice.MabuhayId).LoadMission();
-        Assert.AreSame(mission, MissionDefinition.Current);
-        Assert.AreEqual(mission.residents.Count, RescueManager.Instance.TotalSurvivors);
-        Assert.AreEqual(mission.timeLimit, RescueManager.Instance.timeLimit);
-    }
-
-    [UnityTest]
-    public IEnumerator The_pick_survives_the_trip_back_to_the_loadout_and_can_be_changed_back_to_Manila()
-    {
-        MapButton(MapChoice.MabuhayId).onClick.Invoke();
-        PressLaunch();
-        yield return WaitUntil(() => SceneManager.GetActiveScene().name == MapChoice.MabuhayScene, 20f, "the Mabuhay scene");
-        yield return null;
-
-        // Esc on the report goes back to the loadout screen: it opens on the map that was just played.
-        SceneManager.LoadScene(Loadout);
-        yield return WaitUntil(() => SceneManager.GetActiveScene().name == Loadout, 15f, "the loadout screen");
-        yield return null;
-        Assert.IsTrue(Highlighted(MapChoice.MabuhayId), "the loadout should open on the map that was just played");
-        StringAssert.Contains("Barangay Mabuhay, Carmona", Briefing("Text"));
-
-        // And picking Manila puts everything of Manila's back: its briefing, and its mission for the scene to read.
         MapButton(MapChoice.ManilaId).onClick.Invoke();
-        yield return null;
-        Assert.IsTrue(Highlighted(MapChoice.ManilaId));
-        StringAssert.DoesNotContain("Mabuhay", Briefing("Text"));
-        Assert.AreSame(MissionDefinition.LoadShipped(), MissionDefinition.Current, "Manila's mission is in force again");
-
         PressLaunch();
         yield return WaitUntil(() => SceneManager.GetActiveScene().name == "Gameplay", 15f, "the Gameplay scene");
         yield return null;
-        Assert.AreSame(MissionDefinition.LoadShipped(), MissionDefinition.Current, "Gameplay plays Manila's mission, not the one from the last map");
-        Assert.AreEqual(MissionDefinition.LoadShipped().residents.Count, RescueManager.Instance.TotalSurvivors);
+
+        // Back to the loadout screen: it opens on the map that was just played.
+        SceneManager.LoadScene(Loadout);
+        yield return WaitUntil(() => SceneManager.GetActiveScene().name == Loadout, 15f, "the loadout screen");
+        yield return null;
+        Assert.IsTrue(Highlighted(MapChoice.ManilaId), "the loadout should open on the map that was just played");
+        StringAssert.DoesNotContain("Mabuhay", Briefing("Text"));
+
+        // And picking Mabuhay puts everything of Mabuhay's back: its briefing, and its mission for the scene to read.
+        MapButton(MapChoice.MabuhayId).onClick.Invoke();
+        yield return null;
+        Assert.IsTrue(Highlighted(MapChoice.MabuhayId));
+        StringAssert.Contains("Barangay Mabuhay, Carmona", Briefing("Text"));
+        Assert.AreSame(MapChoice.Find(MapChoice.MabuhayId).LoadMission(), MissionDefinition.Current);
     }
 }

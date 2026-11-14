@@ -5,8 +5,8 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Which map is played: the registry of maps, what picking one does to the mission in force, and the guarantee that never picking
-/// leaves the game as it was. MapChoice is static, so every test puts it back.
+/// Which map is played: the registry of maps, what picking one does to the mission in force, and that Barangay Mabuhay is
+/// played when nothing is picked (Manila is the team's first sample map). MapChoice is static, so every test puts it back.
 /// </summary>
 public class MapChoiceTests
 {
@@ -17,12 +17,21 @@ public class MapChoiceTests
     public void Put_the_defaults_back() => MapChoice.Reset();
 
     [Test]
-    public void Manila_is_first_and_is_what_is_played_if_nothing_is_picked()
+    public void Barangay_Mabuhay_is_first_and_is_what_is_played_if_nothing_is_picked()
     {
-        Assert.AreEqual(MapChoice.ManilaId, MapChoice.All[0].id);
-        Assert.AreEqual(MapChoice.ManilaId, MapChoice.Selected.id);
+        Assert.AreEqual(MapChoice.MabuhayId, MapChoice.All[0].id);
+        Assert.AreEqual(MapChoice.MabuhayId, MapChoice.Selected.id);
         Assert.IsTrue(MapChoice.IsDefault);
-        Assert.AreEqual("Gameplay", MapChoice.All[0].sceneName, "the default map is still the Gameplay scene");
+        Assert.AreEqual(MapChoice.MabuhayScene, MapChoice.All[0].sceneName, "the default map is the Mabuhay scene");
+    }
+
+    [Test]
+    public void Manila_is_still_offered_as_the_sample_map_in_the_Gameplay_scene()
+    {
+        var manila = MapChoice.Find(MapChoice.ManilaId);
+        Assert.IsNotNull(manila);
+        Assert.AreEqual("Gameplay", manila.sceneName);
+        StringAssert.Contains("Sample", manila.title);
     }
 
     [Test]
@@ -65,12 +74,12 @@ public class MapChoiceTests
     {
         Assert.IsTrue(MapChoice.Select(MapChoice.MabuhayId));
         Assert.AreEqual(MapChoice.MabuhayId, MapChoice.Selected.id);
-        Assert.IsFalse(MapChoice.IsDefault);
+        Assert.IsTrue(MapChoice.IsDefault);
         Assert.AreSame(MapChoice.Find(MapChoice.MabuhayId).LoadMission(), MissionDefinition.Current);
         StringAssert.Contains("Mabuhay", MissionDefinition.Current.title);
 
         Assert.IsTrue(MapChoice.Select(MapChoice.ManilaId));
-        Assert.IsTrue(MapChoice.IsDefault);
+        Assert.IsFalse(MapChoice.IsDefault, "Manila is the sample map, not the default");
         Assert.AreSame(MissionDefinition.LoadShipped(), MissionDefinition.Current);
     }
 
@@ -95,11 +104,13 @@ public class MapChoiceTests
     }
 
     [Test]
-    public void Reset_goes_back_to_Manila_and_its_mission()
+    public void Reset_goes_back_to_Mabuhay_and_forces_no_mission()
     {
-        MapChoice.Select(MapChoice.MabuhayId);
+        MapChoice.Select(MapChoice.ManilaId);
         MapChoice.Reset();
         Assert.IsTrue(MapChoice.IsDefault);
+        Assert.AreEqual(MapChoice.MabuhayId, MapChoice.Selected.id);
+        // Nothing forced: a scene loaded directly plays its own mission (the Gameplay scene, Manila's shipped one).
         Assert.AreSame(MissionDefinition.LoadShipped(), MissionDefinition.Current);
     }
 

@@ -156,8 +156,8 @@ public class LoadoutScreen : MonoBehaviour
         if (SceneFlow.IsLoading) return;
         LoadoutState.Set(picked);
         MapChoice.Select(MapChoice.Selected.id);
-        // The default map is whatever this screen's own field says, as it always was; any other is the scene its map names.
-        string scene = MapChoice.IsDefault ? gameplaySceneName : MapChoice.Selected.sceneName;
+        // Each map is the scene it names; the Manila sample map is whatever this screen's own field says, as it always was.
+        string scene = MapChoice.Selected.id == MapChoice.ManilaId ? gameplaySceneName : MapChoice.Selected.sceneName;
         SceneFlow.Load(scene);
     }
 

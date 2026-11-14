@@ -32,23 +32,24 @@ public sealed class PlayableMap
 /// Which map the player has picked on the loadout screen. Static, so it survives the scene change from Loadout to the mission and
 /// back again (Esc on the report): the loadout then opens on the map that was just played.
 ///
-/// The first map is the Manila slum map in the Gameplay scene, the game as it always was; it is what is played if nothing is
-/// ever picked, so nothing that never heard of this class changes. The mission asset for the other maps lives in
-/// Resources/Maps, not in Resources/Missions, because MissionDefinition.LoadShipped takes the first asset in that folder.
+/// The first map, and the one played if nothing is picked, is Barangay Mabuhay (Carmona, Cavite): the real barangay the game
+/// is about. The Manila slum street in the Gameplay scene was the team's first sample map; it stays as a second choice for
+/// practice. Mabuhay's mission asset lives in Resources/Maps, not in Resources/Missions, because MissionDefinition.LoadShipped
+/// takes the first asset in that folder, and that is still Manila's (the Gameplay scene and its tests read it).
 /// </summary>
 public static class MapChoice
 {
     public const string ManilaId = "manila";
     public const string MabuhayId = "mabuhay";
-    /// <summary>The scene of the default map. The loadout screen's own "Gameplay Scene Name" says the same.</summary>
+    /// <summary>The sample map's scene. The loadout screen's own "Gameplay Scene Name" says the same.</summary>
     public const string ManilaScene = "Gameplay";
     public const string MabuhayScene = "MabuhayGameplay";
     public const string MabuhayMissionResource = "Maps/MabuhayMission";
 
     static readonly List<PlayableMap> all = new List<PlayableMap>
     {
-        new PlayableMap(ManilaId, "Manila · Pagbaha sa Barangay", "A slum street in Manila", ManilaScene, null),
-        new PlayableMap(MabuhayId, "Mabuhay · Carmona, Cavite", "The real barangay, from OpenStreetMap", MabuhayScene, MabuhayMissionResource)
+        new PlayableMap(MabuhayId, "Mabuhay · Carmona, Cavite", "The real barangay, from OpenStreetMap", MabuhayScene, MabuhayMissionResource),
+        new PlayableMap(ManilaId, "Manila · Sample map", "The first sample map: a slum street in Manila", ManilaScene, null)
     };
 
     static PlayableMap selected;
@@ -59,10 +60,10 @@ public static class MapChoice
     /// <summary>Every map there is to play, the default first.</summary>
     public static IReadOnlyList<PlayableMap> All => all;
 
-    /// <summary>The map picked, the default (Manila) if none has been.</summary>
+    /// <summary>The map picked, the default (Barangay Mabuhay) if none has been.</summary>
     public static PlayableMap Selected => selected ?? all[0];
 
-    /// <summary>True while nothing but the default is picked: the game as it was before there was a choice.</summary>
+    /// <summary>True while the default map (Barangay Mabuhay) is the one picked.</summary>
     public static bool IsDefault => Selected == all[0];
 
     public static PlayableMap Find(string id)
@@ -91,7 +92,10 @@ public static class MapChoice
         return true;
     }
 
-    /// <summary>Back to the default map and its mission. For tests, and for starting over.</summary>
+    /// <summary>
+    /// Back to the default map, with no mission forced: a scene then plays its own mission (the loadout screen selects the
+    /// picked map's mission again when it opens). For tests, and for starting over.
+    /// </summary>
     public static void Reset()
     {
         selected = null;
