@@ -54,6 +54,12 @@ public class NamedLandmark
     [Tooltip("Used when the name is empty, e.g. man_made=water_tower for unnamed water tanks.")]
     public string osmTag;
     public PlaceholderModel model = new PlaceholderModel();
+    [Tooltip("Scale the model up to fill its lot: the building it stands in, or the landmark's own outline when it has none. Off = real size.")]
+    public bool fitToLot = true;
+    [Tooltip("How much of the lot the model covers, so a car park or yard is left around it.")]
+    [Range(0.3f, 1f)] public float lotFill = 0.85f;
+    [Tooltip("The model is never scaled up more than this, however big its lot is.")]
+    [Min(1f)] public float maxLotScale = 5f;
 
     public bool Matches(MapLandmark l)
     {
@@ -99,6 +105,11 @@ public class LandmarkStyle
     public Color colour = new Color(0f, 0f, 0f, 0f);
     [Tooltip("Text on the sign. Empty = the landmark's name.")]
     public string sign;
+
+    // Set from a NamedLandmark, never stored on a category: see NamedLandmark for what they mean.
+    [NonSerialized] public bool fitToLot;
+    [NonSerialized] public float lotFill = 0.85f;
+    [NonSerialized] public float maxLotScale = 5f;
 }
 
 /// <summary>
@@ -169,7 +180,8 @@ public class PlaceholderLibrary : ScriptableObject
             {
                 category = landmark.category, placement = LandmarkPlacement.Prefab, model = n.model, realSize = true,
                 minScale = category.minScale, maxScale = category.maxScale, blockHeight = category.blockHeight,
-                colour = category.colour, sign = category.sign
+                colour = category.colour, sign = category.sign,
+                fitToLot = n.fitToLot, lotFill = n.lotFill, maxLotScale = n.maxLotScale
             };
         }
         return category;

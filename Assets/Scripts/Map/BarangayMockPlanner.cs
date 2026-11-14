@@ -373,7 +373,19 @@ public static class BarangayMockPlanner
             string label = !string.IsNullOrEmpty(style.sign) ? style.sign : l.Label;
             float signHeight;
 
-            if (l.footprint.Count >= 3 && !style.realSize)
+            if (l.footprint.Count >= 3 && FillsOwnOutline(style))
+            {
+                // Its own model, and an outline of its own (a mall, a hospital's grounds): the model fills the outline.
+                var lot = MapGeometry.MinimumRectangle(MapGeometry.CounterClockwise(l.footprint));
+                var lf = FaceStreet(lot, l.id);
+                LotScale(style.model, style, lf, out float lx, out float lz);
+                AddModel(l, style.model, lot.centre, lf.front, lx, lz);
+                signHeight = style.model.size.y * Mathf.Clamp(Mathf.Sqrt(lx * lz), 0.7f, 1.25f);
+                ClearUnder(l, lot.centre, lf, style.model, lx, lz, signHeight);
+                plan.notes.Add(l.Label + ": " + style.model.name + " scaled " + lx.ToString("0.00") + " x " + lz.ToString("0.00") +
+                               " to fill its " + Mathf.RoundToInt(lot.sizeU) + " x " + Mathf.RoundToInt(lot.sizeV) + " m lot.");
+            }
+            else if (l.footprint.Count >= 3 && !style.realSize)
             {
                 var fp = MapGeometry.CounterClockwise(l.footprint);
                 float fArea = MapGeometry.SignedArea(fp);
@@ -558,13 +570,57 @@ public static class BarangayMockPlanner
             if (model.size.x <= 0.1f || model.size.z <= 0.1f) return false;
             var f = FaceStreet(rect, l.id);
             float sx = f.frontage / model.size.x, sz = f.depth / model.size.z;
-            if (style.realSize) sx = sz = 1f;
+            if (style.realSize && style.fitToLot) LotScale(model, style, f, out sx, out sz);
+            else if (style.realSize) sx = sz = 1f;
             else if (sx < style.minScale || sx > style.maxScale || sz < style.minScale || sz > style.maxScale) return false;
-            // A real-size model stands on the layout's own position, not on the centre of whichever building it overlaps.
-            AddModel(l, model, style.realSize ? l.position : rect.centre, f.front, sx, sz);
-            plan.notes.Add(what + ": " + model.name + " model fitted at " + sx.ToString("0.00") + " x " + sz.ToString("0.00") + ". Swap in the real model when it is made.");
+            // A real-size model stands on the layout's own position, not on the centre of whichever building it overlaps;
+            // one scaled to its lot is centred on the lot.
+            Vector2 at = style.realSize && !style.fitToLot ? l.position : rect.centre;
+            AddModel(l, model, at, f.front, sx, sz);
+            plan.notes.Add(what + ": " + model.name + " model fitted at " + sx.ToString("0.00") + " x " + sz.ToString("0.00") +
+                           (style.fitToLot ? " to fill its " + Mathf.RoundToInt(rect.sizeU) + " x " + Mathf.RoundToInt(rect.sizeV) + " m lot." : ". Swap in the real model when it is made."));
             height = model.size.y * Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.2f);
+            if (style.realSize && style.fitToLot) ClearUnder(l, at, f, model, sx, sz, height);
             return true;
+        }
+
+        /// <summary>
+        /// How much a landmark's own model is scaled to fill its lot: up to <see cref="LandmarkStyle.lotFill"/> of it,
+        /// never below real size, never past <see cref="LandmarkStyle.maxLotScale"/>, and at most a quarter out of
+        /// proportion so the model still looks like itself.
+        /// </summary>
+        static bool FillsOwnOutline(LandmarkStyle style) =>
+            style.realSize && style.fitToLot && style.model != null && style.model.prefab != null &&
+            style.model.size.x > 0.1f && style.model.size.z > 0.1f;
+
+        static void LotScale(PlaceholderModel model, LandmarkStyle style, Facing f, out float sx, out float sz)
+        {
+            float fx = f.frontage * style.lotFill / model.size.x;
+            float fz = f.depth * style.lotFill / model.size.z;
+            float s = Mathf.Clamp(Mathf.Min(fx, fz), 1f, style.maxLotScale);
+            sx = Mathf.Clamp(fx, s, s * 1.25f);
+            sz = Mathf.Clamp(fz, s, s * 1.25f);
+        }
+
+        /// <summary>
+        /// The buildings a scaled-up landmark now covers are part of it: no house is drawn inside the model, and a shop
+        /// listed in one of them only adds its sign.
+        /// </summary>
+        void ClearUnder(MapLandmark l, Vector2 centre, Facing f, PlaceholderModel model, float sx, float sz, float height)
+        {
+            var under = new MapGeometry.OrientedRect
+            {
+                centre = centre, axisU = new Vector2(f.front.y, -f.front.x), axisV = f.front,
+                sizeU = model.size.x * sx, sizeV = model.size.z * sz
+            };
+            foreach (var s in sites)
+            {
+                if (s.claimed || !under.Contains(s.centre)) continue;
+                s.claimed = true;
+                s.drawnAsLandmark = true;
+                s.drawnHeight = height;
+                plan.fates[s.b.osmId] = "under " + l.Label;
+            }
         }
 
         PlaceholderModel BestPart(LandmarkStyle style, string key, Facing f, out float sx, out float sz)
