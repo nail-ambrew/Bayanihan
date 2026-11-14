@@ -115,9 +115,9 @@ public class MissionDefinition : ScriptableObject
         if (where.Count > 0) sb.AppendLine("• " + string.Join(", ", where));
 
         var items = new List<string>();
-        AddCount(items, CountNeeding(Need.Lifebuoy), "need a Salbabida");
-        AddCount(items, CountNeeding(Need.Rope), "need a Lubid");
-        AddCount(items, CountNeeding(Need.FirstAid), "hurt, need a Botika");
+        AddCount(items, CountNeeding(Need.Lifebuoy), "need a Floatie");
+        AddCount(items, CountNeeding(Need.Rope), "need a Rope");
+        AddCount(items, CountNeeding(Need.FirstAid), "hurt, need a First-Aid Kit");
         if (items.Count > 0) sb.AppendLine("• " + string.Join(" · ", items));
 
         if (reports != null)

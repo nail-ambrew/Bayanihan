@@ -168,32 +168,32 @@ public class Survivor : MonoBehaviour
 
         if (InLiveWire)
         {
-            reason = "There is a live wire in the water here - get the power cut first (C with the Radyo).";
+            reason = "There is a live wire in the water here - get the power cut first (" + InputHelper.Key("C", "POWER CUT") + " with the Radio).";
             return false;
         }
         if (RequiresLine && !LineDelivered)
         {
             if (IsHeld) reason = "They are still coming in on the line - wait until they are alongside.";
-            else if (situation == Situation.Rooftop) reason = "On a roof - out of reach from the water. Throw them a line (T).";
-            else reason = "Behind debris - the boat can't reach them. Throw them a line (T).";
+            else if (situation == Situation.Rooftop) reason = "On a roof - out of reach from the water. Throw them a line (" + InputHelper.Key("T", "THROW") + ").";
+            else reason = "Behind debris - the boat can't reach them. Throw them a line (" + InputHelper.Key("T", "THROW") + ").";
             return false;
         }
 
         if (Missing(Need.Lifebuoy, RescueItemId.Lifebuoy))
         {
-            reason = "In open water - you can't pull them out without a Salbabida (lifebuoy).";
+            reason = "In open water - you can't pull them out without a Floatie.";
             return false;
         }
         if (Missing(Need.Rope, RescueItemId.Rope))
         {
-            reason = "Stuck behind debris - you can't reach them without a Lubid (rope).";
+            reason = "Stuck behind debris - you can't reach them without a Rope.";
             return false;
         }
         if (NeedsFirstAidKit && !LoadoutState.Has(RescueItemId.FirstAid))
         {
             reason = IsCritical && !Injured
-                ? "Critical - they were left too long and can't board without a Botika (first-aid kit)."
-                : "Injured - they can't board without a Botika (first-aid kit).";
+                ? "Critical - they were left too long and can't board without a First-Aid Kit."
+                : "Injured - they can't board without a First-Aid Kit.";
             return false;
         }
         return true;

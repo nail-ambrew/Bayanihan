@@ -596,8 +596,8 @@ public class PlayerRescuer : MonoBehaviour
         get
         {
             if (IsMounted)
-                return boat != null && boat.CurrentTarget != null ? null : "Press E to leave the boat";
-            return CanMount() ? "Press E to board the boat" : null;
+                return boat != null && boat.CurrentTarget != null ? null : InputHelper.Press("E", "RESCUE") + " to leave the boat";
+            return CanMount() ? InputHelper.Press("E", "RESCUE") + " to board the boat" : null;
         }
     }
 

@@ -153,9 +153,9 @@ public class AfterActionReportTests
         input.isPacked = packed.Contains;
 
         var lines = Section(AfterActionReport.Build(input), "RESIDENTS").lines.Select(l => l.text).ToList();
-        StringAssert.Contains("needed a Salbabida - not packed", lines[0]);
-        StringAssert.Contains("needed a Botika - not packed", lines[1]);
-        StringAssert.Contains("needed a Salbabida and a Botika - not packed", lines[2]);
+        StringAssert.Contains("needed a Floatie - not packed", lines[0]);
+        StringAssert.Contains("needed a First-Aid Kit - not packed", lines[1]);
+        StringAssert.Contains("needed a Floatie and a First-Aid Kit - not packed", lines[2]);
         StringAssert.Contains("found, but not reached in time", lines[3]);
         StringAssert.Contains("never found", lines[4]);
     }
@@ -183,7 +183,7 @@ public class AfterActionReportTests
         critical.endCritical = true;
         var input = Input(critical);
         input.isPacked = id => id != RescueItemId.FirstAid;
-        StringAssert.Contains("needed a Botika - not packed", Section(AfterActionReport.Build(input), "RESIDENTS").lines[0].text);
+        StringAssert.Contains("needed a First-Aid Kit - not packed", Section(AfterActionReport.Build(input), "RESIDENTS").lines[0].text);
     }
 
     // ------------------------------------------------------------------ households
@@ -303,9 +303,9 @@ public class AfterActionReportTests
         };
         var lines = Section(AfterActionReport.Build(input), "YOUR PACK").lines.Select(l => l.text).ToList();
 
-        StringAssert.Contains("Salbabida: 2 pulled from open water", lines[0]);
+        StringAssert.Contains("Floatie: 2 pulled from open water", lines[0]);
         StringAssert.DoesNotContain("wasted", lines[0]);
-        StringAssert.Contains("Radyo", lines[1]);
+        StringAssert.Contains("Radio", lines[1]);
         StringAssert.Contains("a wasted slot", lines[1]);
         StringAssert.DoesNotContain("wasted", lines[2], "the raincoat does its work without being used");
     }

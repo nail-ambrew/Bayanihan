@@ -192,7 +192,7 @@ public class BarangayMockPlannerTests
     public void A_building_with_known_storeys_is_that_tall()
     {
         var layout = Layout();
-        var b = Plot("tall", 0f, 50f, 15f, 20f, BuildingKind.Commercial);
+        var b = Plot("tall", 0f, 50f, 15f, 20f, BuildingKind.Industrial);     // a shop would be a house now, not a block
         b.levels = 4;
         layout.buildings.Add(b);
         Assert.AreEqual(4 * 3.2f + 0.4f, Of(Run(layout), "tall").Single().height, 1e-3f);

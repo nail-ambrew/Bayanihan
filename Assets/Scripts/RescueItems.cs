@@ -22,24 +22,27 @@ public enum Need
 public class RescueItemDef
 {
     public RescueItemId id;
-    public string name;          // Filipino name shown big on the card
-    public string english;       // small subtitle
-    public string description;
+    public string name;          // the name on the card and in prompts (English, as in the Figma loadout)
+    public string filipino;      // small subtitle: what the barangay calls it
+    public string description;   // one line on the card: what it does in the game
     public ItemUse use;
     public string hotkey;
+    public string button;        // the on-screen button that uses it, for active items
     public float cooldown;
     public bool recommended;
     public Color color;          // placeholder icon colour (used when no sprite is assigned)
     public string glyph;         // placeholder icon letter
 
+    /// <summary>How it is used: "Passive", "Toggle · F" or "20s cooldown · Q" (or the button's name on a phone).</summary>
     public string BadgeText
     {
         get
         {
+            string key = InputHelper.Key(hotkey, button);
             switch (use)
             {
-                case ItemUse.Toggle:   return $"Toggle · {hotkey}";
-                case ItemUse.Cooldown: return $"{cooldown:0}s cooldown · {hotkey}";
+                case ItemUse.Toggle:   return $"Toggle · {key}";
+                case ItemUse.Cooldown: return $"{cooldown:0}s cooldown · {key}";
                 default:               return "Passive";
             }
         }
@@ -55,43 +58,50 @@ public static class RescueItems
     {
         new RescueItemDef
         {
-            id = RescueItemId.Lifebuoy, name = "Salbabida", english = "Lifebuoy",
-            description = "Lets you pull someone out of open water. Without it you can only pass them by.",
+            id = RescueItemId.Lifebuoy, name = "Floatie", filipino = "Salbabida",
+            description = "Keeps people safe in high water. Throw it to pull them out of open water.",
             use = ItemUse.Passive, recommended = true, color = new Color(0.90f, 0.30f, 0.22f), glyph = "O"
         },
         new RescueItemDef
         {
-            id = RescueItemId.FirstAid, name = "Botika", english = "First-aid kit",
-            description = "Stabilise an injured resident (a 2-second hold) so they can board at all.",
+            id = RescueItemId.FirstAid, name = "First-Aid Kit", filipino = "Botika",
+            description = "Treats the injured so they can board. Hold to treat before lifting them in.",
             use = ItemUse.Passive, recommended = true, color = new Color(0.86f, 0.25f, 0.30f), glyph = "+"
         },
         new RescueItemDef
         {
-            id = RescueItemId.Flashlight, name = "Flashlight", english = "Flashlight",
-            description = "Widens and lengthens the visibility cone. At dusk and at night, searching without it is nearly blind.",
-            use = ItemUse.Toggle, hotkey = "F", color = new Color(0.95f, 0.75f, 0.20f), glyph = "F"
+            id = RescueItemId.Flashlight, name = "Flashlight", filipino = "Flashlight",
+            description = "Provides light, so you spot people further away, especially at night.",
+            use = ItemUse.Toggle, hotkey = "F", button = "LIGHT", color = new Color(0.95f, 0.75f, 0.20f), glyph = "F"
         },
         new RescueItemDef
         {
-            id = RescueItemId.Rope, name = "Lubid", english = "Rope",
-            description = "Haul residents out from behind debris and off collapsing structures.",
+            id = RescueItemId.Rope, name = "Rope", filipino = "Lubid",
+            description = "Hauls residents off roofs and out from behind debris, and tethers your swimmer.",
             use = ItemUse.Passive, recommended = true, color = new Color(0.80f, 0.55f, 0.20f), glyph = "R"
         },
         new RescueItemDef
         {
-            id = RescueItemId.Radio, name = "Radyo", english = "Two-way radio",
-            description = "Points to the nearest resident you have not found yet, then cools down for 20 seconds. Also calls the power company to cut a downed live wire (C).",
-            use = ItemUse.Cooldown, hotkey = "Q", cooldown = 20f, color = new Color(0.30f, 0.35f, 0.45f), glyph = "Q"
+            id = RescueItemId.Radio, name = "Radio", filipino = "Radyo",
+            description = "Keeps you connected: finds the nearest missing resident and calls to cut live wires.",
+            use = ItemUse.Cooldown, hotkey = "Q", button = "RADIO", cooldown = 20f, color = new Color(0.30f, 0.35f, 0.45f), glyph = "Q"
         },
         new RescueItemDef
         {
-            id = RescueItemId.Raincoat, name = "Kapote", english = "Raincoat",
-            description = "Cuts the rain visibility penalty for everyone in the boat.",
+            id = RescueItemId.Raincoat, name = "Raincoat", filipino = "Kapote",
+            description = "Cuts the rain visibility penalty for everyone on the boat.",
             use = ItemUse.Passive, color = new Color(0.98f, 0.65f, 0.10f), glyph = "K"
         },
     };
 
-    /// <summary>The "Suggested pack" button.</summary>
+    /// <summary>The order the Figma loadout lays the cards out in: alphabetical, two rows of three.</summary>
+    public static readonly RescueItemId[] DisplayOrder =
+    {
+        RescueItemId.FirstAid, RescueItemId.Flashlight, RescueItemId.Lifebuoy,
+        RescueItemId.Radio, RescueItemId.Raincoat, RescueItemId.Rope
+    };
+
+    /// <summary>The "Recommended pack" button.</summary>
     public static readonly RescueItemId[] Suggested =
         { RescueItemId.Lifebuoy, RescueItemId.FirstAid, RescueItemId.Rope, RescueItemId.Radio };
 

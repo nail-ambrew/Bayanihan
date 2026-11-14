@@ -198,6 +198,7 @@ public static class BarangayMockPlanner
         readonly Rect region;
         readonly PlaceholderLibrary lib;
         readonly MockPlan plan = new MockPlan();
+        readonly List<Vector2> shopPoints = new List<Vector2>();
         readonly List<Site> sites = new List<Site>();
         Streets streets;
         bool warnedNoHouses;
@@ -227,6 +228,10 @@ public static class BarangayMockPlanner
             foreach (var l in layout.landmarks.Where(l => !l.positionKnown).OrderBy(l => l.id, StringComparer.Ordinal))
                 plan.notes.Add(l.Label + ": no position is known, so it is not on the map. Add one in Docs/Maps/mabuhay-overrides.json.");
 
+            // Shop-like landmarks mark the buildings they stand in as commercial, so those get shop houses.
+            foreach (var l in layout.landmarks.Where(l => l.positionKnown && region.Contains(l.position) && IsShopCategory(l.category)))
+                shopPoints.Add(l.position);
+
             // Landmarks first, in a fixed order, so they claim their buildings before the houses are chosen.
             foreach (var l in layout.landmarks.Where(l => l.positionKnown && region.Contains(l.position)).OrderBy(l => l.id, StringComparer.Ordinal))
                 PlaceLandmark(l);
@@ -252,8 +257,11 @@ public static class BarangayMockPlanner
                 return;
             }
 
-            bool heavy = b.kind == BuildingKind.Industrial || b.kind == BuildingKind.Warehouse || b.kind == BuildingKind.Commercial ||
-                         b.kind == BuildingKind.Retail || b.kind == BuildingKind.Civic || b.kind == BuildingKind.School ||
+            // Shops and retail get a commercial house when the library has one; without one they stay plain blocks.
+            bool shops = IsShop(s);
+            bool shopHouses = shops && lib.houses.Any(h => h.use != HouseUse.Residential);
+            bool heavy = b.kind == BuildingKind.Industrial || b.kind == BuildingKind.Warehouse || (shops && !shopHouses) ||
+                         b.kind == BuildingKind.Civic || b.kind == BuildingKind.School ||
                          b.kind == BuildingKind.Hospital || b.kind == BuildingKind.Religious;
             if (heavy || s.area > lib.blockArea)
             {
@@ -291,10 +299,11 @@ public static class BarangayMockPlanner
             Vector2 widthAxis = new Vector2(f.front.y, -f.front.x);     // the model's +X once it is turned to face the street
 
             string last = "";
+            var use = WantedUse(s);
             for (int i = 0; i < units; i++)
             {
                 string key = units == 1 ? id : id + "#" + i;
-                int vi = ChooseVariant(key, unitFrontage, f.depth, majorStreet, s.b.levels, s.area / units, out float sx, out float sz);
+                int vi = ChooseVariant(key, unitFrontage, f.depth, majorStreet, s.b.levels, s.area / units, use, out float sx, out float sz);
                 var v = lib.houses[vi];
                 plan.placements.Add(new MockPlacement
                 {
@@ -313,14 +322,16 @@ public static class BarangayMockPlanner
         /// on a side street, a tower is avoided on a small plot, a plot with known storeys prefers that many, and a
         /// little repeatable variety stops a whole street from being one house.
         /// </summary>
-        int ChooseVariant(string key, float frontage, float depth, bool majorStreet, int levels, float area, out float sx, out float sz)
+        int ChooseVariant(string key, float frontage, float depth, bool majorStreet, int levels, float area, HouseUse use, out float sx, out float sz)
         {
             int best = 0;
             float bestCost = float.MaxValue;
+            bool useExists = lib.houses.Any(h => h.use == use);
             for (int i = 0; i < lib.houses.Count; i++)
             {
                 var v = lib.houses[i];
                 if (v.size.x <= 0.1f || v.size.z <= 0.1f) continue;
+                if (useExists && v.use != HouseUse.Any && v.use != use) continue;
                 float cost = Mathf.Abs(Mathf.Log(frontage / v.size.x)) + Mathf.Abs(Mathf.Log(depth / v.size.z));
                 if (v.type == HouseType.Shop) cost += majorStreet ? -0.2f : 0.4f;
                 if (v.type == HouseType.Tower && area < 45f) cost += 0.6f;
@@ -336,14 +347,33 @@ public static class BarangayMockPlanner
 
         // ---------------------------------------------------------------- landmarks
 
+        static bool IsShopCategory(LandmarkCategory c) =>
+            c == LandmarkCategory.Market || c == LandmarkCategory.Grocery || c == LandmarkCategory.Bank ||
+            c == LandmarkCategory.Pawnshop || c == LandmarkCategory.Pharmacy;
+
+        /// <summary>A building is a shop if OpenStreetMap says so, or a shop-like landmark stands in it.</summary>
+        bool IsShop(Site s) =>
+            s.b.kind == BuildingKind.Commercial || s.b.kind == BuildingKind.Retail ||
+            shopPoints.Any(p => s.rect.Contains(p, lib.hostReach)) || FacesMainRoad(s);
+
+        /// <summary>A building that faces a main road (tertiary or bigger) is on a shopping street.</summary>
+        bool FacesMainRoad(Site s)
+        {
+            var f = FaceStreet(s.rect, s.b.osmId);
+            return f.onStreet && f.road >= RoadClass.Tertiary;
+        }
+
+        /// <summary>Shops get commercial houses; everything else gets residential ones.</summary>
+        HouseUse WantedUse(Site s) => IsShop(s) ? HouseUse.Commercial : HouseUse.Residential;
+
         void PlaceLandmark(MapLandmark l)
         {
-            var style = lib.StyleFor(l.category);
+            var style = lib.StyleFor(l);
             Color colour = style.colour.a > 0f ? style.colour : BarangayLayoutView.LandmarkColour(l.category);
             string label = !string.IsNullOrEmpty(style.sign) ? style.sign : l.Label;
             float signHeight;
 
-            if (l.footprint.Count >= 3)
+            if (l.footprint.Count >= 3 && !style.realSize)
             {
                 var fp = MapGeometry.CounterClockwise(l.footprint);
                 float fArea = MapGeometry.SignedArea(fp);
@@ -481,6 +511,13 @@ public static class BarangayMockPlanner
             foreach (var s in sites)
                 if (!s.claimed && rect.Contains(s.centre, 1f)) { s.claimed = true; plan.fates[s.b.osmId] = "replaced by " + l.Label; }
 
+            if (style.realSize && style.model != null && style.model.prefab != null)
+            {
+                AddModel(l, style.model, l.position, f.front, 1f, 1f);
+                plan.notes.Add(l.Label + ": no building at its position, so its own model stands there at real size.");
+                return style.model.size.y;
+            }
+
             if (style.placement == LandmarkPlacement.ShopHouse || style.placement == LandmarkPlacement.Prefab)
             {
                 if (shops.Count > 0)
@@ -521,8 +558,10 @@ public static class BarangayMockPlanner
             if (model.size.x <= 0.1f || model.size.z <= 0.1f) return false;
             var f = FaceStreet(rect, l.id);
             float sx = f.frontage / model.size.x, sz = f.depth / model.size.z;
-            if (sx < style.minScale || sx > style.maxScale || sz < style.minScale || sz > style.maxScale) return false;
-            AddModel(l, model, rect.centre, f.front, sx, sz);
+            if (style.realSize) sx = sz = 1f;
+            else if (sx < style.minScale || sx > style.maxScale || sz < style.minScale || sz > style.maxScale) return false;
+            // A real-size model stands on the layout's own position, not on the centre of whichever building it overlaps.
+            AddModel(l, model, style.realSize ? l.position : rect.centre, f.front, sx, sz);
             plan.notes.Add(what + ": " + model.name + " model fitted at " + sx.ToString("0.00") + " x " + sz.ToString("0.00") + ". Swap in the real model when it is made.");
             height = model.size.y * Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.2f);
             return true;

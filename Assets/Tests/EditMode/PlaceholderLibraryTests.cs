@@ -66,6 +66,8 @@ public class PlaceholderLibraryTests
         foreach (var h in Library().houses)
         {
             Assert.IsNotNull(h.prefab, h.name + " has no prefab");
+            // Houses made by hand (no source model) are not baked, so only the next test checks them.
+            if (h.sourceModel == null) continue;
             var body = h.prefab.GetComponent<PlaceholderBody>();
             Assert.IsNotNull(body, h.name + " has lost its body marker (a MISSING script on the prefab means the class and its file do not match)");
             Assert.Greater(body.size.sqrMagnitude, 1f, h.name + " has no size");
@@ -89,14 +91,19 @@ public class PlaceholderLibraryTests
         var lib = Library();
         foreach (var h in lib.houses)
         {
+            Assert.GreaterOrEqual(h.storeys, 1, h.name + " storeys");
+            Assert.That(h.size.x, Is.Positive, h.name + " is measured");
+            Assert.That(h.size.y, Is.Positive, h.name + " is measured");
+            Assert.That(h.size.z, Is.Positive, h.name + " is measured");
+            if (h.sourceModel == null) continue;      // hand-made houses have their own sizes
             Assert.That(h.size.x, Is.InRange(3f, 9f), h.name + " width");
             Assert.That(h.size.z, Is.InRange(4f, 9.5f), h.name + " depth");
             Assert.That(h.size.y, Is.InRange(3f, 15f), h.name + " height");
-            Assert.GreaterOrEqual(h.storeys, 1, h.name + " storeys");
         }
-        float tallestShop = lib.houses.Where(h => h.type == HouseType.Shop).Max(h => h.size.y);
-        float shortestTower = lib.houses.Where(h => h.type == HouseType.Tower).Min(h => h.size.y);
-        Assert.Less(tallestShop, shortestTower);
+        var baked = lib.houses.Where(h => h.sourceModel != null).ToList();
+        if (baked.Any(h => h.type == HouseType.Shop) && baked.Any(h => h.type == HouseType.Tower))
+            Assert.Less(baked.Where(h => h.type == HouseType.Shop).Max(h => h.size.y),
+                        baked.Where(h => h.type == HouseType.Tower).Min(h => h.size.y));
     }
 
     // ------------------------------------------------------------------ landmarks

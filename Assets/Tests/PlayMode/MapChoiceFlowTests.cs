@@ -48,7 +48,9 @@ public class MapChoiceFlowTests
         return go.GetComponent<Text>().text;
     }
 
-    static string Briefing(string part) => Label("LoadoutCanvas/BoatPanel/Briefing/" + part);
+    static string Briefing(string part) => Label(DispatchPath + "/" + part);
+
+    const string DispatchPath = "LoadoutCanvas/SafeArea/Loadout/Dispatch";
 
     static void PressLaunch()
     {
@@ -87,8 +89,8 @@ public class MapChoiceFlowTests
         Assert.AreEqual(mission.title, Briefing("Title"));
         StringAssert.Contains("Barangay Mabuhay, Carmona", Briefing("Text"));
         StringAssert.Contains(mission.residents.Count + " residents", Briefing("Meta"));
-        Assert.AreEqual(mission.Intel(), Label("LoadoutCanvas/Dispatch/Text"), "dispatch tells the crew what is out there on this map");
-        Assert.IsTrue(GameObject.Find("LoadoutCanvas/Dispatch") != null);
+        Assert.AreEqual(LoadoutScreen.Objectives(mission), Briefing("Objectives"), "the objectives say what is out there on this map");
+        Assert.IsTrue(GameObject.Find(DispatchPath) != null);
     }
 
     [UnityTest]

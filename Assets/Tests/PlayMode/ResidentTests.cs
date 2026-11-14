@@ -157,7 +157,7 @@ public class ResidentTests
 
         LoadoutState.Set(new[] { RescueItemId.Lifebuoy });
         Assert.IsFalse(ben.CanBeRescued(out string reason));
-        StringAssert.Contains("Botika", reason);
+        StringAssert.Contains("First-Aid Kit", reason);
         Assert.IsFalse(ben.HasRequiredItems);
 
         LoadoutState.Set(new[] { RescueItemId.Lifebuoy, RescueItemId.FirstAid });

@@ -32,12 +32,34 @@ public class PlaceholderModel
     public string bodyPattern;
 }
 
+/// <summary>Whether a house is for homes, shops, or either.</summary>
+public enum HouseUse { Any, Residential, Commercial }
+
 /// <summary>One house the generator can put on a footprint.</summary>
 [Serializable]
 public class HouseVariant : PlaceholderModel
 {
     public HouseType type;
     [Range(1, 6)] public int storeys = 2;
+    [Tooltip("Residential houses go on homes, commercial ones on shops and retail. Any = either.")]
+    public HouseUse use = HouseUse.Any;
+}
+
+/// <summary>A landmark that has its own real-size model, matched by its name or, if it has none, its OpenStreetMap tag.</summary>
+[Serializable]
+public class NamedLandmark
+{
+    [Tooltip("The landmark's name exactly as the layout has it. Empty = match by osmTag instead.")]
+    public string name;
+    [Tooltip("Used when the name is empty, e.g. man_made=water_tower for unnamed water tanks.")]
+    public string osmTag;
+    public PlaceholderModel model = new PlaceholderModel();
+
+    public bool Matches(MapLandmark l)
+    {
+        if (!string.IsNullOrEmpty(name)) return string.Equals(l.name, name, StringComparison.OrdinalIgnoreCase);
+        return !string.IsNullOrEmpty(osmTag) && string.IsNullOrEmpty(l.name) && l.osmTag == osmTag;
+    }
 }
 
 /// <summary>How a kind of landmark is drawn.</summary>
@@ -69,6 +91,8 @@ public class LandmarkStyle
     [Min(0.1f)] public float minScale = 0.45f;
     [Tooltip("A model is only used if it has to be scaled by at most this much to fit.")]
     [Min(0.1f)] public float maxScale = 2f;
+    [Tooltip("Draw the model at its real size, centred on the building, instead of stretching it to fit the outline.")]
+    public bool realSize;
     [Tooltip("Height of the block, in metres.")]
     [Min(1f)] public float blockHeight = 8f;
     [Tooltip("Colour of the block and the sign. Transparent = the colour this category has on the map.")]
@@ -94,6 +118,8 @@ public class PlaceholderLibrary : ScriptableObject
     [Header("Landmarks")]
     [Tooltip("One entry per category. A category with no entry is drawn as a plain block.")]
     public List<LandmarkStyle> landmarks = new List<LandmarkStyle>();
+    [Tooltip("Landmarks with their own model. These win over the category's entry.")]
+    public List<NamedLandmark> namedLandmarks = new List<NamedLandmark>();
 
     [Header("Roads and water, real widths in metres")]
     public BarangayLayoutView.RoadWidths roadWidths = new BarangayLayoutView.RoadWidths
@@ -130,6 +156,23 @@ public class PlaceholderLibrary : ScriptableObject
     {
         foreach (var s in landmarks) if (s.category == category) return s;
         return new LandmarkStyle { category = category };
+    }
+
+    /// <summary>How one landmark is drawn: its own model at real size if it has one, otherwise its category's style.</summary>
+    public LandmarkStyle StyleFor(MapLandmark landmark)
+    {
+        var category = StyleFor(landmark.category);
+        foreach (var n in namedLandmarks)
+        {
+            if (!n.Matches(landmark) || n.model == null || n.model.prefab == null) continue;
+            return new LandmarkStyle
+            {
+                category = landmark.category, placement = LandmarkPlacement.Prefab, model = n.model, realSize = true,
+                minScale = category.minScale, maxScale = category.maxScale, blockHeight = category.blockHeight,
+                colour = category.colour, sign = category.sign
+            };
+        }
+        return category;
     }
 
     public float WaterWidth(WaterwayKind kind)
@@ -184,5 +227,6 @@ public class PlaceholderLibrary : ScriptableObject
             if (s.model != null && s.model.prefab != null) s.model.size = Measure(s.model.prefab);
             foreach (var p in s.parts) if (p.prefab != null) p.size = Measure(p.prefab);
         }
+        foreach (var n in namedLandmarks) if (n.model != null && n.model.prefab != null) n.model.size = Measure(n.model.prefab);
     }
 }

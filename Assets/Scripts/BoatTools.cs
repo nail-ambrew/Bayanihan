@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// The active items on the boat: Flashlight (toggle, F) and Radyo (radio ping, Q, 20 s cooldown; and C to ask the
-/// power company to cut a downed line). Also draws the small "packed items" bar, the radio marker and the
-/// live-wire prompt.
+/// The active items on the boat: Flashlight (toggle, F or LIGHT) and Radio (find the nearest resident, Q or RADIO,
+/// 20 s cooldown; and C or POWER CUT to ask the power company to cut a downed line). It works out the live-wire prompt
+/// and exposes its state; GameHud draws the item bar, the radio marker and the prompt.
 /// Added to the boat automatically by SimpleBoat - you don't need to add it yourself.
 /// </summary>
 [RequireComponent(typeof(SimpleBoat))]
@@ -51,7 +51,6 @@ public class BoatTools : MonoBehaviour
     float pingUntil;
     Camera cam;
 
-    GUIStyle boxLabel, markerLabel, powerStyle;
 
     void Awake() { boat = GetComponent<SimpleBoat>(); }
 
@@ -100,7 +99,7 @@ public class BoatTools : MonoBehaviour
 
         if (LoadoutState.Has(RescueItemId.Radio) && InputHelper.RadioPressed())
         {
-            if (!boat.IsPlayerAboard) boat.SetStatus("The Radyo is on the boat - climb aboard to use it.");
+            if (!boat.IsPlayerAboard) boat.SetStatus("The Radio is on the boat - climb aboard to use it.");
             else TryPing();
         }
 
@@ -139,7 +138,7 @@ public class BoatTools : MonoBehaviour
         }
         else if (!radio)
         {
-            PowerPrompt = "Live wire ahead - no Radyo packed to have the power cut. Keep clear of it";
+            PowerPrompt = "Live wire ahead - no Radio packed to have the power cut. Keep clear of it";
             PowerPromptIsWarning = true;
         }
         else if (nearestEdge > nearest.requestRange)
@@ -148,7 +147,7 @@ public class BoatTools : MonoBehaviour
         }
         else
         {
-            PowerPrompt = "Live wire - press C to have the power cut (Radyo)";
+            PowerPrompt = "Live wire - " + (InputHelper.TouchActive ? "tap POWER CUT" : "press C") + " to have the power cut (Radio)";
             ZoneToCut = nearest;
         }
     }
@@ -158,12 +157,12 @@ public class BoatTools : MonoBehaviour
     {
         if (!boat.IsPlayerAboard)
         {
-            boat.SetStatus("The Radyo is on the boat - climb aboard to use it.");
+            boat.SetStatus("The Radio is on the boat - climb aboard to use it.");
             return false;
         }
         if (!LoadoutState.Has(RescueItemId.Radio))
         {
-            boat.SetStatus("No Radyo packed - there is no way to call the power company.");
+            boat.SetStatus("No Radio packed - there is no way to call the power company.");
             return false;
         }
 
@@ -178,14 +177,14 @@ public class BoatTools : MonoBehaviour
 
         if (zone == null)
         {
-            boat.SetStatus("No live wire in range of the Radyo.");
+            boat.SetStatus("No live wire in range of the Radio.");
             return false;
         }
 
         if (!zone.RequestCut()) return false;
         PowerCutsRequested++;
         LoadoutState.RegisterUse(RescueItemId.Radio);
-        boat.SetStatus("Radyo: power company notified - the line will be cut in " + Mathf.CeilToInt(zone.cutDelay) + " s.", 3f);
+        boat.SetStatus("Radio: power company notified - the line will be cut in " + Mathf.CeilToInt(zone.cutDelay) + " s.", 3f);
         return true;
     }
 
@@ -229,7 +228,7 @@ public class BoatTools : MonoBehaviour
     {
         if (Time.time < radioReadyAt)
         {
-            boat.SetStatus($"Radyo recharging - {Mathf.CeilToInt(radioReadyAt - Time.time)}s");
+            boat.SetStatus($"Radio recharging - {Mathf.CeilToInt(radioReadyAt - Time.time)}s");
             return;
         }
 
@@ -244,7 +243,7 @@ public class BoatTools : MonoBehaviour
 
         if (best == null)
         {
-            boat.SetStatus("Radyo: every resident is already accounted for.");
+            boat.SetStatus("Radio: every resident is already accounted for.");
             return;
         }
 
@@ -252,78 +251,26 @@ public class BoatTools : MonoBehaviour
         pingUntil = Time.time + pingDuration;
         radioReadyAt = Time.time + RescueItems.Get(RescueItemId.Radio).cooldown;
         LoadoutState.RegisterUse(RescueItemId.Radio);
-        boat.SetStatus("Radyo: resident located - follow the marker.");
+        boat.SetStatus("Radio: resident located - follow the marker.");
     }
 
-    // ------------------------------------------------------------------ HUD
-    void OnGUI()
+    // ------------------------------------------------------------------ for the HUD
+    /// <summary>The flashlight is switched on.</summary>
+    public bool FlashlightOn => flashOn;
+
+    /// <summary>How much of the radio's cooldown is left, 1 = just used, 0 = ready.</summary>
+    public float RadioCooldown01
     {
-        if (boxLabel == null)
+        get
         {
-            boxLabel = new GUIStyle(GUI.skin.label) { fontSize = 16, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
-            boxLabel.normal.textColor = Color.white;
-            markerLabel = new GUIStyle(boxLabel) { alignment = TextAnchor.MiddleCenter, fontSize = 18 };
-            markerLabel.normal.textColor = new Color(1f, 0.9f, 0.3f);
-        }
-
-        DrawPackBar();
-        DrawPingMarker();
-        DrawPowerPrompt();
-    }
-
-    void DrawPowerPrompt()
-    {
-        if (Event.current.type != EventType.Repaint || PowerPrompt == null) return;
-        if (RescueManager.Instance != null && RescueManager.Instance.GameOver) return;
-
-        if (powerStyle == null)
-            powerStyle = new GUIStyle(GUI.skin.label) { fontSize = 20, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-        powerStyle.normal.textColor = PowerPromptIsWarning ? new Color(1f, 0.6f, 0.35f) : new Color(1f, 0.9f, 0.4f);
-        GUI.Label(new Rect(0f, Screen.height - 230f, Screen.width, 36f), PowerPrompt, powerStyle);
-    }
-
-    void DrawPackBar()
-    {
-        var items = LoadoutState.Selected;
-        if (items.Count == 0) return;
-
-        const float w = 190f, h = 44f, gap = 6f;
-        float x = Screen.width - w - 20f;
-        float y = Screen.height - 20f - items.Count * (h + gap);
-
-        foreach (var id in items)
-        {
-            var def = RescueItems.Get(id);
-            string state = "Passive";
-            if (id == RescueItemId.Flashlight) state = flashOn ? "F · ON" : "F · off";
-            else if (id == RescueItemId.Radio)
-                state = Time.time < radioReadyAt ? $"Q · {Mathf.CeilToInt(radioReadyAt - Time.time)}s" : "Q · ready";
-
-            GUI.color = new Color(0f, 0f, 0f, 0.55f);
-            GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
-            GUI.color = def.color;
-            GUI.DrawTexture(new Rect(x, y, 6f, h), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            GUI.Label(new Rect(x + 14f, y, w - 20f, h), $"{def.name}   {state}", boxLabel);
-            y += h + gap;
+            float total = RescueItems.Get(RescueItemId.Radio).cooldown;
+            return total > 0f ? Mathf.Clamp01((radioReadyAt - Time.time) / total) : 0f;
         }
     }
 
-    void DrawPingMarker()
-    {
-        if (pingTarget == null) return;
-        if (cam == null) cam = Camera.main;
-        if (cam == null) return;
+    /// <summary>Seconds until the radio can find somebody again (0 = ready).</summary>
+    public float RadioCooldownLeft => Mathf.Max(0f, radioReadyAt - Time.time);
 
-        Vector2 at = HudMarker.ScreenPosition(cam, pingTarget.transform.position + Vector3.up * 1.5f, 60f);
-
-        float dist = Vector3.Distance(transform.position, pingTarget.transform.position);
-        var rect = new Rect(at.x - 55f, at.y - 18f, 110f, 36f);
-
-        GUI.color = new Color(0f, 0f, 0f, 0.65f);
-        GUI.DrawTexture(rect, Texture2D.whiteTexture);
-        GUI.color = Color.white;
-        GUI.Label(rect, $"! {dist:0} m", markerLabel);
-    }
+    /// <summary>The resident the radio last pointed to, while its marker shows. Null otherwise.</summary>
+    public Survivor PingTarget => pingTarget;
 }

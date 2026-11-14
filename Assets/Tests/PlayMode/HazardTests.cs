@@ -186,7 +186,7 @@ public class HazardTests
 
         LoadoutState.Set(new[] { RescueItemId.Lifebuoy });
         Assert.IsFalse(tools.TryRequestCut(), "no Radyo packed");
-        StringAssert.Contains("Radyo", boat.ActiveStatus);
+        StringAssert.Contains("Radio", boat.ActiveStatus);
         Assert.IsFalse(zone.CutRequested);
 
         LoadoutState.Set(new[] { RescueItemId.Radio });
@@ -225,7 +225,7 @@ public class HazardTests
 
         LoadoutState.Set(new[] { RescueItemId.Lifebuoy });
         yield return WaitSeconds(0.2f);
-        StringAssert.Contains("no Radyo", tools.PowerPrompt);
+        StringAssert.Contains("no Radio", tools.PowerPrompt);
         Assert.IsTrue(tools.PowerPromptIsWarning, "without the Radyo it is only a warning");
         Assert.IsNull(tools.ZoneToCut);
 
@@ -306,7 +306,7 @@ public class HazardTests
         yield return WaitSeconds(0.8f);
 
         Assert.AreSame(cora, rescue.Target, "she is in range and in view, over the top of the jam");
-        StringAssert.Contains("Lubid", rescue.Prompt);
+        StringAssert.Contains("Rope", rescue.Prompt);
         Assert.IsTrue(rescue.Throw(cora));
         yield return WaitUntil(() => cora.IsHeld, 4f, "her to catch the rope");
     }

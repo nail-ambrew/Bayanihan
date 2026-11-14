@@ -5,9 +5,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Tracks score, timer and win/lose, draws a temporary HUD (OnGUI) and builds the end-of-mission report
-/// that tells the player what their pack choices cost them. Put on an empty GameObject called "RescueManager".
-/// Replace the OnGUI HUD with a Canvas/TMP one later - the data below is all public.
+/// Tracks score, timer and win/lose, and builds the end-of-mission report that tells the player what their pack
+/// choices cost them. The HUD, the pause menu and the Mission Complete screen are <see cref="GameHud"/>, which this
+/// adds to its own object and which reads everything below. Put on an empty GameObject called "RescueManager".
 /// </summary>
 public class RescueManager : MonoBehaviour
 {
@@ -55,8 +55,6 @@ public class RescueManager : MonoBehaviour
     float timeLeft;
     bool reportVisible;
     EvacuationCenter evac;
-    Camera cam;
-    GUIStyle label, center, big, body, marker;
 
     void Awake()
     {
@@ -84,8 +82,8 @@ public class RescueManager : MonoBehaviour
         Desk = evac != null ? evac.Desk : null;
         RefreshScore(false);
 
-        // Tags above the residents the crew can see, and the roster panel.
-        if (GetComponent<MissionHud>() == null) gameObject.AddComponent<MissionHud>();
+        // The HUD (tags over residents, roster, prompts, items, touch controls, pause) and the end screen.
+        if (GetComponent<GameHud>() == null) gameObject.AddComponent<GameHud>();
     }
 
     RescueRules Rules => MissionDefinition.Current.rules;
@@ -94,7 +92,8 @@ public class RescueManager : MonoBehaviour
     {
         if (GameOver)
         {
-            if (!reportVisible) return;
+            // Keyboard shortcuts on the end screen; it has buttons for the same.
+            if (!reportVisible || SceneFlow.IsLoading) return;
             if (InputHelper.RestartPressed())
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             else if (InputHelper.BackPressed() && Application.CanStreamedLevelBeLoaded(loadoutSceneName))
@@ -261,256 +260,70 @@ public class RescueManager : MonoBehaviour
         return AfterActionReport.ToText(ReportTitle, ReportSections);
     }
 
-    // ------------------------------------------------------------------ HUD
-    void EnsureStyles()
-    {
-        if (label != null) return;
-        label = new GUIStyle(GUI.skin.label) { fontSize = 22, fontStyle = FontStyle.Bold };
-        label.normal.textColor = Color.white;
-        center = new GUIStyle(label) { alignment = TextAnchor.MiddleCenter };
-        big = new GUIStyle(label) { fontSize = 40, alignment = TextAnchor.MiddleCenter };
-        body = new GUIStyle(label) { fontSize = 22, fontStyle = FontStyle.Normal, wordWrap = true };
-        marker = new GUIStyle(label) { fontSize = 18, alignment = TextAnchor.MiddleCenter };
-        marker.normal.textColor = new Color(0.55f, 1f, 0.6f);
-    }
+    // ------------------------------------------------------------------ for the HUD
+    /// <summary>Seconds left on the mission clock.</summary>
+    public float TimeLeft => timeLeft;
 
-    void DrawCentered(string text, float y, Color color)
-    {
-        center.normal.textColor = color;
-        GUI.Label(new Rect(0, y, Screen.width, 40), text, center);
-        center.normal.textColor = Color.white;
-    }
-
-    void OnGUI()
-    {
-        EnsureStyles();
-
-        if (GameOver && reportVisible)
-        {
-            DrawReport();                   // it covers the screen: nothing of the HUD shows through
-            return;
-        }
-
-        int mins = Mathf.FloorToInt(timeLeft / 60f);
-        int secs = Mathf.FloorToInt(timeLeft % 60f);
-        int onBoat = boat != null ? boat.Passengers : 0;
-        int cap = boat != null ? boat.capacity : 0;
-
-        GUI.Label(new Rect(20, 15, 500, 32), $"Time {mins:00}:{secs:00}", label);
-        GUI.Label(new Rect(20, 45, 500, 32), $"Evacuated {Evacuated}/{TotalSurvivors}", label);
-        GUI.Label(new Rect(20, 75, 500, 32), $"On boat {onBoat}/{cap}", label);
-        GUI.Label(new Rect(20, 105, 500, 32), $"Score {Score}", label);
-
-        if (GameOver) return;
-        if (boat != null) DrawPrompt();
-        DrawPlayerPrompt();
-        DrawEvacMarker();
-    }
+    /// <summary>The evacuation centre (the Barangay Hall), or null if the scene has none.</summary>
+    public EvacuationCenter Evac => evac;
 
     /// <summary>
-    /// Points the way to the evacuation centre once there is somebody aboard to take there. It can be a long way
-    /// down the street and out of sight, and "go to the evacuation centre" is no help without a direction.
+    /// What the boat has to say right now, and in what tone: a status line, why somebody cannot be taken, or how to
+    /// take them. Null when there is nothing to say.
     /// </summary>
-    void DrawEvacMarker()
+    public string BoatPrompt(out PromptTone tone)
     {
-        if (evac == null || boat == null || boat.Passengers <= 0) return;
+        tone = PromptTone.Normal;
+        if (boat == null || GameOver) return null;
 
-        Vector3 target = evac.transform.position;
-        Vector3 offset = target - boat.transform.position;
-        offset.y = 0f;
-        float dist = offset.magnitude;
-        if (dist < 10f) return;                 // already there
-
-        if (cam == null) cam = Camera.main;
-        if (cam == null) return;
-
-        // A small top/bottom margin tucks it under the prompt lines when the centre is behind the camera.
-        Vector2 at = HudMarker.ScreenPosition(cam, target + Vector3.up * 2f, 75f, 32f);
-        var rect = new Rect(at.x - 65f, at.y - 18f, 130f, 36f);
-
-        GUI.color = new Color(0f, 0f, 0f, 0.65f);
-        GUI.DrawTexture(rect, Texture2D.whiteTexture);
-        GUI.color = Color.white;
-        GUI.Label(rect, $"EVAC  {dist:0} m", marker);
-    }
-
-    /// <summary>Boarding / stepping off. Only shown when the boat has nothing more urgent to say.</summary>
-    void DrawPlayerPrompt()
-    {
-        if (player == null) return;
-        if (boat != null && (boat.ActiveStatus != null || boat.CurrentTarget != null)) return;
-
-        string prompt = player.InteractPrompt;
-        if (prompt != null) DrawCentered(prompt, Screen.height - 150f, new Color(0.6f, 0.9f, 1f));
-    }
-
-    void DrawPrompt()
-    {
-        float y = Screen.height - 110f;
         var target = boat.CurrentTarget;
         string status = boat.ActiveStatus;
         string reason = null;
         bool canRescue = target != null && target.CanBeRescued(out reason);
 
-        if (status != null)
-            DrawCentered(status, y, new Color(1f, 0.9f, 0.4f));
-        else if (target != null && boat.IsFull)
-            DrawCentered("Boat full! Go to the evacuation centre", y, Color.white);
-        else if (target != null && !canRescue)
-            DrawCentered(reason, y, new Color(1f, 0.55f, 0.35f));
-        else if (target != null && boat.TooFastToRescue)
-            DrawCentered("Slow down and come alongside", y, new Color(1f, 0.55f, 0.35f));
-        else if (target != null && target.RequiresStabilise)
-            DrawCentered("Hold E to treat and rescue", y, Color.white);
-        else if (target != null)
-            DrawCentered("Press E to rescue", y, Color.white);
-        else if (boat.IsFull)
-            DrawCentered("Boat full! Go to the evacuation centre", y, Color.white);
+        if (status != null) { tone = PromptTone.Notice; return status; }
+        if (target != null && boat.IsFull) return "Boat full! Go to the evacuation center";
+        if (target != null && !canRescue) { tone = PromptTone.Warning; return reason; }
+        if (target != null && boat.TooFastToRescue) { tone = PromptTone.Warning; return "Slow down and come alongside"; }
+        if (target != null && target.RequiresStabilise) return InputHelper.Hold("E", "RESCUE") + " to treat and rescue";
+        if (target != null) return InputHelper.Press("E", "RESCUE") + " to rescue";
+        if (boat.IsFull) return "Boat full! Go to the evacuation center";
+        return null;
+    }
 
-        if (boat.HoldProgress01 > 0f)
+    /// <summary>Boarding or stepping off, when the boat has nothing more urgent to say.</summary>
+    public string PlayerPrompt
+    {
+        get
         {
-            var bar = new Rect(Screen.width / 2f - 130f, y + 44f, 260f, 16f);
-            GUI.color = new Color(0f, 0f, 0f, 0.65f);
-            GUI.DrawTexture(bar, Texture2D.whiteTexture);
-            GUI.color = new Color(0.45f, 0.9f, 0.3f);
-            GUI.DrawTexture(new Rect(bar.x + 2f, bar.y + 2f, (bar.width - 4f) * boat.HoldProgress01, bar.height - 4f), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            if (player == null || GameOver) return null;
+            if (boat != null && (boat.ActiveStatus != null || boat.CurrentTarget != null)) return null;
+            return player.InteractPrompt;
         }
     }
 
-    /// <summary>The report is laid out on a 1280 x 720 page and the page is scaled to the window, so it reads the same at any size.</summary>
-    const float PageWidth = 1280f, PageHeight = 720f;
-
-    void DrawReport()
+    /// <summary>Restart the mission with the same pack.</summary>
+    public void Restart()
     {
-        GUI.color = new Color(0f, 0f, 0f, 0.88f);
-        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-        GUI.color = Color.white;
-
-        float scale = Mathf.Min(Screen.width / PageWidth, Screen.height / PageHeight);
-        var prior = GUI.matrix;
-        GUI.matrix = Matrix4x4.TRS(
-            new Vector3((Screen.width - PageWidth * scale) * 0.5f, (Screen.height - PageHeight * scale) * 0.5f, 0f),
-            Quaternion.identity, new Vector3(scale, scale, 1f));
-
-        int bigSize = big.fontSize;
-        big.fontSize = 34;
-        GUI.Label(new Rect(0, 14, PageWidth, 50), ReportTitle ?? "Mission over", big);
-        big.fontSize = bigSize;
-        GUI.Label(new Rect(0, 62, PageWidth, 32), $"Final score: {Score}", center);
-
-        if (ReportSections != null) DrawReportSections();
-
-        string hint = Application.CanStreamedLevelBeLoaded(loadoutSceneName)
-            ? "R - try again with this pack     Esc - repack the boat"
-            : "R - try again";
-        GUI.Label(new Rect(0, PageHeight - 44, PageWidth, 36), hint, center);
-        GUI.matrix = prior;
+        GamePause.Clear();
+        LoadoutState.ResetUses();
+        SceneFlow.Reload();
     }
 
-    const float ReportTop = 106f, ReportBottom = 52f, ReportGap = 40f, ReportMargin = 48f;
-
-    /// <summary>Two columns of headed sections: the outcome on the left, the debrief on the right.</summary>
-    void DrawReportSections()
+    /// <summary>Leave the mission for the main menu (Quit, Abort, Continue on the stats).</summary>
+    public void ExitToMenu()
     {
-        EnsureReportStyles();
-
-        float colWidth = (PageWidth - ReportMargin * 2f - ReportGap) / 2f;
-        float available = PageHeight - ReportTop - ReportBottom;
-
-        // A mission with a great many residents makes a long list: shrink the print until both columns fit the page.
-        if (fitSections != ReportSections)
-        {
-            fitSections = ReportSections;
-            reportFit = 1f;
-            for (int attempt = 0; attempt < 6; attempt++)
-            {
-                ApplyReportFit();
-                float tallest = Mathf.Max(ColumnHeight(0, colWidth), ColumnHeight(1, colWidth));
-                if (tallest <= available || reportFit <= 0.62f) break;
-                reportFit = Mathf.Max(0.62f, reportFit * available / tallest * 0.98f);
-            }
-            ApplyReportFit();
-        }
-
-        var y = new float[2] { ReportTop, ReportTop };
-        foreach (var section in ReportSections)
-        {
-            int c = Mathf.Clamp(section.column, 0, 1);
-            float x = ReportMargin + c * (colWidth + ReportGap);
-
-            GUI.Label(new Rect(x, y[c], colWidth, HeadingHeight), section.title, reportHeading);
-            y[c] += HeadingHeight;
-
-            foreach (var line in section.lines)
-            {
-                float indent = line.hasTag ? 18f : 0f;
-                float height = LineHeight(line, colWidth);
-                if (line.hasTag)
-                {
-                    var prior = GUI.color;
-                    GUI.color = TriageStyle.Colour(line.tag);
-                    float size = 9f * reportFit;
-                    GUI.DrawTexture(new Rect(x + 2f, y[c] + (height - size) * 0.5f, size, size), Texture2D.whiteTexture);
-                    GUI.color = prior;
-                }
-
-                reportLine.normal.textColor = ToneColour(line.tone);
-                GUI.Label(new Rect(x + indent, y[c], colWidth - indent, height), line.text, reportLine);
-                y[c] += height;
-            }
-            y[c] += SectionGap;
-        }
+        GamePause.Clear();
+        SceneFlow.Load(SceneFlow.Home);
     }
 
-    float HeadingHeight => 24f * reportFit;
-    float SectionGap => 10f * reportFit;
-
-    float LineHeight(ReportLine line, float colWidth)
+    /// <summary>Back to the loadout to repack.</summary>
+    public void Repack()
     {
-        float indent = line.hasTag ? 18f : 0f;
-        return Mathf.Max(20f * reportFit, reportLine.CalcHeight(new GUIContent(line.text), colWidth - indent));
-    }
-
-    float ColumnHeight(int column, float colWidth)
-    {
-        float h = 0f;
-        foreach (var section in ReportSections)
-        {
-            if (Mathf.Clamp(section.column, 0, 1) != column) continue;
-            h += HeadingHeight + SectionGap;
-            foreach (var line in section.lines) h += LineHeight(line, colWidth);
-        }
-        return h;
-    }
-
-    void ApplyReportFit()
-    {
-        reportHeading.fontSize = Mathf.RoundToInt(17f * reportFit);
-        reportLine.fontSize = Mathf.RoundToInt(15f * reportFit);
-    }
-
-    static Color ToneColour(ReportTone tone)
-    {
-        switch (tone)
-        {
-            case ReportTone.Good:    return new Color(0.6f, 0.95f, 0.6f);
-            case ReportTone.Warning: return new Color(1f, 0.85f, 0.45f);
-            case ReportTone.Bad:     return new Color(1f, 0.55f, 0.45f);
-            case ReportTone.Dim:     return new Color(0.7f, 0.74f, 0.8f);
-            default:                 return Color.white;
-        }
-    }
-
-    GUIStyle reportHeading, reportLine;
-    float reportFit = 1f;
-    List<ReportSection> fitSections;
-
-    void EnsureReportStyles()
-    {
-        if (reportHeading != null) return;
-        reportHeading = new GUIStyle(label) { fontSize = 17 };
-        reportHeading.normal.textColor = new Color(1f, 0.86f, 0.45f);
-        reportLine = new GUIStyle(label) { fontSize = 15, fontStyle = FontStyle.Normal, wordWrap = true };
+        GamePause.Clear();
+        SceneFlow.Load(loadoutSceneName);
     }
 }
+
+/// <summary>How a HUD line is coloured.</summary>
+public enum PromptTone { Normal, Notice, Warning }

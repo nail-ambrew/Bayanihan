@@ -83,7 +83,7 @@ public class LoadoutTests
 
             LoadoutState.Set(new[] { RescueItemId.FirstAid });
             Assert.IsFalse(survivor.CanBeRescued(out string reason));
-            StringAssert.Contains("Salbabida", reason);
+            StringAssert.Contains("Floatie", reason);
 
             LoadoutState.Set(new[] { RescueItemId.FirstAid, RescueItemId.Lifebuoy });
             Assert.IsTrue(survivor.CanBeRescued(out reason));
