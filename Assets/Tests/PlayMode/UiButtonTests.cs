@@ -55,6 +55,77 @@ public class UiButtonTests
 
     static Transform Safe(string canvas) => GameObject.Find(canvas + "/SafeArea").transform;
 
+    /// <summary>
+    /// What a real mouse or finger does, not what onClick.Invoke does: for every button showing under <paramref name="root"/>,
+    /// a click at its centre must reach that button and not something on top of it, or behind it showing through.
+    /// </summary>
+    static void AssertEveryButtonTakesAClickAtItsCentre(Transform root, string screen)
+    {
+        var es = UnityEngine.EventSystems.EventSystem.current;
+        Assert.IsNotNull(es, screen + " has an EventSystem");
+        int checkedCount = 0;
+        foreach (var b in root.GetComponentsInChildren<Button>())
+        {
+            if (!b.IsInteractable()) continue;
+            var rt = (RectTransform)b.transform;
+            var corners = new Vector3[4];
+            rt.GetWorldCorners(corners);
+            var centre = (corners[0] + corners[2]) * 0.5f;      // screen-space overlay: world units are screen pixels
+            var data = new UnityEngine.EventSystems.PointerEventData(es) { position = centre };
+            var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+            es.RaycastAll(data, hits);
+            Assert.IsNotEmpty(hits, screen + ": a click on '" + b.name + "' hits nothing");
+            var handler = UnityEngine.EventSystems.ExecuteEvents.GetEventHandler<UnityEngine.EventSystems.IPointerClickHandler>(hits[0].gameObject);
+            Assert.AreSame(b.gameObject, handler, screen + ": a click on '" + b.name + "' reaches '" + (handler != null ? handler.name : hits[0].gameObject.name) + "' instead");
+            checkedCount++;
+        }
+        Assert.Greater(checkedCount, 0, screen + " has buttons to click");
+    }
+
+    [UnityTest]
+    public IEnumerator Every_button_on_every_menu_takes_a_real_click()
+    {
+        yield return SceneManager.LoadSceneAsync(SceneFlow.MainMenu, LoadSceneMode.Single);
+        yield return null;
+        var safe = Safe("MainMenuCanvas");
+        AssertEveryButtonTakesAClickAtItsCentre(safe, "Main menu");
+        foreach (var item in new[] { "Menu_HOW TO PLAY", "Menu_SETTINGS", "Menu_CREDITS" })
+        {
+            Tap(item, safe);
+            yield return null;
+            AssertEveryButtonTakesAClickAtItsCentre(safe, item.Substring(5) + " page");
+        }
+        Tap("Close", Find("Board", safe));
+        Tap("Menu_QUIT", safe);
+        yield return null;
+        AssertEveryButtonTakesAClickAtItsCentre(Find("Choices", safe), "Quit dialog");
+
+        yield return SceneManager.LoadSceneAsync(SceneFlow.Loadout, LoadSceneMode.Single);
+        yield return null;
+        AssertEveryButtonTakesAClickAtItsCentre(Safe("LoadoutCanvas"), "Loadout");
+
+        yield return LoadGameplay();
+        yield return null;
+        var menu = Object.FindFirstObjectByType<PauseMenu>(FindObjectsInactive.Include);
+        menu.Open();
+        yield return null;
+        AssertEveryButtonTakesAClickAtItsCentre(menu.transform, "Pause menu");
+        Tap("Menu_SETTINGS", menu.transform);
+        yield return null;
+        AssertEveryButtonTakesAClickAtItsCentre(menu.transform, "Pause settings");
+        Tap("Close", Find("Board", menu.transform));
+        Tap("Menu_ABORT", menu.transform);
+        yield return null;
+        AssertEveryButtonTakesAClickAtItsCentre(Find("Dialog", menu.transform), "Abort question");
+        Tap("Button_NO", Find("Dialog", menu.transform));
+        menu.Close();
+
+        SetTimeLeft(0.05f);
+        yield return WaitUntil(() => RescueManager.Instance.ReportVisible, 15f, "the end screen");
+        yield return null;
+        AssertEveryButtonTakesAClickAtItsCentre(GameObject.Find("GameHud/MissionComplete/Safe").transform, "Mission Complete");
+    }
+
     // ------------------------------------------------------------------ main menu
     [UnityTest]
     public IEnumerator Every_main_menu_page_opens_and_its_back_arrow_closes_it()

@@ -98,6 +98,31 @@ public class GameUiTests
     }
 
     [UnityTest]
+    public IEnumerator Pausing_frees_the_mouse_so_the_menu_can_be_clicked_and_continuing_locks_it_again()
+    {
+        // A locked cursor sits in the middle of the screen: every click lands there and no menu button can be pressed.
+        var player = Object.FindFirstObjectByType<PlayerRescuer>();
+        Assert.IsNotNull(player);
+        if (!player.lockCursor) Assert.Ignore("this scene's player does not lock the cursor");
+        yield return null;
+
+        var menu = Object.FindFirstObjectByType<PauseMenu>(FindObjectsInactive.Include);
+        menu.Open();
+        yield return null;
+        Assert.AreEqual(CursorLockMode.None, Cursor.lockState, "the pause menu frees the cursor");
+        Assert.IsTrue(Cursor.visible);
+
+        menu.Close();
+        yield return null;
+        Assert.AreEqual(CursorLockMode.Locked, Cursor.lockState, "back in play the cursor is locked for mouse look again");
+
+        SetTimeLeft(0.05f);
+        yield return WaitUntil(() => RescueManager.Instance.ReportVisible, 15f, "the end screen");
+        yield return null;
+        Assert.AreEqual(CursorLockMode.None, Cursor.lockState, "Mission Complete frees the cursor too");
+    }
+
+    [UnityTest]
     public IEnumerator The_end_of_the_mission_shows_Mission_Complete_with_the_stats()
     {
         SetTimeLeft(0.05f);

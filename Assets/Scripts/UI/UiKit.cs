@@ -890,6 +890,12 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         var rt = (RectTransform)transform;
         float r = height * 0.5f;
+        // The whole line is the button, the word as much as the tab: an invisible hit area under everything. Without it
+        // only the small tab caught a click (the pill is hidden until highlighted, and text never catches clicks), so a
+        // click on CONTINUE or PLAY fell through to whatever was behind.
+        var hit = gameObject.AddComponent<Image>();
+        hit.color = new Color(0, 0, 0, 0);
+        hit.raycastTarget = true;
         pill = UiKit.Panel("Pill", rt, UiTheme.Orange, r);
         UiKit.Stretch(pill.rectTransform);
         // The Figma tab is a square-edged block with a half circle on its right (a 21 x 37 rectangle under a 37 circle).

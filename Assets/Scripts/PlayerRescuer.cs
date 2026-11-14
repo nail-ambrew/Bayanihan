@@ -260,16 +260,37 @@ public class PlayerRescuer : MonoBehaviour
         ApplyCursorLock(false);
     }
 
+    /// <summary>What the player last asked for (locked while playing); the pause menu and the end screen free it for a while.</summary>
+    bool wantCursorLocked;
+
     void ApplyCursorLock(bool locked)
     {
         if (!lockCursor) return;
+        wantCursorLocked = locked;
+        SetCursor(locked && !InputHelper.GameplayLocked);
+    }
+
+    static void SetCursor(bool locked)
+    {
         Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !locked;
+    }
+
+    /// <summary>
+    /// A locked cursor sits in the middle of the screen, so every click lands there and no menu button can be pressed.
+    /// While the game is paused or over the cursor is free; back in play it is locked again for mouse look.
+    /// </summary>
+    void KeepCursorFreeForMenus()
+    {
+        if (!lockCursor) return;
+        bool locked = wantCursorLocked && !InputHelper.GameplayLocked;
+        if ((Cursor.lockState == CursorLockMode.Locked) != locked) SetCursor(locked);
     }
 
     // ------------------------------------------------------------------ per frame
     void Update()
     {
+        KeepCursorFreeForMenus();
         if (IsMounted)
         {
             rawInput = Vector2.zero;
