@@ -119,7 +119,11 @@ public static class MenuPages
 
         Section(content, "DISASTER RESCUE GAME", "A capstone project by ELEV8 GAMES. Version " + Application.version + ".");
         Section(content, "THE TEAM",
-            "[TEAM MEMBER] - [ROLE]\n[TEAM MEMBER] - [ROLE]\n[TEAM MEMBER] - [ROLE]\n[TEAM MEMBER] - [ROLE]");
+            "Christian Mchail Dela Cruz - Lead Developer, Unity Integration\n" +
+            "Neil Andrew Velandrez - Asset Developer and Concept Art\n" +
+            "John Benedict Villamor - UI/UX Designer and Asset References\n" +
+            "Shiereen Francince Santos - Lead Researcher and Documentation\n" +
+            "Joaquin Andrei Singayan - System Researcher, Mobile Implementation");
         Section(content, "THE PLACE",
             "Barangay Mabuhay, City of Carmona, Cavite. Map data © OpenStreetMap contributors, available under the Open " +
             "Database License (ODbL).");

@@ -62,7 +62,7 @@ public class GameHud : MonoBehaviour
     void Start()
     {
         UiKit.EnsureEventSystem();
-        safe = UiKit.NewCanvas("GameHud", 10, out canvas);
+        safe = UiKit.NewCanvas("GameHud", 10, out canvas, centred: false);
 
         markers = UiKit.Rect("Markers", safe);
         UiKit.Stretch(markers);

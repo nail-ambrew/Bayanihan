@@ -38,7 +38,7 @@ public class PauseMenu : MonoBehaviour
 
         safe = UiKit.Rect("Safe", root);
         UiKit.Stretch(safe);
-        safe.gameObject.AddComponent<SafeArea>();
+        safe.gameObject.AddComponent<SafeArea>().FitDesign = SafeArea.MenuFit;
 
         UiKit.Logo(safe, UiKit.TopLeft, new Vector2(70, -30), 140f);
         var col = UiKit.MenuColumn(safe, new Vector2(70, -102), 32f, 12f, 150f);

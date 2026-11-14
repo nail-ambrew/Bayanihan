@@ -54,7 +54,9 @@ public static class UiKit
     /// A screen-space canvas laid out on the Figma frame. Returns the safe area inside it (clear of the notch and the
     /// rounded corners), which is where everything but full-screen backgrounds goes.
     /// </summary>
-    public static RectTransform NewCanvas(string name, int sortingOrder, out Canvas canvas)
+    /// <param name="centred">Menus: on a screen taller than the Figma frame, keep the frame's shape and centre it.
+    /// False for the HUD, whose pieces belong in the screen's corners.</param>
+    public static RectTransform NewCanvas(string name, int sortingOrder, out Canvas canvas, bool centred = true)
     {
         var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
         canvas = go.GetComponent<Canvas>();
@@ -66,7 +68,7 @@ public static class UiKit
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;   // the whole Figma frame always fits
         var safe = Rect("SafeArea", go.transform);
         Stretch(safe);
-        safe.gameObject.AddComponent<SafeArea>();
+        safe.gameObject.AddComponent<SafeArea>().FitDesign = centred ? SafeArea.MenuFit : 0f;
         return safe;
     }
 
@@ -746,8 +748,22 @@ public static class UiKit
 [RequireComponent(typeof(RectTransform))]
 public class SafeArea : MonoBehaviour
 {
+    /// <summary>How much taller than the Figma frame a menu may grow before it is centred instead (tablets, 16:9).</summary>
+    public const float MenuFit = 1.15f;
+
     Rect applied;
     Vector2Int size;
+    float fitDesign;
+
+    /// <summary>
+    /// 0 = fill the whole safe area (the HUD, which sits in the corners). Otherwise the area is never taller than the
+    /// Figma frame's shape times this, and is centred: on a 4:3 tablet a menu sits in the middle, not in the top half.
+    /// </summary>
+    public float FitDesign
+    {
+        get => fitDesign;
+        set { fitDesign = value; Apply(); }
+    }
 
     void OnEnable() => Apply();
     void Update()
@@ -760,9 +776,19 @@ public class SafeArea : MonoBehaviour
         applied = Screen.safeArea;
         size = new Vector2Int(Screen.width, Screen.height);
         if (Screen.width <= 0 || Screen.height <= 0) return;
+        Rect area = applied;
+        if (fitDesign > 0f)
+        {
+            float maxHeight = area.width * (UiTheme.Reference.y / UiTheme.Reference.x) * fitDesign;
+            if (area.height > maxHeight)
+            {
+                float trim = (area.height - maxHeight) * 0.5f;
+                area = new Rect(area.x, area.y + trim, area.width, maxHeight);
+            }
+        }
         var rt = (RectTransform)transform;
-        rt.anchorMin = new Vector2(applied.xMin / Screen.width, applied.yMin / Screen.height);
-        rt.anchorMax = new Vector2(applied.xMax / Screen.width, applied.yMax / Screen.height);
+        rt.anchorMin = new Vector2(area.xMin / Screen.width, area.yMin / Screen.height);
+        rt.anchorMax = new Vector2(area.xMax / Screen.width, area.yMax / Screen.height);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
     }

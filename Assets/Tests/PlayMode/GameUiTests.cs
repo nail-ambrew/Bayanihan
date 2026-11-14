@@ -46,8 +46,10 @@ public class GameUiTests
     [UnityTest]
     public IEnumerator The_joystick_and_buttons_reach_the_game_like_keys()
     {
-        TouchInput.Stick = new Vector2(0.5f, 1f);
-        Assert.AreEqual(new Vector2(0.5f, 1f), InputHelper.Move(), "the joystick steers when no key is held");
+        TouchInput.Stick = new Vector2(0.3f, 0.8f);
+        Assert.AreEqual(new Vector2(0.3f, 0.8f), InputHelper.Move(), "the joystick steers when no key is held");
+        TouchInput.Stick = new Vector2(3f, 4f);
+        Assert.AreEqual(1f, InputHelper.Move().magnitude, 1e-4f, "never faster than a full push, however far the thumb goes");
         TouchInput.Stick = Vector2.zero;
 
         TouchInput.Press(TouchAction.Throw);

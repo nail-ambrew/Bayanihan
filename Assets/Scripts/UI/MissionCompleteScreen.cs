@@ -40,7 +40,7 @@ public class MissionCompleteScreen : MonoBehaviour
         dim.raycastTarget = true;
         safe = UiKit.Rect("Safe", root);
         UiKit.Stretch(safe);
-        safe.gameObject.AddComponent<SafeArea>();
+        safe.gameObject.AddComponent<SafeArea>().FitDesign = SafeArea.MenuFit;
 
         UiKit.Logo(safe, UiKit.TopLeft, new Vector2(16, -12), 140f);
         UiKit.Version(safe);
