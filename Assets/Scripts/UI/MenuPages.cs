@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 /// <summary>
@@ -10,9 +11,10 @@ using UnityEngine.UI;
 public static class MenuPages
 {
     // ------------------------------------------------------------------ how to play
-    public static GameObject HowToPlay(Transform root, float left = 290f)
+    /// <param name="close">The board's back arrow: every page can be closed with a tap (iOS has no Back key).</param>
+    public static GameObject HowToPlay(Transform root, UnityAction close, float left = 290f)
     {
-        var body = UiKit.Board(root, "HOW TO PLAY", "RESCUE GUIDE", null, out _, out _, left);
+        var body = UiKit.Board(root, "HOW TO PLAY", "RESCUE GUIDE", null, out _, out _, left, close);
         var board = body.parent.parent.gameObject;
         var content = UiKit.Scroll(body, out _, 5f);
 
@@ -65,11 +67,11 @@ public static class MenuPages
 
     // ------------------------------------------------------------------ settings
     /// <param name="onSignOut">Shown as a Sign Out button when given (the main menu, not the pause menu).</param>
-    public static GameObject Settings(Transform root, Action onSignOut = null, float left = 290f)
+    public static GameObject Settings(Transform root, UnityAction close, Action onSignOut = null, float left = 290f)
     {
-        var body = UiKit.Board(root, "SETTINGS", "OPTIONS", null, out _, out _, left);
+        var body = UiKit.Board(root, "SETTINGS", "OPTIONS", null, out _, out _, left, close);
         var board = body.parent.parent.gameObject;
-        var content = UiKit.Scroll(body, out _, 8f, new RectOffset(6, 6, 6, 6));
+        var content = UiKit.Scroll(body, out _, 4f, new RectOffset(6, 6, 2, 4));   // tight enough that SIGN OUT fits without scrolling
 
         Row(UiKit.Slider(content, "VOLUME", GameSettings.Volume, v => GameSettings.Volume = v).transform.parent);
         Row(UiKit.Choice(content, "GRAPHICS", new[] { "LOW", "MEDIUM", "HIGH" }, GameSettings.Quality, i => GameSettings.Quality = i).transform);
@@ -111,9 +113,9 @@ public static class MenuPages
     }
 
     // ------------------------------------------------------------------ credits
-    public static GameObject Credits(Transform root, float left = 290f)
+    public static GameObject Credits(Transform root, UnityAction close, float left = 290f)
     {
-        var body = UiKit.Board(root, "CREDITS", "BAYANIHAN", null, out _, out _, left);
+        var body = UiKit.Board(root, "CREDITS", "BAYANIHAN", null, out _, out _, left, close);
         var board = body.parent.parent.gameObject;
         var content = UiKit.Scroll(body, out _, 5f);
 

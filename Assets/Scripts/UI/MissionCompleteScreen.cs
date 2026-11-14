@@ -12,6 +12,7 @@ public class MissionCompleteScreen : MonoBehaviour
     RescueManager manager;
     RectTransform safe;
     GameObject board, report;
+    UiMenuItem reportItem;
     bool built;
 
     public static MissionCompleteScreen Create(Transform canvasRoot, RescueManager manager)
@@ -45,9 +46,10 @@ public class MissionCompleteScreen : MonoBehaviour
         UiKit.Logo(safe, UiKit.TopLeft, new Vector2(16, -12), 140f);
         UiKit.Version(safe);
         var col = UiKit.MenuColumn(safe, new Vector2(16, -140), 32f, 14f, 160f);
+        // CONTINUE: pack again for the next run (the loadout). QUIT: the main menu.
         UiKit.MenuItem(col, "CONTINUE", manager.Repack, 32f, 160f);
         UiKit.MenuItem(col, "RESTART", manager.Restart, 32f, 160f);
-        UiKit.MenuItem(col, "FULL REPORT", ToggleReport, 32f, 160f);
+        reportItem = UiKit.MenuItem(col, "FULL REPORT", ToggleReport, 32f, 160f);
         UiKit.MenuItem(col, "QUIT", manager.ExitToMenu, 32f, 160f);
 
         board = BuildStats();
@@ -71,8 +73,7 @@ public class MissionCompleteScreen : MonoBehaviour
             for (int i = 0; i < 3; i++)
             {
                 var bar = UiKit.Image("Bar", cardHeading.transform.parent, UiTheme.BrownDark);
-                bar.rectTransform.anchorMin = bar.rectTransform.anchorMax = bar.rectTransform.pivot = new Vector2(0, 1);
-                bar.rectTransform.anchoredPosition = new Vector2(36 + i * 9, -38 + 0);
+                bar.rectTransform.anchorMin = bar.rectTransform.anchorMax = new Vector2(0, 1);
                 bar.rectTransform.pivot = new Vector2(0, 0);
                 bar.rectTransform.anchoredPosition = new Vector2(36 + i * 9, -38);
                 bar.rectTransform.sizeDelta = new Vector2(6, 10 + i * 8);
@@ -117,11 +118,12 @@ public class MissionCompleteScreen : MonoBehaviour
         UiKit.Inset(val.rectTransform, 210, 0, 12, 0);
         if (rule)
         {
-            var line = UiKit.Image("Rule", row, UiTheme.Fade(UiTheme.InkSoft, 0.35f));
+            // the same divider as under the card's heading, along the bottom of the row
+            var line = UiKit.Image("Rule", row, UiTheme.Rule);
             line.rectTransform.anchorMin = new Vector2(0, 0);
             line.rectTransform.anchorMax = new Vector2(1, 0);
             line.rectTransform.offsetMin = new Vector2(66, 0);
-            line.rectTransform.offsetMax = new Vector2(-8, 0.8f);
+            line.rectTransform.offsetMax = new Vector2(-8, UiTheme.RuleThickness);
         }
     }
 
@@ -153,7 +155,7 @@ public class MissionCompleteScreen : MonoBehaviour
                     float big = i == 0 ? 1f : 0.8f;
                     var head = UiKit.Image("Head", at, ink, UiKit.Circle());
                     UiKit.Place(head.rectTransform, UiKit.Center, new Vector2(i * 10, 7 * big), new Vector2(9 * big, 9 * big));
-                    var body = UiKit.Image("Body", at, ink, UiKit.Rounded(5f, 5f, 1f, 1f));
+                    var body = UiKit.Image("Body", at, ink, UiKit.Rounded(4f * big, 4f * big, 1f, 1f));
                     UiKit.Place(body.rectTransform, UiKit.Center, new Vector2(i * 10, -7), new Vector2(12 * big, 12 * big));
                 }
                 break;
@@ -180,6 +182,7 @@ public class MissionCompleteScreen : MonoBehaviour
     }
 
     // ------------------------------------------------------------------ full report
+    /// <summary>FULL REPORT swaps the stats for the report and becomes STATS; STATS (or the report's back arrow) swaps back.</summary>
     void ToggleReport()
     {
         if (report != null)
@@ -187,15 +190,25 @@ public class MissionCompleteScreen : MonoBehaviour
             Destroy(report);
             report = null;
             board.SetActive(true);
+            SetReportLabel("FULL REPORT");
             return;
         }
         board.SetActive(false);
         report = BuildReport();
+        SetReportLabel("STATS");
+    }
+
+    void SetReportLabel(string text)
+    {
+        if (reportItem == null) return;
+        var label = reportItem.transform.Find("Label")?.GetComponent<Text>();
+        if (label != null) label.text = text;
     }
 
     GameObject BuildReport()
     {
-        var body = UiKit.Board(safe, manager.ReportTitle ?? "Mission over", "FULL REPORT", null, out var title, out _);
+        var body = UiKit.Board(safe, manager.ReportTitle ?? "Mission over", "FULL REPORT", null, out var title, out _,
+                               close: ToggleReport, name: "Report");
         title.fontSize = UiTheme.TitleSize - 2;
         title.Shrink(10);
         var content = UiKit.Scroll(body, out _, 1f);

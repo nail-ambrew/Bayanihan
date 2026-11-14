@@ -48,13 +48,20 @@ public class PauseMenu : MonoBehaviour
         UiKit.MenuItem(col, "ABORT", AskAbort, 32f, 150f);
     }
 
-    /// <summary>Black on the left fading out to the right.</summary>
+    static Sprite fade;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => fade = null;
+
+    /// <summary>Black on the left fading out to the right. Made once and shared.</summary>
     static Sprite HorizontalFade()
     {
+        if (fade != null) return fade;
         var tex = new Texture2D(64, 1, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
         for (int x = 0; x < 64; x++) tex.SetPixel(x, 0, new Color(0, 0, 0, Mathf.Lerp(0.75f, 0f, x / 63f)));
         tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, 64, 1), new Vector2(0.5f, 0.5f));
+        fade = Sprite.Create(tex, new Rect(0, 0, 64, 1), new Vector2(0.5f, 0.5f));
+        return fade;
     }
 
     public void Open()
@@ -68,7 +75,7 @@ public class PauseMenu : MonoBehaviour
     public void Close()
     {
         if (dialog != null) { Destroy(dialog); dialog = null; }
-        if (page != null) { Destroy(page); page = null; }
+        ClosePage();
         gameObject.SetActive(false);
         GamePause.Resume();
     }
@@ -78,30 +85,38 @@ public class PauseMenu : MonoBehaviour
     {
         if (!IsOpen) { Open(); return; }
         if (dialog != null) { Destroy(dialog); dialog = null; return; }
-        if (page != null) { Destroy(page); page = null; return; }
+        if (page != null) { ClosePage(); return; }
         Close();
     }
 
     void OpenSettings()
     {
         if (page != null) Destroy(page);
-        page = MenuPages.Settings(safe, null, 245f);
+        page = MenuPages.Settings(safe, ClosePage, null, 245f);
+    }
+
+    /// <summary>The settings page's back arrow: back to the pause menu, nothing lit.</summary>
+    void ClosePage()
+    {
+        if (page != null) Destroy(page);
+        page = null;
+        UiMenuItem.ClearHighlight();
     }
 
     void AskRestart()
     {
         if (dialog != null) return;
         dialog = UiKit.Confirm(safe, "Are you sure to restart the operation?",
-            ("NO", () => dialog = null),
-            ("YES", () => { dialog = null; manager.Restart(); }));
+            ("NO", () => { dialog = null; UiMenuItem.ClearHighlight(); }),
+            ("YES", () => { dialog = null; if (manager != null) manager.Restart(); else SceneFlow.Reload(); }));
     }
 
     void AskAbort()
     {
         if (dialog != null) return;
         dialog = UiKit.Confirm(safe, "Are you sure to abort the operation?",
-            ("NO", () => dialog = null),
-            ("YES", () => { dialog = null; manager.ExitToMenu(); }));
+            ("NO", () => { dialog = null; UiMenuItem.ClearHighlight(); }),
+            ("YES", () => { dialog = null; if (manager != null) manager.ExitToMenu(); else SceneFlow.Load(SceneFlow.Home); }));
     }
 
     void OnDestroy()

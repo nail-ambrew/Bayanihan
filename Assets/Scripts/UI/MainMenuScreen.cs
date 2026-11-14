@@ -23,10 +23,10 @@ public class MainMenuScreen : MonoBehaviour
         UiKit.Version(safe);
 
         var menu = UiKit.MenuColumn(safe, new Vector2(92, -110), 38f, 15f, 174f);
-        UiKit.MenuItem(menu, "HOW TO PLAY", () => Open(MenuPages.HowToPlay(safe)), 38f, 174f);
+        UiKit.MenuItem(menu, "HOW TO PLAY", () => Open(MenuPages.HowToPlay(safe, ClosePage)), 38f, 174f);
         UiKit.MenuItem(menu, "PLAY", Play, 38f, 174f);
-        UiKit.MenuItem(menu, "SETTINGS", () => Open(MenuPages.Settings(safe, SignOut)), 38f, 174f);
-        UiKit.MenuItem(menu, "CREDITS", () => Open(MenuPages.Credits(safe)), 38f, 174f);
+        UiKit.MenuItem(menu, "SETTINGS", () => Open(MenuPages.Settings(safe, ClosePage, SignOut)), 38f, 174f);
+        UiKit.MenuItem(menu, "CREDITS", () => Open(MenuPages.Credits(safe, ClosePage)), 38f, 174f);
         UiKit.MenuItem(menu, "QUIT", AskQuit, 38f, 174f);
     }
 
@@ -34,7 +34,7 @@ public class MainMenuScreen : MonoBehaviour
     {
         if (!InputHelper.BackPressed()) return;
         if (dialog != null) { Destroy(dialog); dialog = null; }
-        else if (page != null) { Destroy(page); page = null; }
+        else if (page != null) ClosePage();
         else AskQuit();
     }
 
@@ -42,6 +42,14 @@ public class MainMenuScreen : MonoBehaviour
     {
         if (page != null) Destroy(page);
         page = next;
+    }
+
+    /// <summary>The page's back arrow, Esc and Android's Back: the page goes and its menu line is no longer lit.</summary>
+    void ClosePage()
+    {
+        if (page != null) Destroy(page);
+        page = null;
+        UiMenuItem.ClearHighlight();
     }
 
     void Play()
@@ -59,10 +67,24 @@ public class MainMenuScreen : MonoBehaviour
             ("CANCEL", ButtonStyle.Primary, () => dialog = null));
     }
 
+    bool signingOut;
+
+    /// <summary>Settings' SIGN OUT and the quit dialog's Return to Login. A second tap while it runs does nothing.</summary>
     async void SignOut()
     {
-        await AccountService.SignOutAsync();
-        SceneFlow.Load(SceneFlow.Account);
+        if (signingOut) return;
+        signingOut = true;
+        try
+        {
+            await AccountService.SignOutAsync();
+            SceneFlow.Load(SceneFlow.Account);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning("[MainMenu] Sign out failed: " + e.Message);
+            if (this != null) dialog = UiKit.Notice(safe, "Couldn't sign out", "Check your internet connection and try again.", "OK", () => dialog = null);
+        }
+        finally { signingOut = false; }
     }
 
     static void Exit()

@@ -129,7 +129,8 @@ public class GameHud : MonoBehaviour
 
     static Image StatChip(Transform row, string caption, float width, out Text value)
     {
-        var chip = UiKit.Panel("Chip_" + caption, row, UiTheme.Orange, 6f);
+        var chip = UiKit.Panel("Chip_" + caption, row, UiTheme.Orange, UiTheme.RadiusCard);
+        chip.raycastTarget = false;     // a look-drag that starts on a chip still turns the camera
         var le = chip.gameObject.AddComponent<LayoutElement>();
         le.preferredWidth = width;
         chip.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.3f);
@@ -165,9 +166,12 @@ public class GameHud : MonoBehaviour
 
     void BuildRoster()
     {
-        rosterCard = UiKit.Panel("Roster", hud, UiTheme.Fade(UiTheme.Paper, 0.9f), 6f).rectTransform;
+        var rosterBack = UiKit.Panel("Roster", hud, UiTheme.Fade(UiTheme.Paper, 0.9f), UiTheme.RadiusCard);
+        rosterBack.raycastTarget = false;     // only its header is a button
+        rosterCard = rosterBack.rectTransform;
         UiKit.Place(rosterCard, UiKit.TopLeft, new Vector2(12, -42), new Vector2(170, 20));
-        var head = UiKit.Panel("Head", rosterCard, UiTheme.OrangeDeep, 6f);
+        // square underneath, so it sits flush on the card instead of showing the card's corners below its own
+        var head = UiKit.Image("Head", rosterCard, UiTheme.OrangeDeep, UiKit.Rounded(UiTheme.RadiusCard, UiTheme.RadiusCard, 0f, 0f));
         head.rectTransform.anchorMin = new Vector2(0, 1);
         head.rectTransform.anchorMax = new Vector2(1, 1);
         head.rectTransform.pivot = new Vector2(0.5f, 1);
@@ -277,7 +281,8 @@ public class GameHud : MonoBehaviour
         foreach (var id in LoadoutState.Selected)
         {
             var def = RescueItems.Get(id);
-            var back = UiKit.Panel("Item_" + id, itemBar, UiTheme.Fade(UiTheme.CreamLight, 0.92f), 5f);
+            var back = UiKit.Panel("Item_" + id, itemBar, UiTheme.Fade(UiTheme.CreamLight, 0.92f), UiTheme.RadiusCard);
+            back.raycastTarget = false;
             back.rectTransform.sizeDelta = new Vector2(44, 30);
             var iconHolder = UiKit.Rect("IconArea", back.transform);
             UiKit.Place(iconHolder, UiKit.Top, new Vector2(0, -2), new Vector2(18, 16));
@@ -325,7 +330,8 @@ public class GameHud : MonoBehaviour
 
         for (int i = 0; i < prompts.Length; i++)
         {
-            var back = UiKit.Panel("Prompt" + i, promptStack, UiTheme.HudPanel, 8f);
+            var back = UiKit.Panel("Prompt" + i, promptStack, UiTheme.HudPanel, UiTheme.RadiusPanel);
+            back.raycastTarget = false;
             back.rectTransform.anchorMin = back.rectTransform.anchorMax = back.rectTransform.pivot = UiKit.Bottom;
             var text = UiKit.Label("Text", back.transform, "", UiTheme.BodySize + 2, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
             UiKit.Inset(text.rectTransform, 10, 3, 10, 3);
@@ -333,7 +339,8 @@ public class GameHud : MonoBehaviour
             back.gameObject.SetActive(false);
         }
 
-        holdTrack = UiKit.Panel("Hold", promptStack, UiTheme.HudPanel, 3f);
+        holdTrack = UiKit.Panel("Hold", promptStack, UiTheme.HudPanel, UiTheme.RadiusSmall);
+        holdTrack.raycastTarget = false;
         UiKit.Place(holdTrack.rectTransform, UiKit.Bottom, Vector2.zero, new Vector2(140, 8));
         holdFill = UiKit.Panel("Fill", holdTrack.transform, UiTheme.Green, 2f);
         holdFill.rectTransform.anchorMin = Vector2.zero;
@@ -548,21 +555,23 @@ public class GameHud : MonoBehaviour
 
         public static ResidentCard Create(RectTransform parent)
         {
-            var back = UiKit.Panel("ResidentCard", parent, UiTheme.Fade(UiTheme.Paper, 0.94f), 5f);
+            var back = UiKit.Panel("ResidentCard", parent, UiTheme.Fade(UiTheme.Paper, 0.94f), UiTheme.RadiusCard);
+            back.raycastTarget = false;
             back.rectTransform.pivot = new Vector2(0.5f, 0f);
             back.rectTransform.sizeDelta = new Vector2(118, 40);
             back.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.3f);
             var c = back.gameObject.AddComponent<ResidentCard>();
-            c.strip = UiKit.Image("Tag", back.transform, Color.white, UiKit.Rounded(5f, 0f, 0f, 5f));
+            // the triage colour down the left: as wide as the card's corner, so its curve is the card's curve
+            c.strip = UiKit.Image("Tag", back.transform, Color.white, UiKit.Rounded(UiTheme.RadiusCard, 0f, 0f, UiTheme.RadiusCard));
             c.strip.rectTransform.anchorMin = Vector2.zero;
             c.strip.rectTransform.anchorMax = new Vector2(0, 1);
             c.strip.rectTransform.pivot = new Vector2(0, 0.5f);
-            c.strip.rectTransform.sizeDelta = new Vector2(5, 0);
+            c.strip.rectTransform.sizeDelta = new Vector2(UiTheme.RadiusCard, 0);
             c.strip.rectTransform.anchoredPosition = Vector2.zero;
             c.title = UiKit.Label("Name", back.transform, "", UiTheme.BodySize, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
-            UiKit.Inset(c.title.rectTransform, 9, 2, 3, 26);
+            UiKit.Inset(c.title.rectTransform, 10, 2, 3, 26);
             c.needs = UiKit.Rect("Needs", back.transform);
-            UiKit.Inset(c.needs, 9, 15, 50, 13);
+            UiKit.Inset(c.needs, 10, 15, 50, 13);
             c.barBack = UiKit.Panel("Condition", back.transform, UiTheme.Fade(UiTheme.Ink, 0.25f), 2f);
             UiKit.Place(c.barBack.rectTransform, UiKit.TopRight, new Vector2(-5, -18), new Vector2(44, 5));
             c.bar = UiKit.Panel("Fill", c.barBack.transform, Color.white, 2f);
@@ -605,7 +614,7 @@ public class GameHud : MonoBehaviour
         {
             while (needIcons.Count <= index)
             {
-                var holder = UiKit.Image("Need", needs, UiTheme.White, UiKit.Rounded(2f));
+                var holder = UiKit.Image("Need", needs, UiTheme.White, UiKit.Rounded(UiTheme.RadiusSmall));
                 UiKit.Place(holder.rectTransform, UiKit.Left, new Vector2(needIcons.Count * 14f, 0), new Vector2(12, 12));
                 var cross = UiKit.Image("Missing", holder.transform, UiTheme.Error);
                 UiKit.Place(cross.rectTransform, UiKit.Center, Vector2.zero, new Vector2(15, 1.6f));
@@ -642,17 +651,18 @@ public class GameHud : MonoBehaviour
 
         public static Chip Create(RectTransform parent)
         {
-            var b = UiKit.Panel("Chip", parent, UiTheme.HudPanel, 5f);
+            var b = UiKit.Panel("Chip", parent, UiTheme.HudPanel, UiTheme.RadiusCard);
+            b.raycastTarget = false;
             b.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             var c = b.gameObject.AddComponent<Chip>();
             c.back = b;
-            c.edge = UiKit.Image("Edge", b.transform, Color.white, UiKit.Rounded(5f, 0f, 0f, 5f));
+            c.edge = UiKit.Image("Edge", b.transform, Color.white, UiKit.Rounded(UiTheme.RadiusCard, 0f, 0f, UiTheme.RadiusCard));
             c.edge.rectTransform.anchorMin = Vector2.zero;
             c.edge.rectTransform.anchorMax = new Vector2(0, 1);
             c.edge.rectTransform.pivot = new Vector2(0, 0.5f);
-            c.edge.rectTransform.sizeDelta = new Vector2(4, 0);
+            c.edge.rectTransform.sizeDelta = new Vector2(UiTheme.RadiusCard, 0);
             c.text = UiKit.Label("Text", b.transform, "", UiTheme.BodySize, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
-            UiKit.Inset(c.text.rectTransform, 8, 0, 5, 0);
+            UiKit.Inset(c.text.rectTransform, 9, 0, 5, 0);
             c.bar = UiKit.Image("Bar", b.transform, UiTheme.Notice);
             c.bar.rectTransform.anchorMin = new Vector2(0, 0);
             c.bar.rectTransform.anchorMax = new Vector2(0, 0);

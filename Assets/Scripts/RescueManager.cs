@@ -310,14 +310,14 @@ public class RescueManager : MonoBehaviour
         SceneFlow.Reload();
     }
 
-    /// <summary>Leave the mission for the main menu (Quit, Abort, Continue on the stats).</summary>
+    /// <summary>Leave the mission for the main menu (Quit on the stats, Abort in the pause menu).</summary>
     public void ExitToMenu()
     {
         GamePause.Clear();
         SceneFlow.Load(SceneFlow.Home);
     }
 
-    /// <summary>Back to the loadout to repack.</summary>
+    /// <summary>Back to the loadout to repack for another run (Continue on the stats).</summary>
     public void Repack()
     {
         GamePause.Clear();

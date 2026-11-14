@@ -117,11 +117,21 @@ public class AccountScreen : MonoBehaviour
         if (working) return;
         working = true;
         SetStatus(quickStatus, "Signing out...", UiTheme.InkSoft);
-        await AccountService.SignOutAsync();
-        working = false;
-        resumed = false;
-        if (this == null) return;
-        Show(View.Login);
+        try
+        {
+            await AccountService.SignOutAsync();
+            resumed = false;
+            if (this == null) return;
+            SetStatus(quickStatus, "", UiTheme.InkSoft);
+            Show(View.Login);
+        }
+        catch (Exception e)
+        {
+            // Without this the form would stay locked on "Signing out..." for good.
+            Debug.LogWarning("[Account] Sign out failed: " + e.Message);
+            if (this != null) SetStatus(quickStatus, "Couldn't sign out. Check your connection and try again.", UiTheme.Error);
+        }
+        finally { working = false; }
     }
 
     void ForgotPassword()
@@ -131,8 +141,10 @@ public class AccountScreen : MonoBehaviour
             "help you get back in. Your UID is shown in Settings once you are signed in.");
     }
 
+    /// <summary>Quick Login's button: the saved session is already signed in, so this only moves on. Not while busy.</summary>
     void Continue()
     {
+        if (working || SceneFlow.IsLoading) return;
         SceneFlow.Load(SceneFlow.Home);
     }
 
@@ -269,7 +281,7 @@ public class AccountScreen : MonoBehaviour
         UiKit.Version(cardScreen);
         cardObject = cardScreen.gameObject;
 
-        var cardImg = UiKit.Panel("Card", cardScreen, UiTheme.White, 10f);
+        var cardImg = UiKit.Panel("Card", cardScreen, UiTheme.White, UiTheme.RadiusBoard);
         card = cardImg.rectTransform;
         UiKit.Place(card, UiKit.Center, new Vector2(0, -4), new Vector2(CardWidth, 262));
 
@@ -326,9 +338,9 @@ public class AccountScreen : MonoBehaviour
         quickPanel = panel.gameObject;
 
         // The saved account, in an orange-rimmed box like a field.
-        var box = UiKit.Panel("Account", panel, UiTheme.Orange, 3f);
+        var box = UiKit.Panel("Account", panel, UiTheme.Orange, UiTheme.RadiusSmall);
         UiKit.Place(box.rectTransform, UiKit.Top, new Vector2(0, -48), new Vector2(FieldWidth, 36));
-        var fill = UiKit.Panel("Fill", box.transform, UiTheme.White, 2.5f);
+        var fill = UiKit.Panel("Fill", box.transform, UiTheme.White, UiTheme.RadiusSmall - 1f);
         UiKit.Inset(fill.rectTransform, 1f);
         quickName = UiKit.Label("Name", box.transform, "", UiTheme.BodySize + 1, UiTheme.Ink, TextAnchor.LowerLeft);
         UiKit.Inset(quickName.rectTransform, 7, 2, 7, 16);
@@ -336,6 +348,7 @@ public class AccountScreen : MonoBehaviour
         UiKit.Inset(quickWhen.rectTransform, 7, 20, 7, 2);
 
         quickButton = WideButton(panel, "Login", -94, Continue);
+        quickButton.name = "Button_Continue";      // the full login form has its own Button_Login
         quickStatus = Status(panel, -128);
         Link(panel, "Log in to another account", -146, UiTheme.Ink, OtherAccount);
     }
@@ -350,8 +363,8 @@ public class AccountScreen : MonoBehaviour
         loginStatus = Status(panel, -155);
         Link(panel, "Forgot password?", -174, UiTheme.Ink, ForgotPassword, TextAnchor.MiddleLeft);
 
-        var line = UiKit.Image("Divider", panel, UiTheme.Ink);
-        UiKit.Place(line.rectTransform, UiKit.Top, new Vector2(0, -199), new Vector2(FieldWidth, 0.6f));
+        var line = UiKit.Image("Divider", panel, UiTheme.Rule);
+        UiKit.Place(line.rectTransform, UiKit.Top, new Vector2(0, -199), new Vector2(FieldWidth, UiTheme.RuleThickness));
         var orBack = UiKit.Image("OrBack", panel, UiTheme.White);
         UiKit.Place(orBack.rectTransform, UiKit.Top, new Vector2(0, -194), new Vector2(16, 10));
         var or = UiKit.Label("Or", orBack.transform, "or", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.MiddleCenter);

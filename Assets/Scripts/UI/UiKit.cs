@@ -281,6 +281,7 @@ public static class UiKit
     /// </summary>
     public static RectTransform MenuColumn(Transform parent, Vector2 topLeft, float itemHeight, float gap, float width = 170f)
     {
+        UiMenuItem.ClearHighlight();
         var col = Rect("Menu", parent);
         col.anchorMin = col.anchorMax = col.pivot = TopLeft;
         col.anchoredPosition = topLeft;
@@ -302,10 +303,10 @@ public static class UiKit
     /// use it too. Returns the paper card; its heading goes in <paramref name="cardTitle"/>.
     /// </summary>
     public static RectTransform Board(Transform parent, string title, string cardTitle, Sprite cardIcon, out Text titleText, out Text cardHeading,
-                                      float left = 201f)
+                                      float left = 201f, UnityAction close = null, string name = "Board")
     {
         // From `left` to 43 units in from the right edge, 30 down from the top, 335 tall (the Figma board).
-        var board = Panel("Board", parent, UiTheme.Board, 10f);
+        var board = Panel(name, parent, UiTheme.Board, UiTheme.RadiusBoard);
         var brt = board.rectTransform;
         brt.anchorMin = new Vector2(0, 1);
         brt.anchorMax = new Vector2(1, 1);
@@ -315,21 +316,20 @@ public static class UiKit
         board.raycastTarget = true;
         float side = left > 230f ? 26f : 86f;      // a narrower board keeps less margin round its card
         titleText = Label("Title", board.transform, title, UiTheme.TitleSize + 4, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
-        Inset(titleText.rectTransform, 12, 10, 12, 335 - 44);
-        titleText.gameObject.AddComponent<Shadow>().effectColor = UiTheme.Fade(UiTheme.OrangeBurnt, 0.7f);
+        float titleSide = close != null ? 40f : 12f;     // clear of the back arrow, and centred all the same
+        Inset(titleText.rectTransform, titleSide, 10, titleSide, 335 - 44);
+        titleText.gameObject.AddComponent<Shadow>().effectColor = UiTheme.TitleShadow;
+        // A board can always be closed by tapping, not only with Esc or Android's back key: iOS has neither.
+        if (close != null) BackButton(board.transform, TopLeft, new Vector2(6, -8), close, 18f, UiTheme.White).name = "Close";
 
-        var paper = Panel("Card", board.transform, UiTheme.Paper, 8f);
+        var paper = Panel("Card", board.transform, UiTheme.Paper, UiTheme.RadiusPanel);
         Inset(paper.rectTransform, side, 56, side, 17);
         paper.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.25f);
 
         cardHeading = Label("Heading", paper.transform, cardTitle, UiTheme.TitleSize + 2, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
         Place(cardHeading.rectTransform, TopLeft, new Vector2(cardIcon != null ? 74 : 24, -8), new Vector2(340, 34));
         if (cardIcon != null) OptionalIcon(paper.transform, cardIcon, TopLeft, new Vector2(36, -8), new Vector2(32, 32));
-        var rule = Image("Rule", paper.transform, UiTheme.Fade(UiTheme.InkSoft, 0.5f));
-        rule.rectTransform.anchorMin = new Vector2(0, 1);
-        rule.rectTransform.anchorMax = new Vector2(1, 1);
-        rule.rectTransform.offsetMin = new Vector2(16, -46.8f);
-        rule.rectTransform.offsetMax = new Vector2(-16, -46f);
+        Rule(paper.transform, -46f);
 
         var body = Rect("Body", paper.transform);
         Inset(body, 16, 52, 16, 10);
@@ -340,8 +340,10 @@ public static class UiKit
     /// The orange back arrow at the top left of the sign-in card and the loadout: the Figma export when there is one,
     /// otherwise a drawn chevron. The touch target is bigger than the arrow.
     /// </summary>
-    public static Button BackButton(Transform parent, Vector2 anchor, Vector2 pos, UnityAction onClick, float size = 20f)
+    /// <param name="colour">The drawn arrow's colour: orange on paper and over the street, white on an orange board.</param>
+    public static Button BackButton(Transform parent, Vector2 anchor, Vector2 pos, UnityAction onClick, float size = 20f, Color? colour = null)
     {
+        Color ink = colour ?? UiTheme.Orange;
         var hit = Image("Back", parent, new Color(0, 0, 0, 0));
         Place(hit.rectTransform, anchor, pos, new Vector2(size + 16f, size + 12f));
         hit.raycastTarget = true;
@@ -357,28 +359,39 @@ public static class UiKit
             float len = size * 0.55f, thick = Mathf.Max(2.5f, size * 0.16f);
             for (int i = 0; i < 2; i++)
             {
-                var bar = Image("Chevron", hit.transform, UiTheme.Orange, Rounded(thick * 0.5f));
+                var bar = Image("Chevron", hit.transform, ink, Rounded(thick * 0.5f));
                 bar.rectTransform.anchorMin = bar.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 bar.rectTransform.pivot = new Vector2(0f, 0.5f);
                 bar.rectTransform.sizeDelta = new Vector2(len, thick);
                 bar.rectTransform.anchoredPosition = new Vector2(-size * 0.22f, 0);
                 bar.rectTransform.localRotation = Quaternion.Euler(0, 0, i == 0 ? 40f : -40f);
             }
-            var shaft = Image("Shaft", hit.transform, UiTheme.Orange, Rounded(thick * 0.5f));
+            var shaft = Image("Shaft", hit.transform, ink, Rounded(thick * 0.5f));
             Place(shaft.rectTransform, Center, new Vector2(size * 0.08f, 0), new Vector2(size * 0.62f, thick));
         }
         var b = hit.gameObject.AddComponent<Button>();
-        b.transition = Selectable.Transition.None;
+        PressFeedback(b);
         if (onClick != null) b.onClick.AddListener(onClick);
         return b;
+    }
+
+    /// <summary>
+    /// A press the finger can see on a control that has no fill of its own (the back arrow, the item cards): it shrinks
+    /// a little while held, the way the orange buttons darken.
+    /// </summary>
+    public static void PressFeedback(Selectable s)
+    {
+        s.transition = Selectable.Transition.None;
+        if (s.GetComponent<PressScale>() == null) s.gameObject.AddComponent<PressScale>();
     }
 
     // ------------------------------------------------------------------ fields
     /// <summary>A text field with the orange rim of the sign-in card.</summary>
     public static InputField Field(Transform parent, string placeholder, InputField.ContentType type, int limit)
     {
-        var rim = Panel("Field_" + placeholder, parent, UiTheme.Orange, 3f);
-        var fill = Panel("Fill", rim.transform, UiTheme.White, 2.5f);
+        // The fill is the rim's shape one unit in, so both curves share a centre.
+        var rim = Panel("Field_" + placeholder, parent, UiTheme.Orange, UiTheme.RadiusSmall);
+        var fill = Panel("Fill", rim.transform, UiTheme.White, UiTheme.RadiusSmall - 1f);
         Inset(fill.rectTransform, 1f);
 
         var text = Label("Text", rim.transform, "", UiTheme.BodySize, UiTheme.Ink, TextAnchor.MiddleLeft);
@@ -414,11 +427,12 @@ public static class UiKit
         area.offsetMin = new Vector2(118, -6);
         area.offsetMax = new Vector2(-4, 6);
 
-        var track = Panel("Track", area, UiTheme.Cream, 4f);
+        // a 6-high bar: rounded at half its height, a true pill
+        var track = Panel("Track", area, UiTheme.Cream, UiTheme.RadiusSmall);
         Inset(track.rectTransform, 0, 3, 0, 3);
         var fillArea = Rect("FillArea", area);
         Inset(fillArea, 0, 3, 0, 3);
-        var fill = Panel("Fill", fillArea, UiTheme.Orange, 4f);
+        var fill = Panel("Fill", fillArea, UiTheme.Orange, UiTheme.RadiusSmall);
         Stretch(fill.rectTransform);
         var handleArea = Rect("HandleArea", area);
         Inset(handleArea, 6, 0, 6, 0);
@@ -502,12 +516,14 @@ public static class UiKit
         scrim.raycastTarget = true;
 
         var q = Label("Question", scrim.transform, question, UiTheme.MenuSize, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
-        Place(q.rectTransform, Center, new Vector2(0, 22), new Vector2(420, 40));
+        Place(q.rectTransform, Center, new Vector2(0, 26), new Vector2(420, 40));
 
+        // The Figma NO / YES buttons are 97 x 32, 16 apart.
+        const float answerW = 97f, answerH = 32f, gap = 16f;
         var row = Rect("Answers", scrim.transform);
-        Place(row, Center, new Vector2(0, -14), new Vector2(answers.Length * 96f, 22));
+        Place(row, Center, new Vector2(0, -18), new Vector2(answers.Length * answerW + (answers.Length - 1) * gap, answerH));
         var h = row.gameObject.AddComponent<HorizontalLayoutGroup>();
-        h.spacing = 16;
+        h.spacing = gap;
         h.childControlWidth = true;
         h.childControlHeight = true;
         h.childForceExpandWidth = true;
@@ -555,13 +571,14 @@ public static class UiKit
         return go;
     }
 
-    /// <summary>A white card with a heading, text and one button: notices such as "Forgot password?".</summary>
+    /// <summary>A paper card with a heading, text and one button: notices such as "Forgot password?".</summary>
     public static GameObject Notice(Transform root, string title, string body, string button = "OK", UnityAction onClose = null)
     {
         var scrim = Image("Notice", root, UiTheme.Scrim);
         Stretch(scrim.rectTransform);
         scrim.raycastTarget = true;
-        var card = Panel("Card", scrim.transform, UiTheme.White, 10f);
+        var card = Panel("Card", scrim.transform, UiTheme.Paper, UiTheme.RadiusBoard);
+        card.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.25f);
         Place(card.rectTransform, Center, Vector2.zero, new Vector2(250, 150));
         var t = Label("Title", card.transform, title, UiTheme.TitleSize - 8, UiTheme.Ink, TextAnchor.MiddleCenter, heading: true);
         Place(t.rectTransform, Top, new Vector2(0, -10), new Vector2(230, 24));
@@ -601,30 +618,63 @@ public static class UiKit
         var px = new Color32[w * h];
         for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++)
-        {
-            float fx = x + 0.5f, fy = y + 0.5f;
-            // which corner is this texel nearest, and how round is it
-            bool isLeft = fx < w * 0.5f, isTop = fy > h * 0.5f;
-            int r = isTop ? (isLeft ? rtl : rtr) : (isLeft ? rbl : rbr);
-            float alpha = 1f;
-            if (r > 0)
-            {
-                float cx = isLeft ? r : w - r;
-                float cy = isTop ? h - r : r;
-                bool inCorner = (isLeft ? fx < cx : fx > cx) && (isTop ? fy > cy : fy < cy);
-                if (inCorner) alpha = Mathf.Clamp01(r - Vector2.Distance(new Vector2(fx, fy), new Vector2(cx, cy)) + 0.5f);
-            }
-            px[y * w + x] = new Color32(255, 255, 255, (byte)(alpha * 255));
-        }
+            px[y * w + x] = new Color32(255, 255, 255, (byte)(RoundedAlpha(x + 0.5f, y + 0.5f, w, h, rtl, rtr, rbr, rbl) * 255));
         tex.SetPixels32(px);
         tex.Apply();
 
         // 100 pixels per unit is one canvas unit per texel; k texels per unit keeps the corners exactly `radius` units.
+        // The 9-slice border is the corner itself, no more, so a pill whose radius is half its height is not squashed.
         var sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f * k, 0,
-            SpriteMeshType.FullRect, new Vector4(left + 1, bottom + 1, right + 1, top + 1));
+            SpriteMeshType.FullRect, new Vector4(left, bottom, right, top));
         sprite.name = key;
         sprites[key] = sprite;
         return sprite;
+    }
+
+    /// <summary>
+    /// How opaque one texel of a rounded rectangle is (texel centre at fx, fy; texture w by h; radii in texels). A texel
+    /// belongs to a corner only inside that corner's own r-by-r box, so a sprite whose corners differ (the menu tab,
+    /// round on the right and square on the left) has no step where a big curve meets the flat edge.
+    /// </summary>
+    public static float RoundedAlpha(float fx, float fy, int w, int h, int tl, int tr, int br, int bl)
+    {
+        float alpha = 1f;
+        Corner(tl, fx < tl, fy > h - tl, tl, h - tl);
+        Corner(tr, fx > w - tr, fy > h - tr, w - tr, h - tr);
+        Corner(br, fx > w - br, fy < br, w - br, br);
+        Corner(bl, fx < bl, fy < bl, bl, bl);
+        return alpha;
+
+        void Corner(int r, bool inX, bool inY, float cx, float cy)
+        {
+            if (r <= 0 || !inX || !inY) return;
+            float a = Mathf.Clamp01(r - Vector2.Distance(new Vector2(fx, fy), new Vector2(cx, cy)) + 0.5f);
+            alpha = Mathf.Min(alpha, a);
+        }
+    }
+
+    /// <summary>The largest radius a box of this size can round without its corners overlapping: half its short side.</summary>
+    public static float Fit(float radius, Vector2 size) => Mathf.Min(radius, Mathf.Min(size.x, size.y) * 0.5f);
+
+    /// <summary>A divider line in the one style every screen uses, across the top of <paramref name="parent"/>'s rect at <paramref name="y"/> from the top.</summary>
+    public static Image Rule(Transform parent, float y, float insetLeft = 16f, float insetRight = 16f, string name = "Rule")
+    {
+        var rule = Image(name, parent, UiTheme.Rule);
+        rule.raycastTarget = false;
+        rule.rectTransform.anchorMin = new Vector2(0, 1);
+        rule.rectTransform.anchorMax = new Vector2(1, 1);
+        rule.rectTransform.offsetMin = new Vector2(insetLeft, y - UiTheme.RuleThickness);
+        rule.rectTransform.offsetMax = new Vector2(-insetRight, y);
+        return rule;
+    }
+
+    /// <summary>The thin edge round a card or panel.</summary>
+    public static Outline Edge(Graphic g, Color? colour = null)
+    {
+        var o = g.gameObject.GetComponent<Outline>() ?? g.gameObject.AddComponent<Outline>();
+        o.effectColor = colour ?? UiTheme.CardEdge;
+        o.effectDistance = UiTheme.EdgeWidth;
+        return o;
     }
 
     /// <summary>A white disc (joystick, slider handle, pips).</summary>
@@ -746,6 +796,32 @@ public static class UiKit
 
 /// <summary>Keeps its RectTransform inside Screen.safeArea, clear of a phone's notch and rounded corners.</summary>
 [RequireComponent(typeof(RectTransform))]
+/// <summary>Shrinks a control a little while a finger is on it, so a press on a card or arrow can be seen.</summary>
+public class PressScale : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+{
+    const float Pressed = 0.95f;
+    Vector3 rest = Vector3.one;
+    bool down;
+
+    void Awake() => rest = transform.localScale;
+    public void OnPointerDown(PointerEventData e)
+    {
+        var s = GetComponent<Selectable>();
+        if (s != null && !s.IsInteractable()) return;
+        down = true;
+        transform.localScale = rest * Pressed;
+    }
+    public void OnPointerUp(PointerEventData e) => Release();
+    public void OnPointerExit(PointerEventData e) => Release();
+    void OnDisable() => Release();
+    void Release()
+    {
+        if (!down) return;
+        down = false;
+        transform.localScale = rest;
+    }
+}
+
 public class SafeArea : MonoBehaviour
 {
     /// <summary>How much taller than the Figma frame a menu may grow before it is centred instead (tablets, 16:9).</summary>
@@ -816,7 +892,8 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         float r = height * 0.5f;
         pill = UiKit.Panel("Pill", rt, UiTheme.Orange, r);
         UiKit.Stretch(pill.rectTransform);
-        tab = UiKit.Image("Tab", rt, UiTheme.Orange, UiKit.Rounded(2f, r, r, 2f));
+        // The Figma tab is a square-edged block with a half circle on its right (a 21 x 37 rectangle under a 37 circle).
+        tab = UiKit.Image("Tab", rt, UiTheme.Orange, UiKit.Rounded(0f, r, r, 0f));
         UiKit.Place(tab.rectTransform, UiKit.Left, Vector2.zero, new Vector2(height, height));
         textLeft = height + 10f;
         pillLeft = r;
@@ -831,6 +908,16 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (onClick != null) button.onClick.AddListener(onClick);
         Refresh();
     }
+
+    /// <summary>Nothing lit: a menu that is built again, or whose page was closed, starts plain.</summary>
+    public static void ClearHighlight()
+    {
+        Highlighted = null;
+        foreach (var m in FindObjectsByType<UiMenuItem>(FindObjectsSortMode.None)) m.Refresh();
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => Highlighted = null;
 
     public void OnPointerEnter(PointerEventData e) { hovered = true; Highlighted = this; RefreshAll(); }
     public void OnPointerExit(PointerEventData e) { hovered = false; Refresh(); }

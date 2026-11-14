@@ -20,12 +20,19 @@ public static class SceneFlow
 
     public static bool IsLoading => current != null;
 
-    /// <summary>Loads a scene behind the loading screen. Does nothing if that scene is not in Build Settings.</summary>
+    /// <summary>
+    /// Loads a scene behind the loading screen. If that scene is not in the build, the player is told so on screen
+    /// (a button that silently does nothing looks broken) and stays where they are.
+    /// </summary>
     public static void Load(string scene)
     {
         if (string.IsNullOrEmpty(scene) || !Application.CanStreamedLevelBeLoaded(scene))
         {
             Debug.LogWarning("SceneFlow: scene '" + scene + "' is not in Build Settings.");
+            var safe = UiKit.NewCanvas("SceneProblem", 1001, out var canvas);
+            UiKit.EnsureEventSystem();
+            UiKit.Notice(safe, "Couldn't open that", "'" + scene + "' is missing from this build. Tell the team, and try another option.",
+                         "OK", () => Object.Destroy(canvas.gameObject));
             return;
         }
         if (current != null) return;
@@ -92,9 +99,10 @@ public class LoadingScreen : MonoBehaviour
         UiKit.Place(tipText.rectTransform, UiKit.Bottom, new Vector2(0, 62), new Vector2(620, 28));
         tipText.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.6f);
 
-        var track = UiKit.Panel("Bar", safe, UiTheme.Fade(UiTheme.White, 0.25f), 2f);
+        // a 4-high bar, rounded at half its height
+        var track = UiKit.Panel("Bar", safe, UiTheme.Fade(UiTheme.White, 0.25f), UiKit.Fit(UiTheme.RadiusSmall, new Vector2(660, 4)));
         UiKit.Place(track.rectTransform, UiKit.Bottom, new Vector2(0, 50), new Vector2(660, 4));
-        fill = UiKit.Panel("Fill", track.transform, UiTheme.Orange, 2f);
+        fill = UiKit.Panel("Fill", track.transform, UiTheme.Orange, UiKit.Fit(UiTheme.RadiusSmall, new Vector2(660, 4)));
         fill.rectTransform.anchorMin = Vector2.zero;
         fill.rectTransform.anchorMax = new Vector2(0, 1);
         fill.rectTransform.pivot = new Vector2(0, 0.5f);

@@ -164,7 +164,7 @@ public class LoadoutScreen : MonoBehaviour
     void Back()
     {
         LoadoutState.Set(picked);       // keep the pack for next time
-        SceneFlow.Load(SceneFlow.MainMenu);
+        SceneFlow.Load(SceneFlow.Home);
     }
 
     /// <summary>Picks a map: the mission in force changes with it, and so does everything on this screen that reads the mission.</summary>
@@ -183,7 +183,7 @@ public class LoadoutScreen : MonoBehaviour
         {
             bool sel = picked.Contains(c.def.id);
             c.back.color = sel ? UiTheme.Green : UiTheme.CreamLight;
-            c.rim.effectColor = sel ? UiTheme.White : UiTheme.Fade(UiTheme.BrownDark, 0.35f);
+            c.rim.effectColor = sel ? UiTheme.White : UiTheme.CardEdge;
             c.back.canvasRenderer.SetAlpha(!sel && full ? 0.6f : 1f);
         }
 
@@ -200,7 +200,6 @@ public class LoadoutScreen : MonoBehaviour
             else s.back.color = UiTheme.Cream;
         }
 
-        launchLabel.text = "LAUNCH";
     }
 
     void RefreshMaps()
@@ -245,11 +244,11 @@ public class LoadoutScreen : MonoBehaviour
 
     RectTransform Header(Transform parent, string text, Sprite icon, float x, float width)
     {
-        var bar = UiKit.Panel("Header_" + text, parent, UiTheme.Orange, 6f);
+        var bar = UiKit.Panel("Header_" + text, parent, UiTheme.Orange, UiTheme.RadiusCard);
         UiKit.Place(bar.rectTransform, UiKit.TopLeft, new Vector2(x, -HeaderY), new Vector2(width, HeaderH));
         var label = UiKit.Label("Label", bar.transform, text, UiTheme.TitleSize - 4, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
         UiKit.Stretch(label.rectTransform);
-        label.gameObject.AddComponent<Shadow>().effectColor = UiTheme.Fade(UiTheme.OrangeBurnt, 0.6f);
+        label.gameObject.AddComponent<Shadow>().effectColor = UiTheme.TitleShadow;
         if (icon != null)
         {
             // icon to the left of the word, as in Figma
@@ -264,9 +263,9 @@ public class LoadoutScreen : MonoBehaviour
     {
         Header(root, "EQUIPMENT", UiAssets.Current.equipmentIcon, LeftX, LeftW);
 
-        var panel = UiKit.Panel("Equipment", root, UiTheme.Brown, 8f);
+        var panel = UiKit.Panel("Equipment", root, UiTheme.Brown, UiTheme.RadiusPanel);
         UiKit.Place(panel.rectTransform, UiKit.TopLeft, new Vector2(LeftX, -PanelY), new Vector2(LeftW, 252));
-        panel.gameObject.AddComponent<Outline>().effectColor = UiTheme.Fade(UiTheme.BrownDark, 0.6f);
+        UiKit.Edge(panel);
 
         var grid = UiKit.Rect("Grid", panel.transform);
         UiKit.Inset(grid, 12, 12, 12, 12);
@@ -282,13 +281,12 @@ public class LoadoutScreen : MonoBehaviour
 
     Card BuildCard(Transform parent, RescueItemDef def)
     {
-        var back = UiKit.Panel("Card_" + def.id, parent, UiTheme.CreamLight, 6f);
-        var rim = back.gameObject.AddComponent<Outline>();
-        rim.effectDistance = new Vector2(1.5f, -1.5f);
+        var back = UiKit.Panel("Card_" + def.id, parent, UiTheme.CreamLight, UiTheme.RadiusCard);
+        var rim = UiKit.Edge(back);
         var id = def.id;
         var button = back.gameObject.AddComponent<Button>();
         button.targetGraphic = back;
-        button.transition = Selectable.Transition.None;
+        UiKit.PressFeedback(button);
         button.onClick.AddListener(() => Toggle(id));
 
         var iconRoot = UiKit.Rect("IconArea", back.transform);
@@ -312,7 +310,7 @@ public class LoadoutScreen : MonoBehaviour
         }
         if (def.recommended)
         {
-            var rec = UiKit.Panel("Rec", back.transform, UiTheme.GreenDeep, 3f);
+            var rec = UiKit.Panel("Rec", back.transform, UiTheme.GreenDeep, UiTheme.RadiusSmall);
             UiKit.Place(rec.rectTransform, UiKit.TopRight, new Vector2(-5, -5), new Vector2(24, 10));
             var recText = UiKit.Label("Text", rec.transform, "REC", UiTheme.SmallSize - 1, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
             UiKit.Stretch(recText.rectTransform);
@@ -325,9 +323,9 @@ public class LoadoutScreen : MonoBehaviour
     {
         Header(root, "LOADOUT", UiAssets.Current.loadoutIcon, RightX, RightW);
 
-        var paper = UiKit.Panel("Loadout", root, UiTheme.Paper, 8f);
+        var paper = UiKit.Panel("Loadout", root, UiTheme.Paper, UiTheme.RadiusPanel);
         UiKit.Place(paper.rectTransform, UiKit.TopLeft, new Vector2(RightX, -PanelY), new Vector2(RightW, 214));
-        paper.gameObject.AddComponent<Outline>().effectColor = UiTheme.Fade(UiTheme.BrownDark, 0.45f);
+        UiKit.Edge(paper);
         var p = paper.transform;
 
         // Four numbered slots.
@@ -336,17 +334,19 @@ public class LoadoutScreen : MonoBehaviour
             int index = i;
             var num = UiKit.Label("Number" + (i + 1), p, (i + 1).ToString(), UiTheme.SmallSize + 1, UiTheme.Ink, TextAnchor.UpperLeft, heading: true);
             UiKit.Place(num.rectTransform, UiKit.TopLeft, new Vector2(12 + i * 70, -8), new Vector2(12, 10));
-            var box = UiKit.Panel("Slot" + (i + 1), p, UiTheme.Cream, 3f);
+            var box = UiKit.Panel("Slot" + (i + 1), p, UiTheme.Cream, UiTheme.RadiusSmall);
             UiKit.Place(box.rectTransform, UiKit.TopLeft, new Vector2(18 + i * 70, -14), new Vector2(56, 56));
-            box.gameObject.AddComponent<Outline>().effectColor = UiTheme.White;
-            box.gameObject.AddComponent<Button>().onClick.AddListener(() => RemoveAt(index));
+            UiKit.Edge(box, UiTheme.White);
+            var slotButton = box.gameObject.AddComponent<Button>();
+            UiKit.PressFeedback(slotButton);
+            slotButton.onClick.AddListener(() => RemoveAt(index));
             var holder = UiKit.Rect("Icon", box.transform);
             UiKit.Stretch(holder);
             slots[i] = new Slot { back = box, iconHolder = holder };
         }
 
         // Dispatch: where, what, and the map.
-        var dispatch = UiKit.Panel("Dispatch", p, UiTheme.Cream, 6f);
+        var dispatch = UiKit.Panel("Dispatch", p, UiTheme.Cream, UiTheme.RadiusPanel);
         UiKit.Place(dispatch.rectTransform, UiKit.TopLeft, new Vector2(14, -80), new Vector2(RightW - 28, 124));
         var d = dispatch.transform;
 
@@ -374,8 +374,8 @@ public class LoadoutScreen : MonoBehaviour
         UiKit.Place(metaText.rectTransform, UiKit.TopLeft, new Vector2(25, -53), new Vector2(240, 8));
         metaText.Shrink(4);
 
-        var line = UiKit.Image("Line", d, UiTheme.Ink);
-        UiKit.Place(line.rectTransform, UiKit.TopLeft, new Vector2(8, -63), new Vector2(RightW - 44, 0.6f));
+        var line = UiKit.Image("Line", d, UiTheme.Rule);
+        UiKit.Place(line.rectTransform, UiKit.TopLeft, new Vector2(8, -63), new Vector2(RightW - 44, UiTheme.RuleThickness));
         var objHead = UiKit.Label("ObjectivesHead", d, "OBJECTIVES", UiTheme.BodySize, UiTheme.Ink, TextAnchor.UpperLeft, heading: true);
         UiKit.Place(objHead.rectTransform, UiKit.TopLeft, new Vector2(8, -66), new Vector2(120, 11));
         objectivesText = UiKit.Label("Objectives", d, "", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
@@ -385,6 +385,7 @@ public class LoadoutScreen : MonoBehaviour
         // RECOMMENDED PACK · CLEAR · LAUNCH
         float bw = 94f, by = -(PanelY + 214 + 14);
         var rec = UiKit.Button(root, "RECOMMENDED\nPACK", ButtonStyle.Secondary, Recommended, UiTheme.BodySize);
+        rec.name = "Button_RECOMMENDED_PACK";
         UiKit.Place((RectTransform)rec.transform, UiKit.TopLeft, new Vector2(RightX, by), new Vector2(bw, 36));
         var clear = UiKit.Button(root, "CLEAR", ButtonStyle.Secondary, Clear, UiTheme.BodySize + 1);
         UiKit.Place((RectTransform)clear.transform, UiKit.TopLeft, new Vector2(RightX + bw + 8, by), new Vector2(bw, 36));

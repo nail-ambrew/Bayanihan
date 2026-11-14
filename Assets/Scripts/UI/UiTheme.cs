@@ -50,8 +50,30 @@ public static class UiTheme
     public const int BodySize = 8;
     public const int SmallSize = 6;
 
-    public const float Radius = 8f;
-    public const float SmallRadius = 4f;
+    // ------------------------------------------------------------------ shapes: one radius per kind of thing
+    /// <summary>Boards, the sign-in card, notices: the big outer shapes.</summary>
+    public const float RadiusBoard = 10f;
+    /// <summary>Paper inside a board, the Equipment and Loadout panels, Dispatch, HUD prompts.</summary>
+    public const float RadiusPanel = 8f;
+    /// <summary>Item cards, header bars, every HUD chip and card.</summary>
+    public const float RadiusCard = 6f;
+    /// <summary>Buttons and choice chips.</summary>
+    public const float RadiusButton = 4f;
+    /// <summary>Slots, fields, badges, thin bars.</summary>
+    public const float RadiusSmall = 3f;
+
+    public const float Radius = RadiusPanel;
+    public const float SmallRadius = RadiusButton;
+
+    // ------------------------------------------------------------------ lines and edges
+    /// <summary>Every divider line: under a card heading, between stat rows, the "or" on the login card, under Dispatch.</summary>
+    public const float RuleThickness = 0.8f;
+    public static readonly Color Rule = new Color(0x6B / 255f, 0x55 / 255f, 0x42 / 255f, 0.5f);
+    /// <summary>The thin brown edge round the cards and panels of the loadout.</summary>
+    public static readonly Color CardEdge = new Color(0x6B / 255f, 0x41 / 255f, 0x1E / 255f, 0.45f);
+    public static readonly Vector2 EdgeWidth = new Vector2(1f, -1f);
+    /// <summary>The drop under a white title on an orange board or bar.</summary>
+    public static readonly Color TitleShadow = new Color(0xA8 / 255f, 0x55 / 255f, 0x14 / 255f, 0.7f);
 
     static Color Hex(int r, int g, int b) => new Color(r / 255f, g / 255f, b / 255f);
 
