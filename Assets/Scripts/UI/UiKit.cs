@@ -671,7 +671,7 @@ public static class UiKit
     /// <summary>The thin edge round a card or panel.</summary>
     public static Outline Edge(Graphic g, Color? colour = null)
     {
-        var o = g.gameObject.GetComponent<Outline>() ?? g.gameObject.AddComponent<Outline>();
+        if (!g.gameObject.TryGetComponent(out Outline o)) o = g.gameObject.AddComponent<Outline>();
         o.effectColor = colour ?? UiTheme.CardEdge;
         o.effectDistance = UiTheme.EdgeWidth;
         return o;

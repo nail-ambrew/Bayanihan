@@ -121,6 +121,10 @@ public static class DebrisProps
             case DebrisKind.Plank: return new Vector3(0.22f, 0.06f, 2.4f);
             case DebrisKind.Crate: return new Vector3(0.7f, 0.55f, 0.7f);
             case DebrisKind.Drum:  return new Vector3(0.58f, 0.85f, 0.58f);
+            case DebrisKind.Branch:     return new Vector3(0.6f, 0.35f, 2.2f);
+            case DebrisKind.BananaLeaf: return new Vector3(1.4f, 0.3f, 1.6f);
+            case DebrisKind.GrassMat:   return new Vector3(1.8f, 0.2f, 1.8f);
+            case DebrisKind.WeedRaft:   return new Vector3(1.8f, 0.2f, 2.4f);
             default:               return new Vector3(0.4f, 0.4f, 3f);        // log
         }
     }
@@ -132,6 +136,10 @@ public static class DebrisProps
             case DebrisKind.Plank: return 14f;
             case DebrisKind.Crate: return 30f;
             case DebrisKind.Drum:  return 25f;
+            case DebrisKind.Branch:     return 18f;
+            case DebrisKind.BananaLeaf: return 5f;
+            case DebrisKind.GrassMat:   return 4f;
+            case DebrisKind.WeedRaft:   return 6f;
             default:               return 90f;
         }
     }
@@ -143,6 +151,10 @@ public static class DebrisProps
             case DebrisKind.Plank: return new Color(0.58f, 0.45f, 0.30f);
             case DebrisKind.Crate: return new Color(0.66f, 0.48f, 0.27f);
             case DebrisKind.Drum:  return new Color(0.20f, 0.36f, 0.62f);
+            case DebrisKind.Branch:     return new Color(0.37f, 0.31f, 0.26f);
+            case DebrisKind.BananaLeaf: return new Color(0.29f, 0.50f, 0.19f);
+            case DebrisKind.GrassMat:   return new Color(0.43f, 0.62f, 0.22f);
+            case DebrisKind.WeedRaft:   return new Color(0.25f, 0.48f, 0.18f);
             default:               return new Color(0.38f, 0.29f, 0.20f);
         }
     }
@@ -150,6 +162,11 @@ public static class DebrisProps
     /// <summary>Adds a piece's looks (no collider) as a child. Boards and crates are cubes; drums and logs are cylinders.</summary>
     public static GameObject AddVisual(Transform parent, DebrisKind kind, Vector3 localPosition, Quaternion localRotation)
     {
+        if (FloatingDebris.PlantScraps is var scraps && System.Array.IndexOf(scraps, kind) >= 0)
+        {
+            var plant = PlantVisual(parent, kind, localPosition, localRotation);
+            if (plant != null) return plant;
+        }
         bool round = kind == DebrisKind.Drum || kind == DebrisKind.Log;
         var piece = GameObject.CreatePrimitive(round ? PrimitiveType.Cylinder : PrimitiveType.Cube);
         piece.name = kind.ToString();
@@ -187,5 +204,53 @@ public static class DebrisProps
         renderer.sharedMaterial = ProceduralArt.SharedLit(ColourOf(kind));
         renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
         return piece;
+    }
+
+    /// <summary>
+    /// A plant scrap made from the barangay's own foliage models: a sapling or a banana lying on its side, a flattened mat
+    /// of grass, a raft of creeper. Null if the set or the model is missing (the drawn shape is used then).
+    /// </summary>
+    static GameObject PlantVisual(Transform parent, DebrisKind kind, Vector3 localPosition, Quaternion localRotation)
+    {
+        var set = FoliageDebrisSet.Current;
+        var prefab = set != null ? set.For(kind) : null;
+        if (prefab == null) return null;
+
+        var holder = new GameObject(kind.ToString());
+        holder.transform.SetParent(parent, false);
+        holder.transform.localPosition = localPosition;
+        holder.transform.localRotation = localRotation;
+
+        var model = Object.Instantiate(prefab, holder.transform, false);
+        model.name = prefab.name;
+        foreach (var c in model.GetComponentsInChildren<Collider>(true))
+        {
+            c.enabled = false;
+            Object.Destroy(c.gameObject == model ? (Object)c : c.gameObject);
+        }
+        foreach (var t in model.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = parent != null ? parent.gameObject.layer : 0;
+
+        var m = model.transform;
+        Vector3 size = Size(kind);
+        switch (kind)
+        {
+            case DebrisKind.Branch:         // a 2.5 m sapling, torn off and lying along the water
+            case DebrisKind.BananaLeaf:     // a young banana, uprooted and flat
+                float length = kind == DebrisKind.Branch ? 2.47f : 1.68f;
+                float s = size.z / length;
+                m.localRotation = Quaternion.Euler(90f, 0f, 0f);                 // the trunk (up) now runs along +z
+                m.localScale = new Vector3(s, s, s);
+                m.localPosition = new Vector3(0f, 0f, -size.z * 0.5f);           // centred on the piece
+                break;
+            case DebrisKind.GrassMat:       // a cogon patch pressed flat
+                m.localScale = new Vector3(0.95f, 0.3f, 0.95f);
+                m.localPosition = new Vector3(0f, -0.08f, 0f);
+                break;
+            default:                        // a creeper patch, already low and wide
+                m.localScale = new Vector3(1f, 0.9f, 1f);
+                m.localPosition = new Vector3(0f, -0.05f, 0f);
+                break;
+        }
+        return holder;
     }
 }

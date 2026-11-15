@@ -1,0 +1,439 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147b3f5466d0c4c928a66ac09e2b4bd6, type: 3}
+  m_Name: FoliageLibrary
+  m_EditorClassIdentifier: Bayanihan::FoliageLibrary
+  species:
+  - code: F01
+    name: Banana Young
+    prefab: {fileID: 8385318923912263214, guid: 1a21d8cff6321456599a1f1426fc2931, type: 3}
+    group: 3
+    habitats: 82
+    weight: 1
+    size: {x: 1.8372416, y: 1.7647254, z: 1.5330327}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 5
+  - code: F02
+    name: Banana Medium
+    prefab: {fileID: 6298815394514057054, guid: 4c96fb158e188403784e482491eff564, type: 3}
+    group: 3
+    habitats: 86
+    weight: 1.2
+    size: {x: 3.427312, y: 3.1896625, z: 2.7832212}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 5
+  - code: F03
+    name: Banana Tall Torn
+    prefab: {fileID: 1598594296107396270, guid: 0fa4839dc28ae4734b77760ba4ffa98f, type: 3}
+    group: 3
+    habitats: 86
+    weight: 0.8
+    size: {x: 3.8268442, y: 4.5130587, z: 3.7477221}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: F04
+    name: Banana Clump
+    prefab: {fileID: 7142828452179578879, guid: 91da412bf2c1b4114be4b6d3b106cb17, type: 3}
+    group: 3
+    habitats: 82
+    weight: 1
+    size: {x: 4.0390134, y: 4.290452, z: 3.9617524}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: F05
+    name: Banana With Dry Leaves
+    prefab: {fileID: 2653875147416747713, guid: 405b00f48eaca4d6fb5e994e805c9214, type: 3}
+    group: 3
+    habitats: 22
+    weight: 0.8
+    size: {x: 2.9838657, y: 3.7394433, z: 3.2139535}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 5
+  - code: F06
+    name: Round Bush Small
+    prefab: {fileID: 8973987083016226070, guid: 89f4a47f90d1743118e1d1dd02446cb4, type: 3}
+    group: 7
+    habitats: 10
+    weight: 1
+    size: {x: 1.222451, y: 0.7872087, z: 1.1643436}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: F07
+    name: Round Bush Medium
+    prefab: {fileID: 6697723167440244230, guid: a941f182cfc6942a9aa3f8ee5de6c469, type: 3}
+    group: 4
+    habitats: 43
+    weight: 1
+    size: {x: 1.8556986, y: 1.3697543, z: 1.9508959}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: F08
+    name: Bush Cluster Large
+    prefab: {fileID: 727311638525311119, guid: dedda8832c35a4b558d2ba30af16a931, type: 3}
+    group: 4
+    habitats: 43
+    weight: 1
+    size: {x: 3.868413, y: 2.2551975, z: 2.3829622}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: F09
+    name: Vine Mound
+    prefab: {fileID: 6017169114947491089, guid: 34e595604e9fb4bff92d957f768cb819, type: 3}
+    group: 5
+    habitats: 76
+    weight: 0.7
+    size: {x: 5.226261, y: 2.5586183, z: 4.202152}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: F10
+    name: Vine Curtain Wall4 M
+    prefab: {fileID: 521637005039704536, guid: 50397db1f5f9f4458b9ba8e1af0222cb, type: 3}
+    group: 5
+    habitats: 128
+    weight: 1
+    size: {x: 5.345774, y: 3.3512673, z: 1.3492885}
+    scale: {x: 0.9, y: 1.05}
+    maxLean: 0
+  - code: F11
+    name: Ground Creeper Patch
+    prefab: {fileID: 4315045950885529573, guid: bd17c94e27cec4456bcc9252794781af, type: 3}
+    group: 7
+    habitats: 12
+    weight: 1
+    size: {x: 1.8446931, y: 0.31410456, z: 2.479621}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: F12
+    name: Gabi Taro Plant
+    prefab: {fileID: 2439898492873343891, guid: 3c7d87c1bf0f14ef0bd518131898e514, type: 3}
+    group: 7
+    habitats: 66
+    weight: 1
+    size: {x: 1.9863689, y: 0.9398572, z: 1.5637383}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: F13
+    name: Fern Clump
+    prefab: {fileID: 9073440515553067447, guid: 3a0af93dcb1414b6ebfb318760619d57, type: 3}
+    group: 7
+    habitats: 72
+    weight: 1
+    size: {x: 1.2536905, y: 0.76356137, z: 1.3530899}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: F14
+    name: Hagonoy Weed Shrub
+    prefab: {fileID: 2057657079134077670, guid: a3274854a8d0744a2b64ff2978e7df6b, type: 3}
+    group: 4
+    habitats: 69
+    weight: 1.2
+    size: {x: 1.4859099, y: 1.4307427, z: 1.5535352}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: F15
+    name: Dry Undergrowth
+    prefab: {fileID: 8003748087012265259, guid: c090d654998e24e1295178d9e092cb2a, type: 3}
+    group: 4
+    habitats: 5
+    weight: 1.1
+    size: {x: 2.0068414, y: 1.5360031, z: 2.1497288}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: G01
+    name: Talahib Clump Small
+    prefab: {fileID: 9120343517326185365, guid: 82bc2324d25c54fac9920d18e6c7f654, type: 3}
+    group: 6
+    habitats: 5
+    weight: 1
+    size: {x: 1.7260514, y: 1.2587755, z: 1.6349981}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G02
+    name: Talahib Clump Medium
+    prefab: {fileID: 4460030855455799049, guid: 64524deab49b14aca82e970b00afc78e, type: 3}
+    group: 6
+    habitats: 85
+    weight: 2.2
+    size: {x: 2.037313, y: 1.8160193, z: 2.6218472}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G03
+    name: Talahib Clump Tall
+    prefab: {fileID: 2975175557377640600, guid: e289ebfe87aba4cb497c8eb7a6e8278a, type: 3}
+    group: 6
+    habitats: 76
+    weight: 2
+    size: {x: 3.4028027, y: 2.6117435, z: 3.3953724}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G04
+    name: Talahib In Bloom
+    prefab: {fileID: 619821135743221517, guid: 7ae665f1f5395423e8fb37ae13630025, type: 3}
+    group: 6
+    habitats: 69
+    weight: 1.8
+    size: {x: 2.1956677, y: 2.6496432, z: 2.2188663}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G05
+    name: Talahib In Bloom Tall
+    prefab: {fileID: 6802087881404758015, guid: c7469b8f29e844c9ba8e277a44ef0162, type: 3}
+    group: 6
+    habitats: 76
+    weight: 1.5
+    size: {x: 2.9025488, y: 3.3775282, z: 2.7249446}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G06
+    name: Cogon Tuft
+    prefab: {fileID: 7935095296168785019, guid: e90d3498dadf74f6e892375f8f2c118d, type: 3}
+    group: 7
+    habitats: 5
+    weight: 1
+    size: {x: 0.65238696, y: 0.8713524, z: 0.69307053}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G07
+    name: Cogon Patch
+    prefab: {fileID: 7242459899353151966, guid: 366cef3a4fdbd4e879fd1a6f65457d4e, type: 3}
+    group: 7
+    habitats: 5
+    weight: 1
+    size: {x: 1.8620045, y: 0.98160875, z: 1.7683995}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: G08
+    name: Wind Swept Clump
+    prefab: {fileID: 4172188611564959269, guid: be211a687fa9047a28bd1c49776493db, type: 3}
+    group: 7
+    habitats: 5
+    weight: 1
+    size: {x: 1.7822856, y: 1.1736195, z: 1.3643606}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G09
+    name: Dry Tipped Clump
+    prefab: {fileID: 6035666423653372507, guid: b3cdf917053914470830af439724da49, type: 3}
+    group: 6
+    habitats: 21
+    weight: 1.8
+    size: {x: 1.9465344, y: 1.4152635, z: 1.9191628}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G10
+    name: Mixed Green Dry Clump
+    prefab: {fileID: 2494722740766682449, guid: 6af0e57d09f6848868e559f27b3fdb81, type: 3}
+    group: 7
+    habitats: 5
+    weight: 1
+    size: {x: 1.8628482, y: 1.3391666, z: 2.1233692}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G11
+    name: Roadside Grass Strip3 M
+    prefab: {fileID: 3111850138864151693, guid: 5e53d43054b4e4d90bd0404180739ed2, type: 3}
+    group: 7
+    habitats: 1
+    weight: 1
+    size: {x: 3.426945, y: 0.9478128, z: 1.3997002}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: G12
+    name: Sparse Weedy Tuft
+    prefab: {fileID: 7708162646536489569, guid: c5d05bd0ed52d416182e566688b1b2a8, type: 3}
+    group: 7
+    habitats: 4
+    weight: 1
+    size: {x: 0.8810224, y: 0.56994826, z: 0.6874584}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G13
+    name: Grass With Creeper
+    prefab: {fileID: 5721439381259284859, guid: 7c7ee080326c348f682958db40c90763, type: 3}
+    group: 7
+    habitats: 68
+    weight: 1
+    size: {x: 1.2978305, y: 1.1220624, z: 1.6121466}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: G14
+    name: Dense Grass Mound
+    prefab: {fileID: 903486791917552097, guid: b185bbf521ff4451cb6a8aa524fda28b, type: 3}
+    group: 7
+    habitats: 4
+    weight: 1
+    size: {x: 1.9950286, y: 1.0487176, z: 2.372136}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: G15
+    name: Trampled Grass
+    prefab: {fileID: 1630101896293598739, guid: 6e94f2a321614489186b6053c419099b, type: 3}
+    group: 7
+    habitats: 5
+    weight: 1
+    size: {x: 2.2247186, y: 0.95473796, z: 1.9812119}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: T01
+    name: Mango Tree Large
+    prefab: {fileID: 5968149207078282349, guid: 1fc720aecc876458a92bea8f8114352e, type: 3}
+    group: 0
+    habitats: 43
+    weight: 1
+    size: {x: 6.3096285, y: 8.691693, z: 6.6543036}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: T02
+    name: Mango Tree Medium
+    prefab: {fileID: 6414892377328825643, guid: 9e567c4730cfb4c7b9fb34cb52a51c4c, type: 3}
+    group: 0
+    habitats: 27
+    weight: 1.4
+    size: {x: 4.900718, y: 6.1178007, z: 4.784848}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: T03
+    name: Rain Tree Wide Canopy
+    prefab: {fileID: 6466347350958882522, guid: 833292a2232b54e1d96003aa6b57cfe8, type: 3}
+    group: 0
+    habitats: 45
+    weight: 0.9
+    size: {x: 9.719646, y: 6.7509875, z: 10.508666}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: T04
+    name: Rain Tree Young
+    prefab: {fileID: 8064767394817984471, guid: e7836ef66d78c4fac85f8997ba9d6cbe, type: 3}
+    group: 1
+    habitats: 15
+    weight: 0.9
+    size: {x: 6.843707, y: 4.4394503, z: 6.8870926}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: T05
+    name: Ipil Ipil Tall
+    prefab: {fileID: 7462022027928933878, guid: 22c3460be6e6f4640aa29c927023bc79, type: 3}
+    group: 1
+    habitats: 69
+    weight: 0.9
+    size: {x: 3.948346, y: 6.655864, z: 3.9350302}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 6
+  - code: T06
+    name: Ipil Ipil Twin Trunk
+    prefab: {fileID: 8800593061267525578, guid: 79b812b383ab84cf7b860e80ef440309, type: 3}
+    group: 1
+    habitats: 5
+    weight: 0.6
+    size: {x: 3.5364375, y: 5.6505594, z: 4.3260746}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 5
+  - code: T07
+    name: Ipil Ipil Cluster
+    prefab: {fileID: 240313034243742636, guid: 2ef5d7d239bbf481cb30e874b6e3af39, type: 3}
+    group: 1
+    habitats: 76
+    weight: 0.8
+    size: {x: 4.191955, y: 4.822073, z: 3.5099874}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 4
+  - code: T08
+    name: Columnar Roadside Tree
+    prefab: {fileID: 6025464605105343178, guid: e90b82548f94c4429b631a69ffea8ea0, type: 3}
+    group: 1
+    habitats: 3
+    weight: 1.2
+    size: {x: 3.2369766, y: 6.6338844, z: 3.960502}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: T09
+    name: Tiered Talisay Style Tree
+    prefab: {fileID: 1122853704880284999, guid: e1b1d942d76084ab8870c0a5076ccd54, type: 3}
+    group: 0
+    habitats: 41
+    weight: 0.8
+    size: {x: 9.490027, y: 8.638983, z: 9.626563}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: T10
+    name: Vine Draped Tree
+    prefab: {fileID: 8793222504919622496, guid: e3ec008df2e624c3bacd13b40be59ac1, type: 3}
+    group: 0
+    habitats: 76
+    weight: 0.7
+    size: {x: 6.5096807, y: 8.300191, z: 6.8547564}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: T11
+    name: Vine Smothered Thicket
+    prefab: {fileID: 2685467687196983200, guid: cdb5de8ae67d14d8298bc18aa7a70d3c, type: 3}
+    group: 5
+    habitats: 76
+    weight: 0.6
+    size: {x: 7.3109236, y: 8.045298, z: 7.0159535}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 2
+  - code: T12
+    name: Sapling
+    prefab: {fileID: 2663668808714423618, guid: a31fdf2a6c4f043ca9dcb6c597b1e9bb, type: 3}
+    group: 1
+    habitats: 23
+    weight: 0.8
+    size: {x: 1.5968647, y: 2.5954833, z: 1.5139593}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 7
+  - code: T13
+    name: Bamboo Clump
+    prefab: {fileID: 8890246138773797361, guid: abb6d954fe9204919b30ee41d2117713, type: 3}
+    group: 2
+    habitats: 92
+    weight: 1
+    size: {x: 7.3540497, y: 8.018423, z: 7.131537}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 3
+  - code: T14
+    name: Old Buttress Tree
+    prefab: {fileID: 2588647816117618414, guid: a60363e120f90400cadc2c7cecc547f4, type: 3}
+    group: 0
+    habitats: 40
+    weight: 0.5
+    size: {x: 9.054092, y: 9.53775, z: 10.335228}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 1
+  - code: T15
+    name: Dry Season Sparse Tree
+    prefab: {fileID: 7762542434182194908, guid: 3646124172bd44c7a9730326557327dc, type: 3}
+    group: 1
+    habitats: 5
+    weight: 0.5
+    size: {x: 4.4993877, y: 5.608412, z: 4.0034795}
+    scale: {x: 0.85, y: 1.2}
+    maxLean: 5
+  density: 1
+  greenDensity: 0.55
+  farmDensity: 0.45
+  cemeteryDensity: 0.3
+  bankDensity: 0.6
+  openLotDensity: 0.27
+  yardDensity: 0.24
+  roadsideDensity: 0.22
+  roadsideTreeGap: {x: 12, y: 25}
+  wallVineChance: 0.3
+  minStandingHeight: 1.3
+  roadMargin: 1.5
+  buildingMargin: 1
+  yardReach: 10
+  bankReach: 8
+  roadsideBand: 5
+  clumpSize: 26
+  clumpContrast: 0.6
+  seed: 4127

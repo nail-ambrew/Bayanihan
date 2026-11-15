@@ -16,7 +16,7 @@ public class DebrisField : MonoBehaviour
     [Min(0)] public int count = 8;
     [Tooltip("Same seed, same pieces in the same places.")]
     public int seed = 7;
-    [Tooltip("What can turn up. Empty = a mix of everything.")]
+    [Tooltip("What can turn up. Empty = a mix of the wreckage (boards, crates, drums, logs); list the plant scraps to float those.")]
     public DebrisKind[] kinds;
     [Tooltip("Pieces keep this far (metres) from anything solid when they are placed, so none start inside a wall.")]
     public float clearance = 0.9f;
@@ -34,7 +34,7 @@ public class DebrisField : MonoBehaviour
     {
         Clear();
         var random = new System.Random(seed);
-        var mix = kinds != null && kinds.Length > 0 ? kinds : (DebrisKind[])System.Enum.GetValues(typeof(DebrisKind));
+        var mix = kinds != null && kinds.Length > 0 ? kinds : FloatingDebris.Wreckage;
 
         for (int i = 0; i < count; i++)
         {

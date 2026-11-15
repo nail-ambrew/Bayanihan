@@ -503,9 +503,15 @@ public static class MabuhayLevelBuilder
         AddWreckage(s, "Wreckage (before the live wire)", bag.At(76f, 0f), bag.Tangent(76f), new Vector2(14f, 8f), 6, 8);
         float lane = mapalad.Project(new Vector2(-78f, -44f), out _);
         AddWreckage(s, "Wreckage (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(10f, 3f), 3, 13);
+
+        // Plant scraps the flood has torn from the yards and lots: branches, uprooted bananas, mats of grass and creeper.
+        // Soft (only a branch dents a hull), so they can float where the boat works, but still not in front of the hall.
+        AddWreckage(s, "Plant scraps (east of the start)", bag.At(54f, -2f), bag.Tangent(54f), new Vector2(18f, 9f), 7, 21, FloatingDebris.PlantScraps);
+        AddWreckage(s, "Plant scraps (before the live wire)", bag.At(72f, 2f), bag.Tangent(72f), new Vector2(18f, 9f), 7, 22, FloatingDebris.PlantScraps);
+        AddWreckage(s, "Plant scraps (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(12f, 3f), 4, 23, FloatingDebris.PlantScraps);
     }
 
-    static void AddWreckage(Scenery s, string name, Vector2 at, Vector2 along, Vector2 area, int count, int seed)
+    static void AddWreckage(Scenery s, string name, Vector2 at, Vector2 along, Vector2 area, int count, int seed, DebrisKind[] kinds = null)
     {
         var go = new GameObject(name);
         go.transform.SetParent(s.hazards, false);
@@ -514,6 +520,7 @@ public static class MabuhayLevelBuilder
         field.area = new Vector2(area.y, area.x);           // across (x) and along (z) the street
         field.count = count;
         field.seed = seed;
+        if (kinds != null) field.kinds = kinds;
     }
 
     // ------------------------------------------------------------------ the edge of the world
