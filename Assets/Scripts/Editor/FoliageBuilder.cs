@@ -59,7 +59,65 @@ public static class FoliageBuilder
             go.transform.localScale = Vector3.one * p.scale;
         }
 
-        return Summary(plan, flora);
+        int edge = PlantLevee(group, root.transform, settings, layout, flora);
+
+        // Trunks glance a hull off like every other solid thing on the map, instead of catching it.
+        var slippery = BarangayMockBuilder.SlipperySurface();
+        foreach (var trunk in group.GetComponentsInChildren<Collider>(true)) trunk.sharedMaterial = slippery;
+
+        return Summary(plan, flora) + " Along the levee: " + edge + " more.";
+    }
+
+    /// <summary>
+    /// The dry land past the levee is planted too, so the edge of the map reads as land from the water: a line of trees, bamboo and
+    /// bananas along the crest, and a looser scatter behind it. Same seed, same planting.
+    /// </summary>
+    static int PlantLevee(Transform group, Transform mapRoot, BarangayMockSettings settings, BarangayLayout layout, FoliageLibrary flora)
+    {
+        var pool = new List<int>();
+        for (int i = 0; i < flora.species.Count; i++)
+        {
+            var sp = flora.species[i];
+            if (sp.prefab == null || sp.size.y < flora.minStandingHeight) continue;
+            if (sp.group == FoliageGroup.CanopyTree || sp.group == FoliageGroup.SmallTree || sp.group == FoliageGroup.Bamboo || sp.group == FoliageGroup.Banana)
+                pool.Add(i);
+        }
+        if (pool.Count == 0) return 0;
+
+        var inner = MabuhayLevelBuilder.EdgeArea(settings, layout);
+        float run = MabuhayLevelBuilder.LeveeRun;
+        var crest = Rect.MinMaxRect(inner.xMin - run, inner.yMin - run, inner.xMax + run, inner.yMax + run);
+        float localY = (MabuhayLevelBuilder.LeveeCrestY - mapRoot.position.y) / Mathf.Max(0.01f, mapRoot.lossyScale.y);
+        var random = new System.Random(flora.seed + 1);
+        var holder = new GameObject("Levee").transform;
+        holder.SetParent(group, false);
+        GameObjectUtility.SetStaticEditorFlags(holder.gameObject, StaticEditorFlags.BatchingStatic);
+
+        int planted = 0;
+        void Plant(Vector2 at)
+        {
+            var sp = flora.species[pool[random.Next(pool.Count)]];
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(sp.prefab, holder);
+            go.transform.localPosition = new Vector3(at.x, localY, at.y);
+            go.transform.localRotation = Quaternion.Euler(0f, (float)random.NextDouble() * 360f, 0f);
+            go.transform.localScale = Vector3.one * Mathf.Lerp(sp.scale.x, sp.scale.y, (float)random.NextDouble());
+            planted++;
+        }
+
+        // Walk the crest's four sides: a tree every 6-14 m, set back 2-7 m from the top of the bank, and a few further back.
+        Vector2[] corners = { new Vector2(crest.xMin, crest.yMin), new Vector2(crest.xMax, crest.yMin), new Vector2(crest.xMax, crest.yMax), new Vector2(crest.xMin, crest.yMax) };
+        for (int k = 0; k < 4; k++)
+        {
+            Vector2 a = corners[k], b = corners[(k + 1) % 4];
+            float length = Vector2.Distance(a, b);
+            Vector2 along = (b - a) / length, outward = new Vector2(along.y, -along.x);     // the rectangle runs counter-clockwise: out is to the right
+            for (float d = (float)random.NextDouble() * 6f; d < length; d += 6f + (float)random.NextDouble() * 8f)
+            {
+                Plant(a + along * d + outward * (2f + (float)random.NextDouble() * 5f));
+                if (random.NextDouble() < 0.45) Plant(a + along * (d + (float)random.NextDouble() * 4f) + outward * (10f + (float)random.NextDouble() * 30f));
+            }
+        }
+        return planted;
     }
 
     public static string Summary(FoliagePlan plan, FoliageLibrary flora)

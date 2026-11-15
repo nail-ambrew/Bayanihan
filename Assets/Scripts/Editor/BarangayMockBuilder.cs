@@ -388,13 +388,7 @@ public static class BarangayMockBuilder
             go.transform.localPosition = new Vector3(p.position.x, 0f, p.position.y);
             go.transform.localRotation = Quaternion.Euler(0f, p.yaw, 0f);
             go.transform.localScale = p.scale;
-            if (c.settings.colliders)
-            {
-                var box = go.AddComponent<BoxCollider>();
-                box.center = new Vector3(0f, p.modelSize.y * 0.5f, 0f);
-                box.size = p.modelSize;
-                box.sharedMaterial = c.slippery;
-            }
+            if (c.settings.colliders) SolidWhereDrawn(go, c.slippery);
             return;
         }
 
@@ -407,6 +401,24 @@ public static class BarangayMockBuilder
             ring.Add(p.position + new Vector2(o.x, o.z));
         }
         MapGeometry.Extrude(ring, 0f, size.y, fallback);
+    }
+
+    /// <summary>
+    /// Makes a placed model solid exactly where it is drawn: a mesh collider on each drawn part, using that part's own mesh.
+    /// A box round the whole model walled off its yard, its porch, the open corner of an L-shaped building and the space
+    /// under a raised floor; now the boat goes wherever the player can see open water, and is stopped only by what is there.
+    /// </summary>
+    public static void SolidWhereDrawn(GameObject model, PhysicsMaterial surface)
+    {
+        foreach (var filter in model.GetComponentsInChildren<MeshFilter>(true))
+        {
+            var drawn = filter.GetComponent<MeshRenderer>();
+            if (filter.sharedMesh == null || drawn == null || !drawn.enabled) continue;
+            if (filter.TryGetComponent(out MeshCollider existing)) UnityEngine.Object.DestroyImmediate(existing);
+            var solid = filter.gameObject.AddComponent<MeshCollider>();
+            solid.sharedMesh = filter.sharedMesh;
+            solid.sharedMaterial = surface;
+        }
     }
 
     /// <summary>A flat roof on four posts, over an outline. <paramref name="roofY"/> is the underside of the roof.</summary>

@@ -352,8 +352,7 @@ public class MabuhayLevelTests
         for (int i = 0; i < 30; i++)
         {
             Vector3 p = evac.RandomLandingPoint();
-            Vector3 onHall = hall.ClosestPoint(new Vector3(p.x, hall.bounds.center.y, p.z));
-            float apart = Vector2.Distance(Flat(p), Flat(onHall));
+            float apart = HorizontalDistance(hall, p + Vector3.up * 1f);         // to the hall's front wall, at shoulder height
             Assert.Less(apart, 3f, "the landing is " + apart.ToString("0.0") + " m from the hall's front: not on its porch");
             Assert.Greater(apart, 0.4f, "the landing is inside the hall's wall");
             Assert.IsFalse(Physics.CheckSphere(p + Vector3.up * 0.9f, 0.3f, ~0, QueryTriggerInteraction.Ignore), "somebody lands inside something at " + p);
@@ -366,35 +365,170 @@ public class MabuhayLevelTests
         yield return null;
     }
 
-    /// <summary>The hall's solid body: the collider of the hall model (or of the block that stands for it).</summary>
-    static Collider FindHall()
+    /// <summary>
+    /// The hall's solid parts: the colliders of the hall model, or of whatever model is nearest the landing. Each is the hall's drawn
+    /// shape (a mesh), so distances to it are measured with rays (<see cref="HorizontalDistance"/>), not ClosestPoint, which only
+    /// works on boxes, spheres and convex shapes.
+    /// </summary>
+    static Collider[] FindHall()
     {
         var map = GameObject.Find("BarangayMock");
-        var named = map.GetComponentsInChildren<BoxCollider>().FirstOrDefault(c => c.name.Contains("Hall_Barangay67"));
-        if (named != null) return named;
+        var named = map.GetComponentsInChildren<Transform>().FirstOrDefault(t => t.name.Contains("Hall_Barangay67"));
+        if (named != null && named.GetComponentsInChildren<Collider>().Length > 0) return named.GetComponentsInChildren<Collider>();
+
         var evac = Object.FindFirstObjectByType<EvacuationCenter>();
-        var nearest = Physics.OverlapSphere(evac.landingArea.position, 6f, ~0, QueryTriggerInteraction.Ignore)
-                             .Where(c => c.attachedRigidbody == null && c.transform.IsChildOf(map.transform))
-                             .OrderBy(c => Vector3.Distance(c.ClosestPoint(evac.landingArea.position), evac.landingArea.position)).FirstOrDefault();
+        Vector3 landing = evac.landingArea.position + Vector3.up * 1f;
+        Collider nearest = null;
+        float best = float.PositiveInfinity;
+        foreach (var c in Physics.OverlapSphere(landing, 6f, ~0, QueryTriggerInteraction.Ignore))
+        {
+            if (c.attachedRigidbody != null || !c.transform.IsChildOf(map.transform)) continue;
+            float d = HorizontalDistance(new[] { c }, landing);
+            if (d < best) { best = d; nearest = c; }
+        }
         Assert.IsNotNull(nearest, "there is no hall to land at");
-        return nearest;
+        var model = nearest.transform;                                  // the whole model that part belongs to
+        while (model.parent != null && model.parent.parent != map.transform) model = model.parent;
+        return model.GetComponentsInChildren<Collider>();
     }
+
+    /// <summary>How far, across the ground, a point is from the nearest of these colliders at its own height (rays all round).</summary>
+    static float HorizontalDistance(Collider[] solids, Vector3 p, float range = 10f)
+    {
+        float best = float.PositiveInfinity;
+        for (int k = 0; k < 72; k++)
+        {
+            float a = k * Mathf.PI * 2f / 72f;
+            var ray = new Ray(p, new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)));
+            foreach (var c in solids)
+                if (c.Raycast(ray, out RaycastHit hit, range) && hit.distance < best) best = hit.distance;
+        }
+        return best;
+    }
+
+    // ------------------------------------------------------------------ no hidden walls
 
     [UnityTest]
     public IEnumerator The_world_has_an_edge_the_boat_cannot_sail_off()
     {
+        // The edge is a levee you can see, not an invisible wall: drawn, solid where it is drawn, round the start, above the flood.
         var edge = GameObject.Find(EdgeName);
-        Assert.IsNotNull(edge, "the scene has no walls round the map");
-        var walls = edge.GetComponentsInChildren<BoxCollider>();
-        Assert.AreEqual(4, walls.Length);
+        Assert.IsNotNull(edge, "the scene has no edge round the map");
+        var bank = edge.transform.Find("Levee bank");
+        Assert.IsNotNull(bank, "the edge is a levee");
+        var drawn = bank.GetComponent<MeshRenderer>();
+        var solid = bank.GetComponent<MeshCollider>();
+        Assert.IsTrue(drawn != null && drawn.enabled, "the levee is drawn");
+        Assert.IsTrue(solid != null && Same(drawn.bounds, solid.bounds, 0.05f), "and solid exactly where it is drawn");
+        Assert.IsEmpty(edge.GetComponentsInChildren<BoxCollider>(), "no invisible walls");
 
-        Vector3 inside = boat.transform.position;
-        foreach (var wall in walls)
-            Assert.IsFalse(wall.bounds.Contains(inside), wall.name + " wall is on top of the boat's start");
+        float floodTop = mission.maxWaterRise;
+        Assert.Greater(drawn.bounds.max.y, floodTop + 1f, "the levee's crest stands well above the highest flood");
+
+        // Straight out from the start in every direction, the boat runs into the bank, which is there to be seen.
+        Vector3 start = boat.transform.position + Vector3.up * 0.3f;
+        for (int k = 0; k < 16; k++)
+        {
+            float a = k * Mathf.PI * 2f / 16f;
+            var ray = new Ray(start, new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)));
+            Assert.IsTrue(solid.Raycast(ray, out _, 2000f), "heading " + (k * 22.5f) + "°, the boat would never meet the edge");
+        }
         yield return null;
     }
 
     const string EdgeName = "World Edge";
+
+    [UnityTest]
+    public IEnumerator Every_solid_part_of_the_map_is_something_you_can_see()
+    {
+        // Something stops the boat only where something is drawn: each solid part's shape is the mesh drawn there (a house, a block,
+        // a landmark, the levee), or a tree's thin trunk inside a drawn tree, or a drawn post. No invisible boxes round models.
+        int checkedParts = 0;
+        foreach (var c in Object.FindObjectsByType<Collider>(FindObjectsSortMode.None))
+        {
+            if (c.isTrigger || !c.enabled || c.attachedRigidbody != null) continue;
+            string root = c.transform.root.name;
+            if (root != "BarangayMock" && root != EdgeName && root != "Posts") continue;
+            checkedParts++;
+
+            string what = root + " > " + c.transform.parent?.name + " > " + c.name + " (" + c.GetType().Name + ")";
+            if (c is MeshCollider)
+            {
+                // In play mode Unity draws static parts from one combined mesh, so compare where the shape is, not which mesh
+                // asset it is: the solid part covers exactly what is drawn on the same object.
+                var drawn = c.GetComponent<MeshRenderer>();
+                Assert.IsTrue(drawn != null && drawn.enabled, what + " is solid but nothing is drawn there");
+                // 25 cm of slack: a model's stored drawing box can lag its real vertices a little. An invisible box round a model
+                // is off by metres.
+                Assert.IsTrue(Same(drawn.bounds, c.bounds, 0.25f), what + " is not the shape drawn there (" + c.bounds + " vs " + drawn.bounds + ")");
+            }
+            else if (c.gameObject.layer == 2)
+                Assert.IsNotNull(c.transform.parent?.GetComponentInChildren<MeshRenderer>(), what + " is a trunk with no tree");
+            else
+            {
+                var drawn = c.GetComponent<MeshRenderer>();
+                Assert.IsTrue(drawn != null && drawn.enabled, what + " is solid but nothing is drawn there");
+                Assert.IsTrue(Grown(drawn.bounds, 0.05f).Contains(c.bounds.min) && Grown(drawn.bounds, 0.05f).Contains(c.bounds.max),
+                              what + " is bigger than what is drawn");
+            }
+        }
+        Assert.Greater(checkedParts, 1000, "the map's houses and blocks are solid");
+        yield return null;
+    }
+
+    static Bounds Grown(Bounds b, float by) { b.Expand(by * 2f); return b; }
+
+    /// <summary>
+    /// The solid part and the drawn part are the same shape: the solid one sits inside what is drawn and fills nearly all of it.
+    /// (For a turned model the box Unity keeps round the drawing is a little looser than the collider's own, so not equal.)
+    /// </summary>
+    static bool Same(Bounds drawn, Bounds solid, float tolerance)
+    {
+        var room = drawn;
+        room.Expand(tolerance * 2f);
+        if (!room.Contains(solid.min) || !room.Contains(solid.max)) return false;
+        for (int axis = 0; axis < 3; axis++)
+            if (solid.size[axis] < drawn.size[axis] * 0.9f - tolerance) return false;
+        return true;
+    }
+
+    [UnityTest]
+    public IEnumerator Open_ground_in_the_big_lots_is_water_the_boat_can_get_to()
+    {
+        // The school yard, WalterMart's open ground, the church's compound and the hospital's: once walled off by a box round
+        // each model, now water the boat reaches from its start wherever nothing is drawn.
+        var landmarks = GameObject.Find("BarangayMock").transform.Find("Landmarks");
+        foreach (var model in new[] { "LM_MabuhayElementary", "LM_WalterMart", "LM_IglesiaNiCristo", "LM_CarmonaHospital" })
+        {
+            var lot = landmarks.Cast<Transform>().FirstOrDefault(t => t.name.Contains("(" + model + ")"));
+            Assert.IsNotNull(lot, model + " is on the map");
+            var drawn = lot.GetComponentsInChildren<MeshRenderer>();
+            Bounds b = drawn[0].bounds;
+            foreach (var r in drawn) b.Encapsulate(r.bounds);
+
+            Vector3 start = boat.transform.position;
+            var area = Rect.MinMaxRect(Mathf.Min(b.min.x, start.x) - 30f, Mathf.Min(b.min.z, start.z) - 30f,
+                                       Mathf.Max(b.max.x, start.x) + 30f, Mathf.Max(b.max.z, start.z) + 30f);
+            var water = new BoatReach(area, 1f, BoatReach.DefaultRadius, 0f);
+            Physics.SyncTransforms();
+            water.Flood(start);
+
+            int roomy = 0, reached = 0;
+            for (float x = b.min.x + 1f; x < b.max.x; x += 2f)
+            for (float z = b.min.z + 1f; z < b.max.z; z += 2f)
+            {
+                var above = new Vector3(x, b.max.y + 1f, z);
+                if (Physics.Raycast(above, Vector3.down, above.y - 0.4f, ~0, QueryTriggerInteraction.Ignore)) continue;   // something drawn is there
+                var xz = new Vector2(x, z);
+                if (!water.IsClear(xz)) continue;                                                                 // too tight for a boat
+                roomy++;
+                if (water.Reached(xz)) reached++;
+            }
+            Assert.Greater(roomy, 100, model + ": there is open ground in its lot");
+            Assert.GreaterOrEqual(reached, roomy * 0.9f, model + ": the boat reaches " + reached + " of " + roomy + " open places in its lot");
+        }
+        yield return null;
+    }
 
     // ------------------------------------------------------------------ playing it
 

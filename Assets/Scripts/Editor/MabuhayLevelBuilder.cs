@@ -408,45 +408,104 @@ public static class MabuhayLevelBuilder
     // ---- roofs
 
     /// <summary>
-    /// Puts somebody on a roof: the best house near <paramref name="target"/> whose roof is between the heights asked for, found by
-    /// the colliders that are there. They stand just inside the roof's edge on the side that faces <paramref name="towards"/> (where the
-    /// boat will be), looking that way.
+    /// Puts somebody on a roof: the best house near <paramref name="target"/> whose roof is between the heights asked for, judged by
+    /// what is drawn. They stand on the roof itself (found by casting down onto the house's own mesh), just inside its edge on the side
+    /// that faces <paramref name="towards"/> (where the boat will be), looking that way. A spot with no roof under it, or one too
+    /// steep to stand on, is skipped for the next one in, then the next house.
     /// </summary>
     static void AddRoofer(Scenery s, string id, Vector2 target, Vector2 towards, float minHeight, float maxHeight)
     {
-        BoxCollider best = null;
-        float bestScore = float.MaxValue;
         var map = GameObject.Find("BarangayMock");
-        foreach (var c in Physics.OverlapSphere(W(target), 24f, ~0, QueryTriggerInteraction.Ignore))
-        {
-            var box = c as BoxCollider;
-            if (box == null || box.attachedRigidbody != null || map == null || !box.transform.IsChildOf(map.transform)) continue;
-            float height = box.bounds.max.y - s.groundY;
-            if (height < minHeight || height > maxHeight) continue;
-            float score = Vector2.Distance(new Vector2(box.bounds.center.x, box.bounds.center.z), target) + 1.2f * Mathf.Abs(height - 6f);
-            if (score < bestScore) { bestScore = score; best = box; }
-        }
+        var buildings = map != null ? map.transform.Find("Buildings") : null;
+        var candidates = new List<(Transform house, float score)>();
+        if (buildings != null)
+            foreach (Transform house in buildings)
+            {
+                if (!house.name.StartsWith("House ") || !DrawnBounds(house, out Bounds drawn)) continue;
+                var centre = new Vector2(drawn.center.x, drawn.center.z);
+                if (Vector2.Distance(centre, target) > 24f + new Vector2(drawn.extents.x, drawn.extents.z).magnitude) continue;
+                float height = drawn.max.y - s.groundY;
+                if (height < minHeight || height > maxHeight) continue;
+                candidates.Add((house, Vector2.Distance(centre, target) + 1.2f * Mathf.Abs(height - 6f)));
+            }
 
-        if (best == null)
+        foreach (var (house, _) in candidates.OrderBy(c => c.score))
         {
-            s.result.problems.Add("no roof between " + minHeight + " and " + maxHeight + " m near " + target + " for " + id + ".");
-            AddAnchor(s, id, W(target, 4f), 0f);
+            if (!RoofSpot(house, towards, s.groundY + minHeight, s.groundY + maxHeight, out Vector3 spot, out Vector2 facing)) continue;
+            AddAnchor(s, id, spot, MapGeometry.Heading(facing));
+            s.result.notes.Add(id + ": on the roof of " + house.name + " (" + (spot.y - s.groundY).ToString("0.0") + " m up).");
             return;
         }
 
-        var t = best.transform;
-        Vector3 centre = t.TransformPoint(best.center);
-        float top = best.bounds.max.y;
-        Vector2 here = new Vector2(centre.x, centre.z);
-        Vector2 dir = (towards - here).normalized;
-        Vector2 right = new Vector2(t.right.x, t.right.z).normalized, forward = new Vector2(t.forward.x, t.forward.z).normalized;
-        float halfWidth = best.size.x * Mathf.Abs(t.lossyScale.x) * 0.5f, halfDepth = best.size.z * Mathf.Abs(t.lossyScale.z) * 0.5f;
-        float u = Mathf.Abs(Vector2.Dot(dir, right)), v = Mathf.Abs(Vector2.Dot(dir, forward));
-        float reachToEdge = Mathf.Min(u < 1e-4f ? float.MaxValue : halfWidth / u, v < 1e-4f ? float.MaxValue : halfDepth / v);
-        Vector2 at = here + dir * Mathf.Max(0f, reachToEdge - 0.8f);        // 0.8 m in from the lip
+        s.result.problems.Add("no roof to stand on between " + minHeight + " and " + maxHeight + " m near " + target + " for " + id + ".");
+        AddAnchor(s, id, W(target, 4f), 0f);
+    }
 
-        AddAnchor(s, id, new Vector3(at.x, top, at.y), MapGeometry.Heading(dir));
-        s.result.notes.Add(id + ": on the roof of " + best.name + " (" + (top - s.groundY).ToString("0.0") + " m up).");
+    /// <summary>The box round everything drawn of a placed model, in world space.</summary>
+    static bool DrawnBounds(Transform model, out Bounds bounds)
+    {
+        bounds = default;
+        bool any = false;
+        foreach (var r in model.GetComponentsInChildren<MeshRenderer>())
+        {
+            if (!any) { bounds = r.bounds; any = true; }
+            else bounds.Encapsulate(r.bounds);
+        }
+        return any;
+    }
+
+    /// <summary>
+    /// A place to stand on a house's roof, on the side facing <paramref name="towards"/>: starts 0.8 m in from the edge of what is
+    /// drawn and works inwards until the house's own mesh is under foot, level enough to stand on, at a height in range.
+    /// </summary>
+    static bool RoofSpot(Transform house, Vector2 towards, float minY, float maxY, out Vector3 spot, out Vector2 facing)
+    {
+        spot = default;
+        facing = Vector2.up;
+        var solids = house.GetComponentsInChildren<MeshCollider>();
+        if (solids.Length == 0) return false;
+
+        // The drawn footprint in the house's own frame, so the edge is found along its walls, not along the world's axes.
+        Matrix4x4 toHouse = house.worldToLocalMatrix;
+        bool any = false;
+        Bounds local = default;
+        foreach (var mf in house.GetComponentsInChildren<MeshFilter>())
+        {
+            if (mf.sharedMesh == null) continue;
+            var mb = mf.sharedMesh.bounds;
+            Matrix4x4 m = toHouse * mf.transform.localToWorldMatrix;
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 corner = mb.center + Vector3.Scale(mb.extents, new Vector3((i & 1) == 0 ? -1f : 1f, (i & 2) == 0 ? -1f : 1f, (i & 4) == 0 ? -1f : 1f));
+                Vector3 p = m.MultiplyPoint3x4(corner);
+                if (!any) { local = new Bounds(p, Vector3.zero); any = true; }
+                else local.Encapsulate(p);
+            }
+        }
+        if (!any) return false;
+
+        Vector3 centre = house.TransformPoint(local.center);
+        Vector2 here = new Vector2(centre.x, centre.z);
+        facing = (towards - here).normalized;
+        Vector2 right = new Vector2(house.right.x, house.right.z).normalized, forward = new Vector2(house.forward.x, house.forward.z).normalized;
+        float halfWidth = local.extents.x * Mathf.Abs(house.lossyScale.x), halfDepth = local.extents.z * Mathf.Abs(house.lossyScale.z);
+        float u = Mathf.Abs(Vector2.Dot(facing, right)), v = Mathf.Abs(Vector2.Dot(facing, forward));
+        float reachToEdge = Mathf.Min(u < 1e-4f ? float.MaxValue : halfWidth / u, v < 1e-4f ? float.MaxValue : halfDepth / v);
+        float top = house.TransformPoint(new Vector3(0f, local.max.y, 0f)).y + 2f;
+
+        for (float inset = 0.8f; inset <= reachToEdge; inset += 0.4f)
+        {
+            Vector2 at = here + facing * (reachToEdge - inset);
+            var ray = new Ray(new Vector3(at.x, top, at.y), Vector3.down);
+            bool hitAny = false;
+            RaycastHit highest = default;
+            foreach (var solid in solids)
+                if (solid.Raycast(ray, out RaycastHit hit, top - minY + 1f) && (!hitAny || hit.point.y > highest.point.y)) { highest = hit; hitAny = true; }
+            if (!hitAny || highest.normal.y < 0.9f || highest.point.y < minY || highest.point.y > maxY) continue;    // nothing there, or too steep
+            spot = highest.point;
+            return true;
+        }
+        return false;
     }
 
     // ---- the jam
@@ -525,32 +584,87 @@ public static class MabuhayLevelBuilder
 
     // ------------------------------------------------------------------ the edge of the world
 
+    /// <summary>World height of the levee's crest: well above the water at its highest (it rises at most 0.6 m in a mission).</summary>
+    public const float LeveeCrestY = 2.5f;
+    /// <summary>How far (metres) the levee's face runs out from the flooded ground to the crest: a steep earth bank.</summary>
+    public const float LeveeRun = 4f;
+    /// <summary>How far out from the map's middle the dry land goes: past the water's skirt, so no open water shows beyond the levee.</summary>
+    public const float DryLandReach = 1200f;
+
+    /// <summary>The flooded ground the map lies on; the levee rises from its edge.</summary>
+    public static Rect EdgeArea(BarangayMockSettings settings, BarangayLayout layout)
+    {
+        var region = settings.Region(layout);
+        float margin = settings.margin;
+        return Rect.MinMaxRect(region.xMin - margin, region.yMin - margin, region.xMax + margin, region.yMax + margin);
+    }
+
     /// <summary>
-    /// Four walls round the ground the map lies on, so the boat cannot sail off the edge of the map into nothing. Plain colliders, no
-    /// renderers: nobody has to see them.
+    /// The edge of the world is something you can see: an earth levee all round the flooded ground, from the bottom of the water up to
+    /// a grassy crest well above the highest the flood gets, and dry land beyond it out to the horizon. The boat runs aground on the
+    /// bank it can see; there is no invisible wall, and no open water past it to want to reach. Its colliders are the drawn bank.
     /// </summary>
     static void PlaceEdge(Scenery s)
     {
-        var region = s.settings.Region(s.layout);
-        float margin = s.settings.margin;
-        var area = Rect.MinMaxRect(region.xMin - margin, region.yMin - margin, region.xMax + margin, region.yMax + margin);
-        var root = new GameObject(EdgeName).transform;
+        var inner = EdgeArea(s.settings, s.layout);
+        var crest = Rect.MinMaxRect(inner.xMin - LeveeRun, inner.yMin - LeveeRun, inner.xMax + LeveeRun, inner.yMax + LeveeRun);
+        var outer = Rect.MinMaxRect(Mathf.Min(crest.xMin - 1f, -DryLandReach), Mathf.Min(crest.yMin - 1f, -DryLandReach),
+                                    Mathf.Max(crest.xMax + 1f, DryLandReach), Mathf.Max(crest.yMax + 1f, DryLandReach));
+        float foot = s.groundY - 0.05f;     // a little under the ground, so no seam shows where they meet
 
-        const float thick = 6f, height = 14f;
-        float yMid = s.groundY + height * 0.5f - 1f;
-        void Wall(string name, Vector3 centre, Vector3 size)
+        var root = new GameObject(EdgeName).transform;
+        var bank = new MapGeometry.MeshBuffers();
+        Ring(bank, inner, foot, crest, LeveeCrestY, 0.25f);
+        var land = new MapGeometry.MeshBuffers();
+        Ring(land, crest, LeveeCrestY, outer, LeveeCrestY, 0.02f);
+
+        EdgePart(s, root, "Levee bank", bank, LevelMaterial("Levee_Earth", new Color(0.45f, 0.38f, 0.27f)));
+        EdgePart(s, root, "Dry land", land, LevelMaterial("Levee_Grass", new Color(0.42f, 0.55f, 0.28f)));
+    }
+
+    /// <summary>
+    /// The band between two nested rectangles as four trapezoids (one per side), the inner edge at one height and the outer at
+    /// another, facing up and inwards.
+    /// </summary>
+    static void Ring(MapGeometry.MeshBuffers b, Rect inner, float innerY, Rect outer, float outerY, float uvScale)
+    {
+        Vector3[] I = { new Vector3(inner.xMin, innerY, inner.yMin), new Vector3(inner.xMax, innerY, inner.yMin),
+                        new Vector3(inner.xMax, innerY, inner.yMax), new Vector3(inner.xMin, innerY, inner.yMax) };
+        Vector3[] O = { new Vector3(outer.xMin, outerY, outer.yMin), new Vector3(outer.xMax, outerY, outer.yMin),
+                        new Vector3(outer.xMax, outerY, outer.yMax), new Vector3(outer.xMin, outerY, outer.yMax) };
+        for (int k = 0; k < 4; k++)
         {
-            var go = new GameObject(name);
-            go.transform.SetParent(root, false);
-            go.transform.position = centre;
-            var box = go.AddComponent<BoxCollider>();
-            box.size = size;
-            box.sharedMaterial = s.slippery;
+            int n = (k + 1) % 4;
+            Vector3 a = I[k], c = I[n], d = O[n], e = O[k];
+            Vector3 normal = Vector3.Cross(c - a, e - a).normalized;
+            if (normal.y < 0f) normal = -normal;
+            int ia = b.Add(a, normal, new Vector2(a.x, a.z) * uvScale), ic = b.Add(c, normal, new Vector2(c.x, c.z) * uvScale);
+            int id = b.Add(d, normal, new Vector2(d.x, d.z) * uvScale), ie = b.Add(e, normal, new Vector2(e.x, e.z) * uvScale);
+            // Wound so the face looks up (the side the camera and the boat are on): Unity's front face is the one whose
+            // Cross(b - a, c - a) points at the viewer.
+            if (Vector3.Dot(Vector3.Cross(c - a, d - a), normal) > 0f) { b.Triangle(ia, ic, id); b.Triangle(ia, id, ie); }
+            else { b.Triangle(ia, id, ic); b.Triangle(ia, ie, id); }
         }
-        Wall("West", new Vector3(area.xMin - thick * 0.5f, yMid, area.center.y), new Vector3(thick, height, area.height + 2f * thick));
-        Wall("East", new Vector3(area.xMax + thick * 0.5f, yMid, area.center.y), new Vector3(thick, height, area.height + 2f * thick));
-        Wall("South", new Vector3(area.center.x, yMid, area.yMin - thick * 0.5f), new Vector3(area.width, height, thick));
-        Wall("North", new Vector3(area.center.x, yMid, area.yMax + thick * 0.5f), new Vector3(area.width, height, thick));
+    }
+
+    static void EdgePart(Scenery s, Transform root, string name, MapGeometry.MeshBuffers b, Material material)
+    {
+        string folder = s.settings.generatedFolder;
+        PlaceholderBaker.EnsureFolder(folder);
+        string path = folder + "/" + name.Replace(' ', '_') + ".asset";
+        var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+        var built = b.ToMesh(name);
+        if (mesh == null) { mesh = built; AssetDatabase.CreateAsset(mesh, path); }
+        else { EditorUtility.CopySerialized(built, mesh); UnityEngine.Object.DestroyImmediate(built); }
+
+        var go = new GameObject(name);
+        go.transform.SetParent(root, false);
+        go.AddComponent<MeshFilter>().sharedMesh = mesh;
+        go.AddComponent<MeshRenderer>().sharedMaterial = material;
+        var solid = go.AddComponent<MeshCollider>();
+        solid.sharedMesh = mesh;
+        solid.sharedMaterial = s.slippery;
+        GameObjectUtility.SetStaticEditorFlags(go, StaticEditorFlags.BatchingStatic);
     }
 
     // ------------------------------------------------------------------ the water and the mission
