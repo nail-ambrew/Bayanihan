@@ -67,6 +67,68 @@ public class GameUiTests
     }
 
     [UnityTest]
+    public IEnumerator The_joystick_reads_the_direction_the_thumb_moves_from_its_centre()
+    {
+        // Real pointer events, as a finger sends them, on the real on-screen stick: on the left and mirrored on the right.
+        var sideBefore = GameSettings.Side;
+        GameSettings.Touch = TouchMode.On;
+        try
+        {
+            foreach (var side in new[] { ControlSide.JoystickLeft, ControlSide.JoystickRight })
+            {
+                GameSettings.Side = side;
+                TouchControls.RefreshAll();
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+
+                var stick = Object.FindFirstObjectByType<Joystick>();
+                Assert.IsNotNull(stick, "the HUD has an on-screen joystick");
+                var area = (RectTransform)stick.transform;
+                var corners = new Vector3[4];
+                area.GetWorldCorners(corners);                          // screen-space overlay: world units are screen pixels
+                Vector2 centre = (corners[0] + corners[2]) * 0.5f;
+                float reach = (corners[2].x - corners[0].x);            // a full push, past the ring's edge
+
+                var events = UnityEngine.EventSystems.EventSystem.current;
+                UnityEngine.EventSystems.PointerEventData Finger(int id, Vector2 at) => new UnityEngine.EventSystems.PointerEventData(events) { pointerId = id, position = at };
+
+                stick.OnPointerDown(Finger(1, centre));
+                Assert.AreEqual(Vector2.zero, TouchInput.Stick, side + ": pressing the middle of the stick does not move it");
+
+                foreach (var dir in new[] { Vector2.down, Vector2.up, Vector2.left, Vector2.right,
+                                            new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized })
+                {
+                    stick.OnDrag(Finger(1, centre + dir * reach));
+                    Assert.Greater(Vector2.Dot(TouchInput.Stick, dir), 0.97f, side + ": dragging " + dir + " steers " + TouchInput.Stick);
+                    Assert.AreEqual(1f, TouchInput.Stick.magnitude, 0.02f, side + ": a full push is full speed");
+                }
+
+                // A small push down is a little down, not up: the bug was every touch inside the ring reading as "up".
+                stick.OnDrag(Finger(1, centre + Vector2.down * reach * 0.25f));
+                Assert.Less(TouchInput.Stick.y, -0.2f, side + ": a small push down steers down, gently");
+                Assert.AreEqual(0f, TouchInput.Stick.x, 0.05f);
+
+                // Another finger passing over the stick changes nothing; the first one still owns it.
+                var held = TouchInput.Stick;
+                stick.OnPointerDown(Finger(2, centre + Vector2.up * reach));
+                stick.OnDrag(Finger(2, centre + Vector2.up * reach));
+                stick.OnPointerUp(Finger(2, centre + Vector2.up * reach));
+                Assert.AreEqual(held, TouchInput.Stick, side + ": a second finger does not take the stick");
+                Assert.IsTrue(stick.IsHeld);
+
+                stick.OnPointerUp(Finger(1, centre + Vector2.down * reach));
+                Assert.AreEqual(Vector2.zero, TouchInput.Stick, side + ": letting go stops");
+                Assert.IsFalse(stick.IsHeld);
+            }
+        }
+        finally
+        {
+            GameSettings.Side = sideBefore;
+            TouchControls.RefreshAll();
+        }
+    }
+
+    [UnityTest]
     public IEnumerator Prompts_name_the_buttons_on_a_phone_and_the_keys_on_a_keyboard()
     {
         GameSettings.Touch = TouchMode.Off;

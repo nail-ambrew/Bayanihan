@@ -197,11 +197,23 @@ public class TouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     }
 }
 
-/// <summary>A fixed joystick: drag the knob inside the ring; the farther out, the harder.</summary>
+/// <summary>
+/// A fixed joystick: drag the knob inside the ring; the farther out, the harder. The direction is measured from the ring's
+/// centre, wherever the stick is anchored, and the finger that pressed it owns it until it lifts (a second finger on the
+/// stick, or one passing over it, changes nothing). The finger may slide off the ring and keep steering.
+/// </summary>
 public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     RectTransform knob, area;
-    const float Radius = 40f, DeadZone = 0.12f;
+    const float DeadZone = 0.12f;
+    const int NoFinger = int.MinValue;
+    int finger = NoFinger;
+
+    /// <summary>True while a finger holds the stick.</summary>
+    public bool IsHeld => finger != NoFinger;
+
+    /// <summary>How far the knob travels from the centre: to the ring's edge, so it never leaves the ring.</summary>
+    float Radius => Mathf.Max(20f, Mathf.Min(area.rect.width, area.rect.height) * 0.5f - knob.rect.width * 0.5f);
 
     public void Build()
     {
@@ -219,28 +231,43 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         k.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.35f);
     }
 
-    public void OnPointerDown(PointerEventData e) => OnDrag(e);
+    public void OnPointerDown(PointerEventData e)
+    {
+        if (IsHeld) return;                 // already held by another finger
+        finger = e.pointerId;
+        Steer(e);
+    }
 
     public void OnDrag(PointerEventData e)
     {
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(area, e.position, e.pressEventCamera, out var local)) return;
-        Vector2 v = Vector2.ClampMagnitude(local / Radius, 1f);
-        knob.anchoredPosition = v * Radius;
-        float m = v.magnitude;
-        TouchInput.Stick = m < DeadZone ? Vector2.zero : v.normalized * ((m - DeadZone) / (1f - DeadZone));
+        if (e.pointerId == finger) Steer(e);
     }
 
     public void OnPointerUp(PointerEventData e)
     {
-        knob.anchoredPosition = Vector2.zero;
+        if (e.pointerId == finger) Release();
+    }
+
+    void Steer(PointerEventData e)
+    {
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(area, e.position, e.pressEventCamera, out var local)) return;
+        // The stick is anchored by a bottom corner, so its pivot is that corner: measure from the ring's centre instead, or
+        // every touch inside the ring reads as "up" and "down" is only reached below the stick, at the screen's edge.
+        float radius = Radius;
+        Vector2 v = Vector2.ClampMagnitude((local - area.rect.center) / radius, 1f);
+        knob.anchoredPosition = v * radius;
+        float m = v.magnitude;
+        TouchInput.Stick = m < DeadZone ? Vector2.zero : v.normalized * ((m - DeadZone) / (1f - DeadZone));
+    }
+
+    void Release()
+    {
+        finger = NoFinger;
+        if (knob != null) knob.anchoredPosition = Vector2.zero;
         TouchInput.Stick = Vector2.zero;
     }
 
-    void OnDisable()
-    {
-        TouchInput.Stick = Vector2.zero;
-        if (knob != null) knob.anchoredPosition = Vector2.zero;
-    }
+    void OnDisable() => Release();
 }
 
 /// <summary>The empty part of the screen: one finger drags the camera round, two fingers pinch to zoom.</summary>
