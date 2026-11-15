@@ -5,7 +5,7 @@ using UnityEngine;
 /// What is floating: wreckage (a board, a crate, a drum, a log) or plant scraps torn loose by the flood (a branch, an
 /// uprooted banana, a mat of grass, a raft of creeper).
 /// </summary>
-public enum DebrisKind { Plank, Crate, Drum, Log, Branch, BananaLeaf, GrassMat, WeedRaft }
+public enum DebrisKind { Plank, Crate, Drum, Log, Branch, BananaLeaf, GrassMat, WeedRaft, Bucket, RoofSheet }
 
 /// <summary>
 /// A piece of wreckage afloat in the flood: a board, a crate, a drum, a log. It rides the waves on the same
@@ -27,9 +27,11 @@ public class FloatingDebris : MonoBehaviour
     public static readonly DebrisKind[] Wreckage = { DebrisKind.Plank, DebrisKind.Crate, DebrisKind.Drum, DebrisKind.Log };
     /// <summary>The plant scraps from the barangay's foliage.</summary>
     public static readonly DebrisKind[] PlantScraps = { DebrisKind.Branch, DebrisKind.BananaLeaf, DebrisKind.GrassMat, DebrisKind.WeedRaft };
+    /// <summary>What the flood takes from the houses: plastic buckets and torn-off corrugated roof sheets.</summary>
+    public static readonly DebrisKind[] HouseholdScraps = { DebrisKind.Bucket, DebrisKind.Bucket, DebrisKind.RoofSheet };
 
-    /// <summary>Leaves, grass and creeper: soft, so the boat goes through them without harm. A branch is wood and still counts.</summary>
-    public static bool IsSoft(DebrisKind kind) => kind == DebrisKind.BananaLeaf || kind == DebrisKind.GrassMat || kind == DebrisKind.WeedRaft;
+    /// <summary>Leaves, grass, creeper and plastic buckets: soft, so the boat goes through them without harm. A branch is wood and still counts.</summary>
+    public static bool IsSoft(DebrisKind kind) => kind == DebrisKind.BananaLeaf || kind == DebrisKind.GrassMat || kind == DebrisKind.WeedRaft || kind == DebrisKind.Bucket;
 
     [Tooltip("How quickly it picks up the speed of the water (per second). Higher = it follows the current more closely.")]
     public float driftResponse = 0.8f;

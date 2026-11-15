@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9facf4d698834f3784d82bdc7c2aaf4, type: 3}
+  m_Name: PropDebrisSet
+  m_EditorClassIdentifier: Bayanihan::PropDebrisSet
+  buckets:
+  - {fileID: 2606041722942513876, guid: 4bca6f52ede61467aa6d138c2fed93b7, type: 3}
+  - {fileID: 527780734442002916, guid: 18d8e3c282d9745d6b26199d4c355bb0, type: 3}
+  - {fileID: 8100441105043812466, guid: ea51e604eb9bc468d8201884ccfa374a, type: 3}
+  - {fileID: 8161744503853577058, guid: 03cd5d462d67742d084b7a38cefbe682, type: 3}
+  - {fileID: 2697112649665935555, guid: 6cfb27c2c662c4eda94c74359aaa2c31, type: 3}
+  - {fileID: 3758453559425150367, guid: 8be55ce980cb24c5c9991a4be7e9b252, type: 3}
+  roofSheets:
+  - {fileID: 8704904307567988631, guid: 0ef06813588884402b49b4dc274a9c21, type: 3}
+  - {fileID: 3205506133883121332, guid: ed597e9e817f444d2bef386e3d8117f2, type: 3}
+  - {fileID: 4504995868507469616, guid: e915fb5c10f7f4e82a8b345c6e05bf4b, type: 3}
+  - {fileID: 6505802369972137253, guid: de5f67e30d0fa4ca38b2d6783244d70a, type: 3}
+  - {fileID: 1374333645696927899, guid: 93f121ab47008488eb5fcdd35a003c54, type: 3}
+  - {fileID: 9069629679902030708, guid: 060045cba3f6442aaadf53bf13b45704, type: 3}
+  - {fileID: 7855895427230861335, guid: 834277ae3b20c4048a92c0066d52b4d4, type: 3}
+  - {fileID: 1565465887085424239, guid: 4f78c6033ba8e40f0ba2de33c3743429, type: 3}
+  - {fileID: 1810958724918364648, guid: f1e4082f5f6f945ac80aedd72c47ac59, type: 3}
+  - {fileID: 2439574496148655255, guid: 34ddce8efd3004ff49cc023beddb69ed, type: 3}

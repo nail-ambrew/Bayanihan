@@ -125,6 +125,8 @@ public static class DebrisProps
             case DebrisKind.BananaLeaf: return new Vector3(1.4f, 0.3f, 1.6f);
             case DebrisKind.GrassMat:   return new Vector3(1.8f, 0.2f, 1.8f);
             case DebrisKind.WeedRaft:   return new Vector3(1.8f, 0.2f, 2.4f);
+            case DebrisKind.Bucket:     return new Vector3(0.36f, 0.36f, 0.36f);
+            case DebrisKind.RoofSheet:  return new Vector3(1.0f, 0.12f, 1.9f);
             default:               return new Vector3(0.4f, 0.4f, 3f);        // log
         }
     }
@@ -140,6 +142,8 @@ public static class DebrisProps
             case DebrisKind.BananaLeaf: return 5f;
             case DebrisKind.GrassMat:   return 4f;
             case DebrisKind.WeedRaft:   return 6f;
+            case DebrisKind.Bucket:     return 2f;
+            case DebrisKind.RoofSheet:  return 9f;
             default:               return 90f;
         }
     }
@@ -155,6 +159,8 @@ public static class DebrisProps
             case DebrisKind.BananaLeaf: return new Color(0.29f, 0.50f, 0.19f);
             case DebrisKind.GrassMat:   return new Color(0.43f, 0.62f, 0.22f);
             case DebrisKind.WeedRaft:   return new Color(0.25f, 0.48f, 0.18f);
+            case DebrisKind.Bucket:     return new Color(0.18f, 0.43f, 0.77f);
+            case DebrisKind.RoofSheet:  return new Color(0.55f, 0.36f, 0.22f);
             default:               return new Color(0.38f, 0.29f, 0.20f);
         }
     }
@@ -166,6 +172,11 @@ public static class DebrisProps
         {
             var plant = PlantVisual(parent, kind, localPosition, localRotation);
             if (plant != null) return plant;
+        }
+        if (kind == DebrisKind.Bucket || kind == DebrisKind.RoofSheet)
+        {
+            var scrap = HouseholdVisual(parent, kind, localPosition, localRotation);
+            if (scrap != null) return scrap;
         }
         bool round = kind == DebrisKind.Drum || kind == DebrisKind.Log;
         var piece = GameObject.CreatePrimitive(round ? PrimitiveType.Cylinder : PrimitiveType.Cube);
@@ -250,6 +261,49 @@ public static class DebrisProps
                 m.localScale = new Vector3(1f, 0.9f, 1f);
                 m.localPosition = new Vector3(0f, -0.05f, 0f);
                 break;
+        }
+        return holder;
+    }
+
+    /// <summary>
+    /// A bucket bobbing on its side, or a corrugated sheet torn off a roof and lying flat, from the prop packs. Null if the set or
+    /// the model is missing (the drawn shape is used then).
+    /// </summary>
+    static GameObject HouseholdVisual(Transform parent, DebrisKind kind, Vector3 localPosition, Quaternion localRotation)
+    {
+        var set = PropDebrisSet.Current;
+        var prefab = set != null ? set.For(kind) : null;
+        if (prefab == null) return null;
+
+        var holder = new GameObject(kind.ToString());
+        holder.transform.SetParent(parent, false);
+        holder.transform.localPosition = localPosition;
+        holder.transform.localRotation = localRotation;
+
+        var model = Object.Instantiate(prefab, holder.transform, false);
+        model.name = prefab.name;
+        foreach (var c in model.GetComponentsInChildren<Collider>(true))
+        {
+            c.enabled = false;
+            Object.Destroy(c);
+        }
+        foreach (var t in model.GetComponentsInChildren<Transform>(true))
+        {
+            t.gameObject.layer = parent != null ? parent.gameObject.layer : 0;
+            t.gameObject.isStatic = false;
+        }
+
+        var m = model.transform;
+        Vector3 size = Size(kind);
+        if (kind == DebrisKind.Bucket)
+        {
+            m.localRotation = Quaternion.Euler(80f, 0f, 0f);                     // tipped over, mouth downstream
+            m.localPosition = new Vector3(0f, 0f, -size.z * 0.5f);
+        }
+        else
+        {
+            m.localRotation = Quaternion.identity;                              // the sheets are made lying flat
+            m.localPosition = new Vector3(0f, -0.04f, 0f);
         }
         return holder;
     }

@@ -30,8 +30,8 @@ public static class MabuhayLevelBuilder
     public const string EdgeName = "World Edge";
 
     // The streets, by their OpenStreetMap ids, with the name to fall back on if the layout is rebuilt with other ids.
-    const string BagumbayanId = "w668009058";
-    const string MapaladId = "w145889435";
+    public const string BagumbayanId = "w668009058";
+    public const string MapaladId = "w145889435";
 
     // ------------------------------------------------------------------ where things go (metres along Bagumbayan Street)
     // s counts from the street's south end, up the spur, round the corner and along the street towards the hall.
@@ -568,6 +568,11 @@ public static class MabuhayLevelBuilder
         AddWreckage(s, "Plant scraps (east of the start)", bag.At(54f, -2f), bag.Tangent(54f), new Vector2(18f, 9f), 7, 21, FloatingDebris.PlantScraps);
         AddWreckage(s, "Plant scraps (before the live wire)", bag.At(72f, 2f), bag.Tangent(72f), new Vector2(18f, 9f), 7, 22, FloatingDebris.PlantScraps);
         AddWreckage(s, "Plant scraps (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(12f, 3f), 4, 23, FloatingDebris.PlantScraps);
+
+        // And from the houses: buckets washed off porches, corrugated sheets torn from the roofs of the shacks.
+        AddWreckage(s, "Household scraps (east of the start)", bag.At(60f, 3f), bag.Tangent(60f), new Vector2(16f, 8f), 5, 31, FloatingDebris.HouseholdScraps);
+        AddWreckage(s, "Household scraps (before the live wire)", bag.At(80f, -2f), bag.Tangent(80f), new Vector2(14f, 8f), 5, 32, FloatingDebris.HouseholdScraps);
+        AddWreckage(s, "Household scraps (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(10f, 3f), 3, 33, FloatingDebris.HouseholdScraps);
     }
 
     static void AddWreckage(Scenery s, string name, Vector2 at, Vector2 along, Vector2 area, int count, int seed, DebrisKind[] kinds = null)

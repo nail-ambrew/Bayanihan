@@ -126,6 +126,7 @@ public static class FoliageImporter
                 scale = info.group == FoliageGroup.Vine && code == "F10" ? new Vector2(0.9f, 1.05f) : new Vector2(0.85f, 1.2f)
             });
         }
+        PropPackImporter.AddLowPolyTrees(library);          // the low-poly palm, shrub, stump, oak and chestnut, if imported
         EditorUtility.SetDirty(library);
 
         var debris = AssetDatabase.LoadAssetAtPath<FoliageDebrisSet>(DebrisSetPath);
