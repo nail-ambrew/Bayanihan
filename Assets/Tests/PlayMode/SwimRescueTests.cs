@@ -113,7 +113,7 @@ public class SwimRescueTests
         PutSwimmerAt(ben.transform.position + Vector3.right * 1.5f);
         yield return WaitSeconds(0.4f);
 
-        StringAssert.Contains("Salbabida", swim.Prompt);
+        StringAssert.Contains("Floatie", swim.Prompt);
         Assert.IsTrue(swim.PromptIsWarning);
         Assert.IsFalse(swim.TryGrab(ben));
         Assert.IsFalse(ben.IsHeld);

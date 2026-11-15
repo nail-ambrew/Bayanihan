@@ -3,8 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// The boat's side of a throw rescue. Reach, throw, row, go: the safest way to get somebody is the one that keeps
-/// the boat and its crew out of the water. Press T and the crew throw the Salbabida or the Lubid - whichever the
-/// person needs - to somebody within about 12 m. They take hold, and are brought in to the side of the boat; then E
+/// the boat and its crew out of the water. Press T (THROW on a phone) and the crew throw the Floatie or the Rope - whichever
+/// the person needs - to somebody within about 12 m. They take hold, and are brought in to the side of the boat; then E
 /// takes them aboard, as it does for anyone within reach.
 ///
 /// A throw needs a clear line to them, a boat that is nearly still beside them, the item they need packed and not
@@ -69,7 +69,6 @@ public class BoatRescue : MonoBehaviour
     BoatPassengers passengers;
     Camera cam;
     float nextAimAt, nextThrowAt;
-    GUIStyle promptStyle;
 
     void Awake()
     {
@@ -166,14 +165,14 @@ public class BoatRescue : MonoBehaviour
     /// <summary>Null if a throw can go ahead; otherwise why it cannot.</summary>
     string ThrowBlock(Survivor s, bool lifebuoy, bool rope)
     {
-        if (s.InLiveWire) return "live wire in the water - get the power cut first (C)";
+        if (s.InLiveWire) return "live wire in the water - get the power cut first (" + InputHelper.Key("C", "POWER CUT") + ")";
 
-        if (lifebuoy && !LoadoutState.Has(RescueItemId.Lifebuoy)) return "needs a Salbabida - not packed";
-        if (rope && !LoadoutState.Has(RescueItemId.Rope)) return "needs a Lubid - not packed";
-        if (s.NeedsFirstAidKit && !LoadoutState.Has(RescueItemId.FirstAid)) return "needs a Botika - not packed";
+        if (lifebuoy && !LoadoutState.Has(RescueItemId.Lifebuoy)) return "needs a Floatie - not packed";
+        if (rope && !LoadoutState.Has(RescueItemId.Rope)) return "needs a Rope - not packed";
+        if (s.NeedsFirstAidKit && !LoadoutState.Has(RescueItemId.FirstAid)) return "needs a First-Aid Kit - not packed";
 
-        if (lifebuoy && LifebuoyOut) return "the Salbabida is already out";
-        if (rope && RopeOut) return "the Lubid is already out";
+        if (lifebuoy && LifebuoyOut) return "the Floatie is already out";
+        if (rope && RopeOut) return "the Rope is already out";
 
         if (Boat.Passengers + lines.Count >= Boat.capacity) return "the boat is full";
         if (Boat.SpeedRelativeTo(s) > maxThrowSpeed) return "too fast to throw - ease off";
@@ -202,14 +201,14 @@ public class BoatRescue : MonoBehaviour
         }
         else
         {
-            Prompt = "T · throw the " + ItemNames(lifebuoy, rope) + " to " + who + " (" + distance.ToString("0") + " m)";
+            Prompt = InputHelper.Key("T", "THROW") + " · throw the " + ItemNames(lifebuoy, rope) + " to " + who + " (" + distance.ToString("0") + " m)";
         }
     }
 
     static string ItemNames(bool lifebuoy, bool rope)
     {
-        if (lifebuoy && rope) return "Salbabida and Lubid";
-        return lifebuoy ? "Salbabida" : "Lubid";
+        if (lifebuoy && rope) return "Floatie and Rope";
+        return lifebuoy ? "Floatie" : "Rope";
     }
 
     // ------------------------------------------------------------------ the throw
@@ -246,7 +245,7 @@ public class BoatRescue : MonoBehaviour
 
     public void OnLineAlongside(RescueLine line)
     {
-        Boat.SetStatus(line.Target.DisplayName + " is alongside - press E to bring them aboard.", 3f);
+        Boat.SetStatus(line.Target.DisplayName + " is alongside - " + (InputHelper.TouchActive ? "tap RESCUE" : "press E") + " to bring them aboard.", 3f);
     }
 
     public void OnLineLost(RescueLine line, string why)
@@ -268,39 +267,4 @@ public class BoatRescue : MonoBehaviour
         if (!lifebuoy && DeckLifebuoy != null) DeckLifebuoy.gameObject.SetActive(LoadoutState.Has(RescueItemId.Lifebuoy));
     }
 
-    // ------------------------------------------------------------------ screen
-    void OnGUI()
-    {
-        if (Event.current.type != EventType.Repaint) return;
-        if (Prompt == null || Target == null || !Boat.IsPlayerAboard) return;
-        if (RescueManager.Instance != null && RescueManager.Instance.GameOver) return;
-
-        if (promptStyle == null)
-        {
-            promptStyle = new GUIStyle(GUI.skin.label) { fontSize = 22, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-        }
-        promptStyle.normal.textColor = PromptIsWarning ? new Color(1f, 0.6f, 0.35f) : new Color(0.7f, 0.95f, 1f);
-        GUI.Label(new Rect(0f, Screen.height - 190f, Screen.width, 40f), Prompt, promptStyle);
-
-        // A frame round the person a throw would go to.
-        if (cam == null) cam = Camera.main;
-        if (cam == null) return;
-        Vector3 sp = cam.WorldToScreenPoint(Target.SightPoint);
-        if (sp.z <= 0f) return;
-
-        var box = new Rect(sp.x - 24f, Screen.height - sp.y - 24f, 48f, 48f);
-        var colour = PromptIsWarning ? new Color(1f, 0.6f, 0.35f) : new Color(0.7f, 0.95f, 1f);
-        var prior = GUI.color;
-        GUI.color = colour;
-        const float t = 3f, c = 12f;      // line weight and corner length
-        GUI.DrawTexture(new Rect(box.x, box.y, c, t), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.x, box.y, t, c), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.xMax - c, box.y, c, t), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.xMax - t, box.y, t, c), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.x, box.yMax - t, c, t), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.x, box.yMax - c, t, c), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.xMax - c, box.yMax - t, c, t), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(box.xMax - t, box.yMax - c, t, c), Texture2D.whiteTexture);
-        GUI.color = prior;
-    }
 }

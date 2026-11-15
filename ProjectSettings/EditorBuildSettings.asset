@@ -6,11 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Account.unity
+    guid: bb5bf8c65c6c474797335e8b453b4490
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: adaa79ffb51024e92818121970aca2df
+  - enabled: 1
     path: Assets/Scenes/Loadout.unity
     guid: 0a25b45d4f7d8dd458ce3d78347143a6
   - enabled: 1
     path: Assets/Scenes/Gameplay.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/Maps/MabuhayGameplay.unity
+    guid: 7df6265ee4798447ca77e0cb49168666
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

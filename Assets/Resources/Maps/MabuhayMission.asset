@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe8b4c4ac166645688cf003a1ef72207, type: 3}
+  m_Name: MabuhayMission
+  m_EditorClassIdentifier: Bayanihan::MissionDefinition
+  title: "Pagbaha sa Mabuhay \xB7 The Water Rises"
+  briefing: Floodwater is running through Barangay Mabuhay, Carmona. Families cling
+    to posts and wait on roofs on Bagumbayan Street. Take everyone to the Barangay
+    Hall, where the clerk will write their names.
+  setting: "Daytime \xB7 Flood"
+  reports:
+  - A cable is down across Bagumbayan Street, west of the hall. The water there is
+    live, and only the Radyo can have the power cut.
+  - 'Wreckage jams the lane of A. Mapalad Street behind the corner houses: whoever
+    is behind it can only be reached by a line thrown over.'
+  - The water is rising, about ten centimetres a minute.
+  timeLimit: 480
+  stormIntensity: 0.7
+  waterRisePerMinute: 0.1
+  maxWaterRise: 0.6
+  rules:
+    drainOpenWater: 0.28
+    drainClinging: 0.2
+    drainTrapped: 0.16
+    drainRooftop: 0.08
+    kidFactor: 1.5
+    teenFactor: 1
+    adultFactor: 1
+    elderFactor: 1.4
+    injuredFactor: 1.5
+    liveWireFactor: 2
+    heldFactor: 0.5
+    stormExtra: 0.5
+    risingWaterExtra: 0.8
+    redAt: 0.6
+    yellowAt: 0.3
+    kidVulnerability: 0.25
+    elderVulnerability: 0.2
+    injuredVulnerability: 0.2
+    openWaterExposure: 0.1
+    pointsPerResident: 100
+    redMultiplier: 1.5
+    yellowMultiplier: 1.25
+    greenMultiplier: 1
+    lateMultiplier: 0.5
+    householdBonusPerMember: 50
+    cleanRunBonus: 100
+    priorityBonusMax: 100
+  residents:
+  - id: joy
+    displayName: Joy Dela Cruz
+    household: Dela Cruz
+    category: 0
+    characterId: C01
+    situation: 0
+    needs: 1
+    startCondition: 0.85
+    anchor: Anchor_joy
+    note: 
+  - id: ben
+    displayName: Ben Dela Cruz
+    household: Dela Cruz
+    category: 2
+    characterId: C16
+    situation: 1
+    needs: 1
+    startCondition: 1
+    anchor: Anchor_ben
+    note: 
+  - id: nena
+    displayName: Nena Dela Cruz
+    household: Dela Cruz
+    category: 4
+    characterId: C26
+    situation: 2
+    needs: 2
+    startCondition: 0.9
+    anchor: Anchor_nena
+    note: 
+  - id: celia
+    displayName: Celia Bautista
+    household: Bautista
+    category: 2
+    characterId: C20
+    situation: 1
+    needs: 1
+    startCondition: 1
+    anchor: Anchor_celia
+    note: 
+  - id: jun
+    displayName: Jun Bautista
+    household: Bautista
+    category: 1
+    characterId: C09
+    situation: 1
+    needs: 1
+    startCondition: 1
+    anchor: Anchor_jun
+    note: 
+  - id: ador
+    displayName: Ador Villanueva
+    household: Villanueva
+    category: 4
+    characterId: C27
+    situation: 1
+    needs: 1
+    startCondition: 0.85
+    anchor: Anchor_ador
+    note: 
+  - id: tessa
+    displayName: Tessa Villanueva
+    household: Villanueva
+    category: 1
+    characterId: C08
+    situation: 2
+    needs: 2
+    startCondition: 1
+    anchor: Anchor_tessa
+    note: 
+  - id: lito
+    displayName: Lito Reyes
+    household: Reyes
+    category: 2
+    characterId: C13
+    situation: 0
+    needs: 5
+    startCondition: 0.9
+    anchor: Anchor_lito
+    note: 
+  - id: rosa
+    displayName: Rosa Santos
+    household: Santos
+    category: 2
+    characterId: C14
+    situation: 3
+    needs: 6
+    startCondition: 0.8
+    anchor: Anchor_rosa
+    note: 
+  - id: migo
+    displayName: Migo Santos
+    household: Santos
+    category: 0
+    characterId: C06
+    situation: 3
+    needs: 2
+    startCondition: 0.8
+    anchor: Anchor_migo
+    note: 

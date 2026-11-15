@@ -1,0 +1,2605 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6019ed86c3ed04390a5cc148a0164289, type: 3}
+  m_Name: PlaceholderLibrary
+  m_EditorClassIdentifier: Bayanihan::PlaceholderLibrary
+  houses:
+  - name: BAY_F_Corner_A
+    prefab: {fileID: 5485565946271667784, guid: dc4888b088d844be78bcf534e8568459, type: 3}
+    size: {x: 5.2, y: 8.4, z: 6.52}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_B
+    prefab: {fileID: 4402085633025056786, guid: 2d4923cf03be740f8a01d15cb1287ada, type: 3}
+    size: {x: 5.2, y: 8.4, z: 6.9700003}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_C
+    prefab: {fileID: 6973473382785945626, guid: f3886e155fcaf4e10a657105750a8579, type: 3}
+    size: {x: 5.1758065, y: 8.4, z: 6.33}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_D
+    prefab: {fileID: 7142844471054875109, guid: 99da99fc1644d4a18b1fbf42bd8af718, type: 3}
+    size: {x: 5.2, y: 8.4, z: 7.23}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_E
+    prefab: {fileID: 1565028555771881277, guid: e8084659555dc4375a13fc9147f8c773, type: 3}
+    size: {x: 4.52, y: 8.4, z: 7.19}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_F
+    prefab: {fileID: 2563358847402456022, guid: 1c34f44a5cb544ead9b5040679e27eb3, type: 3}
+    size: {x: 5.25, y: 8.4, z: 6.52}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_G
+    prefab: {fileID: 2988590912212089104, guid: 540e2699a64df4420ac77336e7e97e85, type: 3}
+    size: {x: 6.75, y: 8.4, z: 6.52}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_H
+    prefab: {fileID: 7076256789154606129, guid: e401d6917824f4692aec1ebb88f22fb1, type: 3}
+    size: {x: 5.96, y: 8.4, z: 6.52}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_I
+    prefab: {fileID: 7996951475007781872, guid: 3e44cae5c4c0447408f53ce9ad07770b, type: 3}
+    size: {x: 5.2, y: 8.4, z: 8.12}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_J
+    prefab: {fileID: 419124326613879323, guid: d0e199e4717094637b5525035570b865, type: 3}
+    size: {x: 5.2, y: 8.4, z: 6.52}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_K
+    prefab: {fileID: 1719140524278525636, guid: 198cd209784c8483396d85a58842d4d8, type: 3}
+    size: {x: 4.52, y: 8.4, z: 6.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_L
+    prefab: {fileID: 678999517567636186, guid: 26190909517b24a44938855f81a5f419, type: 3}
+    size: {x: 5.25, y: 8.4, z: 6.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_M
+    prefab: {fileID: 3798566771400345444, guid: e7cf3a5b15a754c5286c155af05771f8, type: 3}
+    size: {x: 4.52, y: 8.4, z: 6.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_N
+    prefab: {fileID: 1814980216270502747, guid: bc0070251f69f4bea81724fb6f1d6ffa, type: 3}
+    size: {x: 5.6, y: 8.4, z: 7.5111666}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_O
+    prefab: {fileID: 6228362983091057322, guid: 5354d9df6ce2f4af096c1ffaf3d0dd33, type: 3}
+    size: {x: 4.52, y: 8.4, z: 7.4700003}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_P
+    prefab: {fileID: 5509593162126123406, guid: 135075185f2b045d494913e75eac7b5f, type: 3}
+    size: {x: 4.67, y: 8.4, z: 6.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_Q
+    prefab: {fileID: 9165731232120150875, guid: 32779a329eb2944f2be91547fa13e178, type: 3}
+    size: {x: 4.52, y: 8.4, z: 6.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_R
+    prefab: {fileID: 8708750114088242722, guid: 9b0c221170eac46889afea57c070d5a8, type: 3}
+    size: {x: 5.575, y: 8.4, z: 6.57}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_S
+    prefab: {fileID: 5545266989345522195, guid: 5d1524615b2774c749569bfb68ba3fec, type: 3}
+    size: {x: 4.52, y: 8.4, z: 6.57}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Corner_T
+    prefab: {fileID: 3203042766246059455, guid: 62fcf306d2c394c94b0ca9b3cfa452fd, type: 3}
+    size: {x: 4.52, y: 8.4, z: 6.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 2
+    use: 2
+  - name: BAY_F_Shop_A
+    prefab: {fileID: 8816535620617079245, guid: a5094680b503043eda41ac5174d6e888, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.1}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_B
+    prefab: {fileID: 4692750043307402118, guid: c2ccd296ae439436194a6e09ab00ee10, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.05}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_C
+    prefab: {fileID: 4761031678573843510, guid: 89fe78d7ae5b0439eb69bce00c85de57, type: 3}
+    size: {x: 4.875807, y: 3.4, z: 6.1}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_D
+    prefab: {fileID: 2329848336411687282, guid: 9b0aa9695633d44a2b0449de8cabd128, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.61}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_E
+    prefab: {fileID: 6746079726234191350, guid: d4c3357ac2d6546c6978dcc3515949be, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.1}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_F
+    prefab: {fileID: 1532131193828061261, guid: 30d3fefaaff084c42be4fd2d73481315, type: 3}
+    size: {x: 4.3, y: 3.4, z: 7.7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_G
+    prefab: {fileID: 7978085880851441264, guid: 9cd9e3072939242e0afdde7be877f0ab, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.1}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_H
+    prefab: {fileID: 4959271867082662245, guid: e1d2c86936ea24b0ebaaaa5fc11a0e39, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.71}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_I
+    prefab: {fileID: 2737740297282542679, guid: bbd6304dc9195416885ed9761b41c166, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.71}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_J
+    prefab: {fileID: 3970944112014804093, guid: dccda2dfc16694a39be32fb6e26ed28f, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.1}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_K
+    prefab: {fileID: 9161015818882298693, guid: a8d612dbf735445adae6a24d5e29b791, type: 3}
+    size: {x: 4.3, y: 3.4, z: 5.7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_L
+    prefab: {fileID: 2698296268690217991, guid: a510d7b71460747d695964452fd6dd12, type: 3}
+    size: {x: 4.3, y: 3.4, z: 5.7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_M
+    prefab: {fileID: 8655024249640784390, guid: e6d70783e6e5e45b7b9035133a965583, type: 3}
+    size: {x: 4.3, y: 3.4, z: 6.1}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_N
+    prefab: {fileID: 2171258981295579586, guid: 17cff8a4e1afb4f9fa666991b4b542ae, type: 3}
+    size: {x: 4.3, y: 3.4, z: 7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_O
+    prefab: {fileID: 5116797816491020390, guid: 6c796a2bec71f47668d4591a03d534ab, type: 3}
+    size: {x: 4.397331, y: 3.4, z: 5.7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_P
+    prefab: {fileID: 3139868329285203762, guid: 18c11171427ab4d05a43b04f5449cb76, type: 3}
+    size: {x: 4.3282537, y: 3.4, z: 6.66}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_Q
+    prefab: {fileID: 919906884489855376, guid: a223cb9d9ec834e0499e01cff03c6d9b, type: 3}
+    size: {x: 4.3260975, y: 3.4, z: 7.241166}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_R
+    prefab: {fileID: 5265052041696066015, guid: 999d99bcce3894d4abd91bd315182f46, type: 3}
+    size: {x: 4.3282537, y: 3.4, z: 6.675}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_S
+    prefab: {fileID: 7905714141608592134, guid: 6a29b1fb314da40c0a5e8a8d131ff512, type: 3}
+    size: {x: 6.097729, y: 3.4, z: 6.01}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_Shop_T
+    prefab: {fileID: 6562219667329266547, guid: 9891a741dcc094c039992ab70e8dfd0a, type: 3}
+    size: {x: 4.3, y: 3.4, z: 5.7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 2
+  - name: BAY_F_ThreeStorey_A
+    prefab: {fileID: 5795199949723681857, guid: 561faac5993ba459ca55ac800d5ee672, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_B
+    prefab: {fileID: 5128877658084299153, guid: bf74dfbde2af244b594d4dfb2b9792e0, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_C
+    prefab: {fileID: 3451739601626944576, guid: 0b4c23bd98ea1463b949972838c7b531, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_D
+    prefab: {fileID: 2142933261753524659, guid: f323a34c0017048dd96a8582046b9f98, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 9.2699995}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_E
+    prefab: {fileID: 7541797331584154860, guid: a37644accdefb4b2d93cf81bf00718e5, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 8.39}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_F
+    prefab: {fileID: 4920089246053821595, guid: 92041e907d2434eabb4483125f441da9, type: 3}
+    size: {x: 5.1258063, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_G
+    prefab: {fileID: 369532466278111966, guid: 2c8c3714970654ae495aa12722499b0f, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.5699997}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_H
+    prefab: {fileID: 5802747110728913714, guid: c69b5775552134ea6a3d299a693ac3c5, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 8.28}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_I
+    prefab: {fileID: 2131626931642619289, guid: d3ad3f764970e4854a5f94ad208b0a73, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_J
+    prefab: {fileID: 4137993546129223717, guid: 365f7bb9967f245df9dbb7677e131039, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 8.72}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_K
+    prefab: {fileID: 6678626964851792895, guid: 7897e609228bb4e6dad1a067de62fdb4, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_L
+    prefab: {fileID: 2387568942180279134, guid: 8524ac8f2050c468989de5cbe41baa6c, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_M
+    prefab: {fileID: 774717970204852759, guid: 9626ecfb9468445078faf39016533aac, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_N
+    prefab: {fileID: 2162255598322760265, guid: 5826cfd44df734742985ef5c819fea66, type: 3}
+    size: {x: 4.5024986, y: 8.400001, z: 8.711166}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_O
+    prefab: {fileID: 5114064724115251057, guid: 3e063efb986db4b80803f52e67615d59, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.27}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_P
+    prefab: {fileID: 826214856602569779, guid: 019c03ed8222345f3bcf375828b64a49, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_Q
+    prefab: {fileID: 1454159574348476438, guid: c78e5cd1b7eae48d39ea9042d5887c55, type: 3}
+    size: {x: 4.521331, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_R
+    prefab: {fileID: 2069761586825863259, guid: 26582405f297747e08032605351ecc23, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 8.595}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_S
+    prefab: {fileID: 7569627544211664633, guid: 63e4d9ea106874a8ca69e25d6b4535b7, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_ThreeStorey_T
+    prefab: {fileID: 3203878071435335337, guid: 24d7b57cde12b4a75b338cacb1042c9f, type: 3}
+    size: {x: 4.5, y: 8.400001, z: 7.7700005}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 2
+    storeys: 3
+    use: 2
+  - name: BAY_F_Tower_A
+    prefab: {fileID: 6402413694147161511, guid: 8f860c6b49b1f45bd9d2c7ab1d77a20c, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_B
+    prefab: {fileID: 1253322634967952629, guid: 2d394ec014ce442edab292e9a29bcb41, type: 3}
+    size: {x: 7.24, y: 11.8, z: 9.67}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_C
+    prefab: {fileID: 5166738126757742866, guid: 57cc9e2c082e3461184ebbdf2b9160d1, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.73}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_D
+    prefab: {fileID: 5271502885867178784, guid: 58e13484cfb60404699d130d8dfc87da, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_E
+    prefab: {fileID: 79338691498444596, guid: dda3591b95b0140b493a620715519032, type: 3}
+    size: {x: 7.54, y: 11.8, z: 8.27}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_F
+    prefab: {fileID: 6100037321006838180, guid: 69d2d75eae8a04716b595102ba7c5c5b, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.99}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_G
+    prefab: {fileID: 4847940257283790414, guid: 2ae4c21725fbd41eaae87b5cf7806dda, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.16}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_H
+    prefab: {fileID: 854729685672624275, guid: 2be124658618f48819d2fa026e281867, type: 3}
+    size: {x: 7.54, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_I
+    prefab: {fileID: 5400420747364753473, guid: 04a2725396ddf4f6197dfaea4e6a4054, type: 3}
+    size: {x: 7.24, y: 11.8, z: 9.17}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_J
+    prefab: {fileID: 8915264585207665245, guid: 7be340529098a4d79898df223a0b9109, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_K
+    prefab: {fileID: 5117038477020096418, guid: a0085af32b5744c3492c18f912c617f7, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_L
+    prefab: {fileID: 9180955802889848960, guid: 2549dbd3c7e05463e984a5740055cae0, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.27}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_M
+    prefab: {fileID: 6841465924163444180, guid: a625820bc483340e6b4e8fc368de1da0, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_N
+    prefab: {fileID: 7205106373224885974, guid: a422bd6ed77c24ea1abf1b38fa060a1b, type: 3}
+    size: {x: 7.4288616, y: 11.8, z: 9.511167}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_O
+    prefab: {fileID: 8251479270726727672, guid: cf9eee8317aba40c99b6b4f49f729288, type: 3}
+    size: {x: 7.24, y: 11.8, z: 9.27}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_P
+    prefab: {fileID: 214680611634961312, guid: 4bc8f6b5cb60045be90c5e036f9b6740, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_Q
+    prefab: {fileID: 4242393258614133493, guid: 43e9b328efcc54c21b7c7b2dce60f38d, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_R
+    prefab: {fileID: 6454511949209008108, guid: efa5ec61ffdc4440cb0c67d7e35ad06c, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.8949995}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_S
+    prefab: {fileID: 8912004350471344824, guid: 47d78ee3a7f634b29856a7860ec6c2ad, type: 3}
+    size: {x: 7.4288616, y: 11.8, z: 9.511167}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_Tower_T
+    prefab: {fileID: 7945983259283008935, guid: 20658e69d63e0404fbac8d29d6fcbc1d, type: 3}
+    size: {x: 7.24, y: 11.8, z: 8.07}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 4
+    storeys: 4
+    use: 2
+  - name: BAY_F_TwoStorey_A
+    prefab: {fileID: 6245017323326827491, guid: 4fe7fa6c7fcd04a2981234f2b2cf3100, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.2}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_B
+    prefab: {fileID: 1942652969051134133, guid: a26fbdb1103474fcb8a03798fbc63b43, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.7}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_C
+    prefab: {fileID: 285302339548886932, guid: 62fba56bfe1fa49aba2cb63fc146ad56, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.25}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_D
+    prefab: {fileID: 395564329424849449, guid: 96cc7d2f03fee4472bb2b1ba968f92c6, type: 3}
+    size: {x: 4.3, y: 5.8, z: 9.6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_E
+    prefab: {fileID: 3189844259241257966, guid: 1df8b1b486c044f54b973d1b3609082f, type: 3}
+    size: {x: 4.3, y: 5.8, z: 8.02}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_F
+    prefab: {fileID: 2690504902227732236, guid: f08409e4283024d838738fb880da9c67, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.3}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_G
+    prefab: {fileID: 1134633157691133677, guid: 79f2c31a1262540fe99bb2b77c562be4, type: 3}
+    size: {x: 4.8258066, y: 5.8, z: 7.06}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_H
+    prefab: {fileID: 3772852230777345996, guid: 8a264a34a433843cebf7d731d29a087c, type: 3}
+    size: {x: 4.52, y: 5.8, z: 7.84}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_I
+    prefab: {fileID: 5761306249216484853, guid: 2b55df3fb33fb4939975074540e0f8b3, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.8599997}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_J
+    prefab: {fileID: 4860966414364616370, guid: 9fa065a3312434b3381431b96ed4a71a, type: 3}
+    size: {x: 4.3, y: 5.8, z: 8.3}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_K
+    prefab: {fileID: 6893046571016173902, guid: a86c10328eef2417a810cccc2cc18bf8, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.2}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_L
+    prefab: {fileID: 7715722217181309869, guid: bc78f836ddaeb4e51a6b2b108b7d8c78, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.3}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_M
+    prefab: {fileID: 5519281034767975931, guid: 9180c45ea6e8f401080e23361e20b0f3, type: 3}
+    size: {x: 4.3, y: 5.8, z: 8.441166}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_N
+    prefab: {fileID: 1874468425305445317, guid: 9e9b53ac39eae4911afb838cfcc68884, type: 3}
+    size: {x: 4.3, y: 5.8, z: 8.3}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_O
+    prefab: {fileID: 4557898791930271570, guid: ce9488dd82a8a4d2eb97c19b28a98d2a, type: 3}
+    size: {x: 4.4173307, y: 5.8, z: 7.2}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_P
+    prefab: {fileID: 6163360493651245943, guid: 0669bfaf6060a4f49ae1d75140c74910, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.2}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_Q
+    prefab: {fileID: 2151144526362390851, guid: 1d518f7cb7ce44ca994f77a35c0e3904, type: 3}
+    size: {x: 5.502726, y: 5.8, z: 8.025}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_R
+    prefab: {fileID: 2639869630817117188, guid: 7d5ca7cce54534b0a9b9066e8ac50ab5, type: 3}
+    size: {x: 4.3, y: 5.8, z: 8.441166}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_S
+    prefab: {fileID: 3591982752977211400, guid: 286578d2891fc42eea784d6c928b516e, type: 3}
+    size: {x: 6.097729, y: 5.8, z: 7.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_F_TwoStorey_T
+    prefab: {fileID: 5450302854361386942, guid: 41d39b747da23431ab862dc4baf1bc01, type: 3}
+    size: {x: 4.3, y: 5.8, z: 7.2}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 2
+  - name: BAY_I_SariSari_A
+    prefab: {fileID: 746797661712696617, guid: 3774cbdd6fea9416186bcf836bbae131, type: 3}
+    size: {x: 3.3200002, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_B
+    prefab: {fileID: 9150163780026623602, guid: d2120ee60acf14fc3a0a1597e9642d29, type: 3}
+    size: {x: 3.3200002, y: 2.5841668, z: 5.35}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_C
+    prefab: {fileID: 3274280572632979651, guid: a2e1806f45abf4ec984013d9dd21cd23, type: 3}
+    size: {x: 3.8100002, y: 2.5841668, z: 4.8599997}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_D
+    prefab: {fileID: 3828613532785680310, guid: 5aa3207bbf5a84a50aa1483e53e02f31, type: 3}
+    size: {x: 3.3200002, y: 2.5841668, z: 4.99}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_E
+    prefab: {fileID: 4365006461427070861, guid: 6ea3b82609ada46e18536ad14f1fbf4b, type: 3}
+    size: {x: 3.8758063, y: 2.5841668, z: 4.73}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_F
+    prefab: {fileID: 8043337409112476542, guid: 91f24d25a96cd498cb00ceb765a0873e, type: 3}
+    size: {x: 3.3200002, y: 3.1564744, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_G
+    prefab: {fileID: 2314699534708031830, guid: 210a4cc916b204abcbcc2c8ff52f7aeb, type: 3}
+    size: {x: 4.15, y: 2.5841668, z: 5.8}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_H
+    prefab: {fileID: 1341443319820805826, guid: 0cd0ae6917bb54cb0935c77b5348cbbf, type: 3}
+    size: {x: 3.3200002, y: 3.05, z: 4.8100004}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_I
+    prefab: {fileID: 5927990624946480766, guid: 13d2b0d5899474e4fa05fe90175eaf45, type: 3}
+    size: {x: 3.937058, y: 3.184167, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_J
+    prefab: {fileID: 8935678676044792178, guid: 59ac4ed4102fa4432970b269701a8f28, type: 3}
+    size: {x: 3.3200002, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_K
+    prefab: {fileID: 2456374771041111065, guid: 829c039a121104da092357aa26ba3adf, type: 3}
+    size: {x: 3.24, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_L
+    prefab: {fileID: 2761009941842290055, guid: df89425bfea5041ed96d0fa0eb52fe6e, type: 3}
+    size: {x: 3.73, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_M
+    prefab: {fileID: 8626881023111373025, guid: 860bd1cfc181747ed8fea6913cc71b51, type: 3}
+    size: {x: 3.24, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_N
+    prefab: {fileID: 2166528521168078494, guid: 26b9aa4e279854538b453d7c3cdcab51, type: 3}
+    size: {x: 5.633945, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_O
+    prefab: {fileID: 259600505507457595, guid: 4463111865b84433196daffb483ff3a5, type: 3}
+    size: {x: 4.55, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_P
+    prefab: {fileID: 524782664004135501, guid: cc93cc46b04854c42ae69f4c0a466610, type: 3}
+    size: {x: 3.24, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_Q
+    prefab: {fileID: 6971132280879264845, guid: 1211622622f9244b19d13e92f5546aa7, type: 3}
+    size: {x: 3.24, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_R
+    prefab: {fileID: 7315792117398855923, guid: 63a7b2c0edbe14c0e82d475694b00858, type: 3}
+    size: {x: 3.2982535, y: 2.5841668, z: 4.594164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_S
+    prefab: {fileID: 9084374569869104972, guid: b4d4453e0dbc643fdb724b4239a6f747, type: 3}
+    size: {x: 3.937058, y: 3.184167, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_SariSari_T
+    prefab: {fileID: 670498961305419689, guid: ad54ce20b94414a8bae939aa5b6384b2, type: 3}
+    size: {x: 3.24, y: 2.5841668, z: 4.15}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 0
+    storeys: 1
+    use: 1
+  - name: BAY_I_Shanty2F_A
+    prefab: {fileID: 5957069047003888376, guid: 5ecff82f535dc449eb094b97e12979ea, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_B
+    prefab: {fileID: 645467326469118344, guid: 01488ead9529b48adb3c41577d861a12, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_C
+    prefab: {fileID: 226072444455358987, guid: 61cea30d8bc944e0abd92745cf4e03ce, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6.5600004}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_D
+    prefab: {fileID: 5066668742722463224, guid: 519e1a29717364de88ec09b5b1d21ecf, type: 3}
+    size: {x: 4.8, y: 5.814093, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_E
+    prefab: {fileID: 3241443104870888419, guid: 16865c7acec3d4301a92cc8554cecc68, type: 3}
+    size: {x: 5.7, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_F
+    prefab: {fileID: 5702176512563773826, guid: 6445d47f5e1e74df88e4ac1dad35573a, type: 3}
+    size: {x: 4.8, y: 5.34, z: 7.55}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_G
+    prefab: {fileID: 6143727101231671650, guid: 60c0668e79fee4f638125c3ce0b0854a, type: 3}
+    size: {x: 5.3500004, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_H
+    prefab: {fileID: 982643190726195270, guid: e240247dd13b24577b9d177e49db56ec, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6.45}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_I
+    prefab: {fileID: 4442258977523685467, guid: 39337c70f31614297947b9ed1034d74d, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_J
+    prefab: {fileID: 5100965754268483669, guid: 3a20c8b88a30443dcbef3a4939dcde32, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_K
+    prefab: {fileID: 5927916913198167466, guid: b23f1395ea6d54efea1e70c235aed765, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_L
+    prefab: {fileID: 3814016544447556375, guid: 59771d0ceeef1443d84048ba244ce8ce, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6.5699997}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_M
+    prefab: {fileID: 3706097564729159378, guid: 5d874680cb6ff4d4e987689ddbba1394, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6.34}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_N
+    prefab: {fileID: 3902178342813340294, guid: 603725d2349f64c06ad939fd627d6b1c, type: 3}
+    size: {x: 6.297729, y: 5.34, z: 6.455192}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_O
+    prefab: {fileID: 2659958059722504481, guid: 39ab7aaacc22e47fc87d77794ee32892, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6.9}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_P
+    prefab: {fileID: 7027570145901064769, guid: f41f407b743ad41a78b098475e61e901, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_Q
+    prefab: {fileID: 3224675340005334765, guid: 219e2154738bc4fca8639de9bfe829ce, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_R
+    prefab: {fileID: 1177054825700742678, guid: 01add482b195f471c86a287d2d653b23, type: 3}
+    size: {x: 5.9300003, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_S
+    prefab: {fileID: 4825597140410144482, guid: 06182a3acbdb649c08ea63ce1a474470, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_Shanty2F_T
+    prefab: {fileID: 2082028786282899069, guid: 34dad9efdd2924afda1897f8281aebef, type: 3}
+    size: {x: 4.8, y: 5.34, z: 6}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 1
+    storeys: 2
+    use: 1
+  - name: BAY_I_TarpShack_A
+    prefab: {fileID: 6735980748186224684, guid: 1b1a28d1f49f2466ab7c8a85772c4551, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_B
+    prefab: {fileID: 1535842247635230785, guid: 5b0cb12453e97487cb67a90bc8ba31fd, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_C
+    prefab: {fileID: 1243106083964988318, guid: 7f68e57fafa20492d99559b9c68f1a46, type: 3}
+    size: {x: 5.8500004, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_D
+    prefab: {fileID: 4508099796126254093, guid: 950c9d3bb81e849c08d99480f6e5b0ff, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 5.2200003}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_E
+    prefab: {fileID: 434457387277701938, guid: ebd41222419714da08eb9b5d0360a8d4, type: 3}
+    size: {x: 4.8, y: 3.456032, z: 4.6982384}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_F
+    prefab: {fileID: 5634582120026172190, guid: 2314d491d3e5d469db4fe242d2547e2f, type: 3}
+    size: {x: 5.3258066, y: 3.208379, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_G
+    prefab: {fileID: 1509793157033019418, guid: bcd02bd1353424ea8819e7fac5bbc337, type: 3}
+    size: {x: 5.6000004, y: 2.756032, z: 4.674164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_H
+    prefab: {fileID: 2763781015022273034, guid: c23dc14ed15844ca3870d75ac757553e, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 6.23}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_I
+    prefab: {fileID: 5088802515696437145, guid: 166e7b2f71f8c4867a62ff498bb789b8, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_J
+    prefab: {fileID: 404357617174557484, guid: 2817a5ff3795e4bcc86c224e5493b485, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_K
+    prefab: {fileID: 3884154746571633799, guid: 82f27d2fc1bfe407ca57c6b7f8b8e4f3, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_L
+    prefab: {fileID: 8053163658159176324, guid: eb040e6a5773b4ec19e62df674524f21, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 5.4300003}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_M
+    prefab: {fileID: 6002464721902975960, guid: e7e4842e32f6a461e80e3a6e10a3c470, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.7200003}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_N
+    prefab: {fileID: 1087445349576623965, guid: 11f580b8bfad240bc87124c870bcfee5, type: 3}
+    size: {x: 6.547729, y: 2.756032, z: 4.685192}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_O
+    prefab: {fileID: 2810820255028559384, guid: 0b95bce1726e4469b882e14aa1eba745, type: 3}
+    size: {x: 6.1800003, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_P
+    prefab: {fileID: 6482930461599091330, guid: 70ef9fc7147c843d98cf8b1553e1e55b, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_Q
+    prefab: {fileID: 7426107398632573238, guid: e0ca4f40eeca2486a980db70dbda9f6d, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.53}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_R
+    prefab: {fileID: 2281683645338504220, guid: f617e3d9a432b4e2587827529345c3e0, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.394164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_S
+    prefab: {fileID: 7575915673516722384, guid: 16ce2770f7d254c75b6d60e580987029, type: 3}
+    size: {x: 4.8, y: 2.756032, z: 4.674164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TarpShack_T
+    prefab: {fileID: 8939399069148393211, guid: 052aa9b2adbe64dc383e511c2e7033ac, type: 3}
+    size: {x: 4.8, y: 3.456032, z: 5.8992057}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_A
+    prefab: {fileID: 1864431874017681600, guid: 6bcc4586cfa064f2ebe605864f118b96, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_B
+    prefab: {fileID: 7788577885302723129, guid: db217bfe0cd044377be445e7d48def06, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_C
+    prefab: {fileID: 4350381441459279558, guid: 7a327a9e3420442479fd7e310b861733, type: 3}
+    size: {x: 3.3, y: 3.5756898, z: 5.02}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_D
+    prefab: {fileID: 2867295032477128235, guid: 1a037b475e72d4f77af1f72a29376bf5, type: 3}
+    size: {x: 4.45, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_E
+    prefab: {fileID: 5931134024008347255, guid: 92478a49aee6d4811b1bdef91f4d25d8, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.7941637}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_F
+    prefab: {fileID: 7909628778564553562, guid: ee81ad56ca1644450a68fd485fe17cd4, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 5.34}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_G
+    prefab: {fileID: 1418839046776288438, guid: 06c4b78e54aaa45a3b4f8947a6944597, type: 3}
+    size: {x: 4.1, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_H
+    prefab: {fileID: 4971751895276965084, guid: 7b22d7e1eea574e97a2122190ca43b0f, type: 3}
+    size: {x: 3.8758063, y: 2.67569, z: 6.4000006}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_I
+    prefab: {fileID: 8994802102661484375, guid: 8c411c215935e4cf8a8e1814e58ee1f5, type: 3}
+    size: {x: 3.5734367, y: 3.0523076, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_J
+    prefab: {fileID: 5520813787145320435, guid: 1dee6390edffc4d7fbd853c9afb25fb1, type: 3}
+    size: {x: 3.8758063, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_K
+    prefab: {fileID: 3165157623988112588, guid: 210d7f991d55d4b6281c0b5be632fd50, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_L
+    prefab: {fileID: 1102242614074379132, guid: 6c5721cbdc7434015943739614b12ab3, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 5.6000004}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_M
+    prefab: {fileID: 1394519249061444580, guid: 9e0df175cb2624df29a69514fbd1f909, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.94}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_N
+    prefab: {fileID: 5332410794861521291, guid: d0ef8b95637514b83a2274e548968548, type: 3}
+    size: {x: 5.502264, y: 2.67569, z: 5.1074257}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_O
+    prefab: {fileID: 9113572362403058592, guid: 63582d9a46adf4ef6affb83b99d493f2, type: 3}
+    size: {x: 4.73, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_P
+    prefab: {fileID: 3873494109524717796, guid: 703257ea3b517445998397a94867d4eb, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_Q
+    prefab: {fileID: 1529365369153120199, guid: 304cb7cc7f59f48ddb948e68d71f069e, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_R
+    prefab: {fileID: 3314080240307535488, guid: cd6810e46e5c94d58a9254542f0bb9cc, type: 3}
+    size: {x: 3.3, y: 3.5756898, z: 6.2207727}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_S
+    prefab: {fileID: 5979976183363129644, guid: 43f28fc2dc73c471fad67b98c0cb154c, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  - name: BAY_I_TinShack_T
+    prefab: {fileID: 3043934543328214605, guid: 656ef2c087eda4edeb59f5dba6c66d05, type: 3}
+    size: {x: 3.5734367, y: 2.67569, z: 4.744164}
+    sourceModel: {fileID: 0}
+    sourcePath: 
+    sourceFrontYaw: 0
+    strip: []
+    bodyPattern: 
+    type: 3
+    storeys: 1
+    use: 1
+  landmarks:
+  - category: 0
+    placement: 0
+    model:
+      name: Hall_Barangay67
+      prefab: {fileID: 316354844334565411, guid: 345580aad7b2c434f999165664ac1fdd, type: 3}
+      size: {x: 25.899998, y: 13.41219, z: 15.27}
+      sourceModel: {fileID: -7556782619921938414, guid: 386eb18021549c74bbb112b0a65d5304, type: 3}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip:
+      - ground_plane
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 1
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 12
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 2
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 9
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 3
+    placement: 1
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts:
+    - name: School_A_Linear
+      prefab: {fileID: 3705443944179639355, guid: 2cec5533db2a84503ac0a2fea0049b1a, type: 3}
+      size: {x: 40.900005, y: 15.679999, z: 10.360001}
+      sourceModel: {fileID: -5790057676825847790, guid: eb28135aa9dbbc24490ba6043a227a19, type: 3}
+      sourcePath: buildings/A_linear_block
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    - name: School_B_CornerL
+      prefab: {fileID: 2698659351502549051, guid: 3475563536f3d40478f82216209cf22e, type: 3}
+      size: {x: 30.805, y: 12.52, z: 19.755001}
+      sourceModel: {fileID: -5790057676825847790, guid: eb28135aa9dbbc24490ba6043a227a19, type: 3}
+      sourcePath: buildings/B_corner_L_block
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    - name: School_C_Compact
+      prefab: {fileID: 7992580431490253318, guid: d2d7b71f0746e4410b35019dfe1d7ebd, type: 3}
+      size: {x: 18.6, y: 8.780001, z: 14.855001}
+      sourceModel: {fileID: -5790057676825847790, guid: eb28135aa9dbbc24490ba6043a227a19, type: 3}
+      sourcePath: buildings/C_compact_block
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 8
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 4
+    placement: 4
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 5
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 6
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 7
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 12
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 8
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 9
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 10
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 8
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 11
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 6
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 12
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 5
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 13
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 14
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 15
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 3
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 16
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 3
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 17
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 2.5
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 18
+    placement: 0
+    model:
+      name: Market_Palengke
+      prefab: {fileID: 1765481486100709840, guid: a5e19c4cc7a8e46e0981c30c96e75f9f, type: 3}
+      size: {x: 57.75, y: 14.89, z: 53.55}
+      sourceModel: {fileID: 8976155776858523775, guid: e63c20e8b5b72c0498ded96c7d47abbf, type: 3}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 19
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 20
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 21
+    placement: 2
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 22
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 5
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 23
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 10
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  - category: 24
+    placement: 3
+    model:
+      name: 
+      prefab: {fileID: 0}
+      size: {x: 0, y: 0, z: 0}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+    parts: []
+    minScale: 0.45
+    maxScale: 2
+    realSize: 0
+    blockHeight: 7
+    colour: {r: 0, g: 0, b: 0, a: 0}
+    sign: 
+  namedLandmarks:
+  - name: Barangay 3 Hall
+    osmTag: 
+    model:
+      name: LM_Barangay3Hall
+      prefab: {fileID: 8443675081304433313, guid: 7035c3fbadf054b8c9efedfaebc76840, type: 3}
+      size: {x: 8.75, y: 12.2, z: 10.18}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: Carmona Hospital and Medical Center
+    osmTag: 
+    model:
+      name: LM_CarmonaHospital
+      prefab: {fileID: 812907831218854590, guid: 58900275a33c942269274f06301864b2, type: 3}
+      size: {x: 31.349998, y: 25.8, z: 24.68}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: Dali
+    osmTag: 
+    model:
+      name: LM_Dali
+      prefab: {fileID: 920955424972934894, guid: c53ff93e4102e4be7b2c6531168f0528, type: 3}
+      size: {x: 24, y: 8.8, z: 18}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: Iglesia Ni Cristo
+    osmTag: 
+    model:
+      name: LM_IglesiaNiCristo
+      prefab: {fileID: 5968290793884072077, guid: a474fc361e6634537a3457308b123a55, type: 3}
+      size: {x: 22.7, y: 17.4, z: 20.349998}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: LTO Carmona District Office
+    osmTag: 
+    model:
+      name: LM_LTOCarmona
+      prefab: {fileID: 1118957734146025078, guid: e9717f4b4144b4a38b1bda654e838aeb, type: 3}
+      size: {x: 27.849998, y: 11.6, z: 16.35}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: Mabuhay Elementary School
+    osmTag: 
+    model:
+      name: LM_MabuhayElementary
+      prefab: {fileID: 737345520587361859, guid: 2d824875b46e548bc8a2eb79840bb7d3, type: 3}
+      size: {x: 24.2, y: 8.9, z: 14.950001}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: Metrobank
+    osmTag: 
+    model:
+      name: LM_Metrobank
+      prefab: {fileID: 4193582897889592176, guid: 919d42f25955b4d049d836790b6efaa8, type: 3}
+      size: {x: 16.8, y: 11, z: 13.35}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: The Feast Carmona
+    osmTag: 
+    model:
+      name: LM_FeastCarmonaChurch
+      prefab: {fileID: 5303995896499208046, guid: d512ba0fc8d5d42db93205be7e3ee394, type: 3}
+      size: {x: 10.8, y: 7.3, z: 22.9}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: WalterMart
+    osmTag: 
+    model:
+      name: LM_WalterMart
+      prefab: {fileID: 8668866619720173797, guid: aa658759fe6424bb5b462de0a163fd89, type: 3}
+      size: {x: 56.2, y: 12.9, z: 40.510002}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  - name: 
+    osmTag: man_made=water_tower
+    model:
+      name: LM_WaterTank
+      prefab: {fileID: 1384375953390311306, guid: 4bace51a05a0a47d68da731941a290bc, type: 3}
+      size: {x: 7.4, y: 18.7, z: 7.4}
+      sourceModel: {fileID: 0}
+      sourcePath: 
+      sourceFrontYaw: 0
+      strip: []
+      bodyPattern: 
+  roadWidths:
+    trunk: 12
+    primary: 10
+    secondary: 9
+    tertiary: 8
+    unclassified: 7
+    residential: 6
+    service: 4
+    track: 3.5
+    footway: 1.5
+  riverWidth: 12
+  canalWidth: 8
+  streamWidth: 4
+  drainWidth: 2
+  ditchWidth: 1.5
+  minStretch: 0.8
+  maxStretch: 1.6
+  rowUnit: 4.5
+  rowSplit: 1.8
+  blockArea: 300
+  shedArea: 15
+  hostReach: 8
+  hostMaxArea: 150

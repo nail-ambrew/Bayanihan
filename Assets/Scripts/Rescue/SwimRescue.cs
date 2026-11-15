@@ -66,7 +66,6 @@ public class SwimRescue : MonoBehaviour
     Transform tube;                     // the rescue tube the person in tow hangs on to
     LineRenderer tether;
     Material tetherMaterial;
-    GUIStyle promptStyle;
 
     void Awake()
     {
@@ -143,9 +142,9 @@ public class SwimRescue : MonoBehaviour
     string GrabBlock(Survivor s)
     {
         if (s.InLiveWire) return "live wire in the water - keep clear!";
-        if (Missing(s, Need.Lifebuoy, RescueItemId.Lifebuoy)) return "needs a Salbabida - not packed";
-        if (Missing(s, Need.Rope, RescueItemId.Rope)) return "needs a Lubid - not packed";
-        if (s.NeedsFirstAidKit && !LoadoutState.Has(RescueItemId.FirstAid)) return "needs a Botika - not packed";
+        if (Missing(s, Need.Lifebuoy, RescueItemId.Lifebuoy)) return "needs a Floatie - not packed";
+        if (Missing(s, Need.Rope, RescueItemId.Rope)) return "needs a Rope - not packed";
+        if (s.NeedsFirstAidKit && !LoadoutState.Has(RescueItemId.FirstAid)) return "needs a First-Aid Kit - not packed";
         return null;
     }
 
@@ -395,30 +394,19 @@ public class SwimRescue : MonoBehaviour
 
         if (Towing != null)
         {
-            Prompt = handedOver ? "The crew are taking " + Towing.DisplayName + " aboard..." : "Tow " + Towing.DisplayName + " to the boat · E to let go";
+            Prompt = handedOver ? "The crew are taking " + Towing.DisplayName + " aboard..." : "Tow " + Towing.DisplayName + " to the boat · " + InputHelper.Key("E", "RESCUE") + " to let go";
         }
         else if (Target != null)
         {
             string block = GrabBlock(Target);
-            Prompt = block != null ? Target.DisplayName + ": " + block : "E · take hold of " + Target.DisplayName;
+            Prompt = block != null ? Target.DisplayName + ": " + block : InputHelper.Key("E", "RESCUE") + " · take hold of " + Target.DisplayName;
             PromptIsWarning = block != null;
         }
         else if (!IsTethered && untetheredFor > 0.5f)
         {
-            Prompt = "No Lubid packed - you are swimming untethered";
+            Prompt = "No Rope packed - you are swimming untethered";
             PromptIsWarning = true;
         }
     }
 
-    void OnGUI()
-    {
-        if (Event.current.type != EventType.Repaint) return;
-        if (Prompt == null || player.IsMounted) return;
-        if (RescueManager.Instance != null && RescueManager.Instance.GameOver) return;
-
-        if (promptStyle == null)
-            promptStyle = new GUIStyle(GUI.skin.label) { fontSize = 22, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-        promptStyle.normal.textColor = PromptIsWarning ? new Color(1f, 0.6f, 0.35f) : new Color(0.7f, 0.95f, 1f);
-        GUI.Label(new Rect(0f, Screen.height - 190f, Screen.width, 40f), Prompt, promptStyle);
-    }
 }

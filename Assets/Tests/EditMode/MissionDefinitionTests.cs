@@ -56,9 +56,9 @@ public class MissionDefinitionTests
         StringAssert.Contains("1 clinging to posts", intel);
         StringAssert.Contains("1 on rooftops", intel);
         StringAssert.Contains("1 trapped behind debris", intel);
-        StringAssert.Contains("3 need a Salbabida", intel);
-        StringAssert.Contains("2 need a Lubid", intel);
-        StringAssert.Contains("2 hurt, need a Botika", intel);
+        StringAssert.Contains("3 need a Floatie", intel);
+        StringAssert.Contains("2 need a Rope", intel);
+        StringAssert.Contains("2 hurt, need a First-Aid Kit", intel);
     }
 
     [Test]
@@ -69,8 +69,8 @@ public class MissionDefinitionTests
         string intel = def.Intel();
         StringAssert.DoesNotContain("rooftops", intel);
         StringAssert.DoesNotContain("trapped", intel);
-        StringAssert.DoesNotContain("Lubid", intel);
-        StringAssert.DoesNotContain("Botika", intel);
+        StringAssert.DoesNotContain("Rope", intel);
+        StringAssert.DoesNotContain("First-Aid Kit", intel);
     }
 
     [Test]

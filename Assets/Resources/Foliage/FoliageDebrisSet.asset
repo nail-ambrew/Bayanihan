@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c9f82d6fd29b4038a1a5f8afec1cf4b, type: 3}
+  m_Name: FoliageDebrisSet
+  m_EditorClassIdentifier: Bayanihan::FoliageDebrisSet
+  branch: {fileID: 2663668808714423618, guid: a31fdf2a6c4f043ca9dcb6c597b1e9bb, type: 3}
+  bananaLeaf: {fileID: 8385318923912263214, guid: 1a21d8cff6321456599a1f1426fc2931, type: 3}
+  grassMat: {fileID: 7242459899353151966, guid: 366cef3a4fdbd4e879fd1a6f65457d4e, type: 3}
+  weedRaft: {fileID: 4315045950885529573, guid: bd17c94e27cec4456bcc9252794781af, type: 3}

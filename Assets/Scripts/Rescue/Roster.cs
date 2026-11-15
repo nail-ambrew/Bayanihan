@@ -28,6 +28,9 @@ public class ResidentRecord
     public bool broughtByLine;
     public bool broughtBySwimmer;
 
+    /// <summary>Where they were waiting when the mission began (to group them into the areas the stats count).</summary>
+    public Vector3 startPosition;
+
     /// <summary>Where they are standing once they are ashore (for the label over them while they are registered).</summary>
     public Transform landedAs;
 
@@ -64,7 +67,8 @@ public class Roster
                 household = s.household,
                 category = visual != null && visual.Character != null ? visual.Character.category : CharacterCategory.Adult,
                 situation = s.situation,
-                needs = s.needs
+                needs = s.needs,
+                startPosition = s.transform.position
             });
         }
     }

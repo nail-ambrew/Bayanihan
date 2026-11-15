@@ -1,112 +1,127 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem.UI;
-#endif
 
 /// <summary>
-/// "Paghahanda - Pack the Boat": the pre-mission screen where the player picks 4 of the 6 items.
-/// The whole UI is built in code, so the only setup is: new empty scene "Loadout" -> add this to an empty GameObject.
-/// Pressing LAUNCH stores the pack in LoadoutState and loads the Gameplay scene.
+/// The pre-mission screen, as in the Figma "Loadout" frame: the Equipment grid on the left (six items), the Loadout on
+/// the right (four numbered slots), Dispatch and Objectives under the slots, and RECOMMENDED PACK / CLEAR / LAUNCH.
+/// Tapping an item packs it into the next free slot, tapping it again (or its slot) takes it out.
+///
+/// There is more than one map to play (see MapChoice): the selector in the Dispatch box picks one, Dispatch and the
+/// Objectives change to that map's mission, and LAUNCH loads its scene behind the loading screen.
+/// The whole UI is built in code: the only setup is this component on an empty object in the Loadout scene.
 /// </summary>
 public class LoadoutScreen : MonoBehaviour
 {
     [Header("Flow")]
     public string gameplaySceneName = "Gameplay";
 
-    [Header("Look")]
-    [Tooltip("Optional. Leave empty for Unity's built-in font.")]
-    public Font font;
-    [Tooltip("Optional icons in this order: Lifebuoy, FirstAid, Flashlight, Rope, Radio, Raincoat. Empty = coloured letter placeholder.")]
-    public Sprite[] itemIcons;
-
     [Header("Mission text")]
-    [Tooltip("The briefing, the roster summary and dispatch's reports come from the mission asset in Resources/Missions " +
-             "when there is one. The fields below are only what is shown if there is not.")]
+    [Tooltip("Dispatch and the Objectives come from the mission asset of the picked map when there is one.")]
     public bool useMissionAsset = true;
     [Tooltip("How many people the boat holds, for the line under the briefing.")]
     public int boatCapacity = 4;
-    public string title = "Paghahanda · Pack the Boat";
-    [TextArea(2, 4)] public string subtitle = "This mission gives you 4 slots and six things worth taking. Pack badly if you like - the report afterwards will tell you exactly what it cost.";
     public string missionTitle = "Pagbaha sa Barangay · The Water Rises";
-    [TextArea(2, 5)] public string missionBriefing = "The creek jumped its banks before dawn. Families are on their roofs and in the mango trees, waving at anything that floats.";
-    public string missionMeta = "Daytime · Flood · 10 residents on the roster · boat holds 3 at a time";
-    [TextArea(2, 8)] public string missionIntel = "";
-
-    // ------------------------------------------------------------------ palette
-    static readonly Color Bg        = new Color(0.13f, 0.22f, 0.28f);
-    static readonly Color Panel     = new Color(0.20f, 0.30f, 0.37f);
-    static readonly Color PanelDark = new Color(0.16f, 0.25f, 0.31f);
-    static readonly Color Cream     = new Color(1.00f, 0.96f, 0.86f);
-    static readonly Color Ink       = new Color(0.22f, 0.16f, 0.10f);
-    static readonly Color InkSoft   = new Color(0.45f, 0.40f, 0.34f);
-    static readonly Color Gold      = new Color(1.00f, 0.86f, 0.45f);
-    static readonly Color Light     = new Color(0.80f, 0.88f, 0.92f);
-    static readonly Color SlotEmpty = new Color(0.29f, 0.40f, 0.47f);
-    static readonly Color Green     = new Color(0.42f, 0.76f, 0.14f);
-    static readonly Color Badge     = new Color(0.98f, 0.90f, 0.72f);
+    [TextArea(2, 5)] public string missionBriefing = "You need to reach the affected areas and help those in need. Prioritize safety and efficient rescue.";
+    public string missionMeta = "Daytime · Flood";
 
     class Card
     {
         public RescueItemDef def;
-        public Button button;
-        public CanvasGroup group;
-        public Outline outline;
-        public Text packed;
+        public Image back;
+        public Outline rim;
+        public Text name;
+        public Text sub;
+        public Text desc;
     }
 
     class Slot
     {
-        public Image bg;
+        public Image back;
+        public RectTransform iconHolder;
+    }
+
+    class MapButton
+    {
+        public PlayableMap map;
+        public Image back;
+        public Outline outline;
         public Text label;
-        public Button button;
     }
 
     readonly List<RescueItemId> picked = new List<RescueItemId>();
     readonly List<Card> cards = new List<Card>();
+    readonly List<MapButton> mapButtons = new List<MapButton>();
     readonly Slot[] slots = new Slot[RescueItems.Slots];
-    Text counter, launchLabel;
-    Font uiFont;
+    MissionDefinition mission;
+    Text titleText, briefText, metaText, objectivesText, launchLabel;
+    RectTransform safe;
 
     // ------------------------------------------------------------------ lifecycle
     void Start()
     {
-        uiFont = font != null ? font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        TakeMissionText();
+        MapChoice.Select(MapChoice.Selected.id);        // the mission in force is the picked map's, whatever was played last
+        TakeMission();
 
         // Remember the previous pack if the player comes back from a mission
         foreach (var id in LoadoutState.Selected) picked.Add(id);
 
-        EnsureEventSystem();
+        UiKit.EnsureEventSystem();
         BuildUI();
+        RefreshMissionText();
         Refresh();
     }
 
-    /// <summary>The briefing is the mission's own, so it can never disagree with who is actually out there.</summary>
-    void TakeMissionText()
+    void Update()
     {
-        if (!useMissionAsset) return;
-        var mission = MissionDefinition.LoadShipped();
-        if (mission == null) return;
+        if (InputHelper.BackPressed() && !SceneFlow.IsLoading) Back();
+    }
 
+    void TakeMission()
+    {
+        mission = useMissionAsset ? (MapChoice.Selected.LoadMission() ?? MissionDefinition.LoadShipped()) : null;
+        if (mission == null) return;
         missionTitle = mission.title;
         missionBriefing = mission.briefing;
         missionMeta = mission.Meta(boatCapacity);
-        missionIntel = mission.Intel();
     }
 
-    static void EnsureEventSystem()
+    /// <summary>
+    /// What the crew has to do, from the mission itself so it cannot disagree with the level: who is out there and
+    /// where, what to pack for them, the evacuation centre, the hazards and the clock.
+    /// </summary>
+    public static string Objectives(MissionDefinition m)
     {
-        if (FindFirstObjectByType<EventSystem>() != null) return;
-        var go = new GameObject("EventSystem", typeof(EventSystem));
-#if ENABLE_INPUT_SYSTEM
-        go.AddComponent<InputSystemUIInputModule>();
-#else
-        go.AddComponent<StandaloneInputModule>();
-#endif
+        if (m == null)
+            return "• Rescue stranded residents on rooftops and upper floors.\n" +
+                   "• Move the residents to the nearest evacuation center.\n" +
+                   "• Avoid hazards.\n" +
+                   "• Complete the mission within the time limit.";
+
+        var lines = new List<string>();
+        var where = new List<string>();
+        Add(where, m.Count(Situation.OpenWater), "in the water");
+        Add(where, m.Count(Situation.Clinging), "clinging to posts");
+        Add(where, m.Count(Situation.Rooftop), "on rooftops");
+        Add(where, m.Count(Situation.Trapped), "behind debris");
+        lines.Add("Rescue all " + m.residents.Count + " residents" + (where.Count > 0 ? ": " + string.Join(", ", where) : "") + ".");
+
+        var needs = new List<string>();
+        Add(needs, m.CountNeeding(Need.Lifebuoy), "need a Floatie");
+        Add(needs, m.CountNeeding(Need.Rope), "need a Rope");
+        Add(needs, m.CountNeeding(Need.FirstAid), "are hurt (First-Aid Kit)");
+        if (needs.Count > 0) lines.Add(string.Join(", ", needs) + ".");
+
+        lines.Add("Bring them to the evacuation center and have them registered.");
+        lines.Add("Avoid hazards: live wires and floating debris.");
+        int mins = Mathf.FloorToInt(m.timeLimit / 60f), secs = Mathf.FloorToInt(m.timeLimit % 60f);
+        lines.Add("Complete the mission within " + mins + ":" + secs.ToString("00") + ".");
+        return "• " + string.Join("\n• ", lines);
+    }
+
+    static void Add(List<string> into, int n, string what)
+    {
+        if (n > 0) into.Add(n + " " + what);
     }
 
     // ------------------------------------------------------------------ actions
@@ -123,7 +138,7 @@ public class LoadoutScreen : MonoBehaviour
         Refresh();
     }
 
-    void Suggested()
+    void Recommended()
     {
         picked.Clear();
         picked.AddRange(RescueItems.Suggested);
@@ -138,286 +153,263 @@ public class LoadoutScreen : MonoBehaviour
 
     void Launch()
     {
+        if (SceneFlow.IsLoading) return;
         LoadoutState.Set(picked);
-        SceneManager.LoadScene(gameplaySceneName);
+        MapChoice.Select(MapChoice.Selected.id);
+        // Each map is the scene it names; the Manila sample map is whatever this screen's own field says, as it always was.
+        string scene = MapChoice.Selected.id == MapChoice.ManilaId ? gameplaySceneName : MapChoice.Selected.sceneName;
+        SceneFlow.Load(scene);
+    }
+
+    void Back()
+    {
+        LoadoutState.Set(picked);       // keep the pack for next time
+        SceneFlow.Load(SceneFlow.Home);
+    }
+
+    /// <summary>Picks a map: the mission in force changes with it, and so does everything on this screen that reads the mission.</summary>
+    void PickMap(PlayableMap map)
+    {
+        MapChoice.Select(map.id);
+        TakeMission();
+        RefreshMissionText();
     }
 
     // ------------------------------------------------------------------ refresh
     void Refresh()
     {
         bool full = picked.Count >= RescueItems.Slots;
-
         foreach (var c in cards)
         {
-            int idx = picked.IndexOf(c.def.id);
-            bool sel = idx >= 0;
-            c.outline.enabled = sel;
-            c.packed.gameObject.SetActive(sel);
-            if (sel) c.packed.text = $"PACKED · SLOT {idx + 1}";
-            c.button.interactable = sel || !full;
-            c.group.alpha = sel ? 0.7f : (full ? 0.55f : 1f);
+            bool sel = picked.Contains(c.def.id);
+            c.back.color = sel ? UiTheme.Green : UiTheme.CreamLight;
+            c.rim.effectColor = sel ? UiTheme.White : UiTheme.CardEdge;
+            c.back.canvasRenderer.SetAlpha(!sel && full ? 0.6f : 1f);
         }
 
         for (int i = 0; i < slots.Length; i++)
         {
             var s = slots[i];
+            foreach (Transform child in s.iconHolder) Destroy(child.gameObject);
             if (i < picked.Count)
             {
-                var def = RescueItems.Get(picked[i]);
-                s.bg.color = def.color;
-                s.label.fontSize = 22;
-                s.label.text = def.name;
-                s.label.color = Color.white;
+                s.back.color = UiTheme.Green;
+                var icon = UiKit.ItemIcon(s.iconHolder, RescueItems.Get(picked[i]));
+                UiKit.Inset(icon.rectTransform, 3f);
             }
-            else
-            {
-                s.bg.color = SlotEmpty;
-                s.label.fontSize = 48;
-                s.label.text = "+";
-                s.label.color = Light;
-            }
+            else s.back.color = UiTheme.Cream;
         }
 
-        counter.text = $"{picked.Count} / {RescueItems.Slots} slots packed";
-        launchLabel.text = picked.Count == 0 ? "ILUNSAD · LAUNCH EMPTY" : "ILUNSAD · LAUNCH  >";
     }
 
-    // ------------------------------------------------------------------ UI construction
+    void RefreshMaps()
+    {
+        foreach (var b in mapButtons)
+        {
+            bool on = b.map == MapChoice.Selected;
+            b.outline.enabled = on;
+            b.back.color = on ? UiTheme.Orange : UiTheme.CreamLight;
+            b.label.color = on ? UiTheme.White : UiTheme.OrangeDeep;
+        }
+    }
+
+    /// <summary>Dispatch and the Objectives say what the picked map's mission says.</summary>
+    void RefreshMissionText()
+    {
+        if (titleText != null) titleText.text = missionTitle;
+        if (briefText != null) briefText.text = missionBriefing;
+        if (metaText != null) metaText.text = missionMeta;
+        if (objectivesText != null) objectivesText.text = Objectives(mission);
+        RefreshMaps();
+    }
+
+    // ------------------------------------------------------------------ building
+    // Figma positions (852 x 393 frame).
+    const float LeftX = 61f, LeftW = 403f, RightX = 493f, RightW = 298f, HeaderY = 46f, HeaderH = 34f, PanelY = 92f;
+
     void BuildUI()
     {
-        var canvasGO = new GameObject("LoadoutCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-        var canvas = canvasGO.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        var scaler = canvasGO.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.matchWidthOrHeight = 0.5f;
-        Transform root = canvasGO.transform;
+        safe = UiKit.NewCanvas("LoadoutCanvas", 0, out var canvas);
+        UiKit.Background(canvas.transform);
+        var dim = UiKit.Image("Dim", canvas.transform, new Color(0, 0, 0, 0.18f));
+        UiKit.Stretch(dim.rectTransform);
+        dim.transform.SetSiblingIndex(1);
 
-        // background
-        var bg = NewImage("Background", root, Bg);
-        Stretch(bg.rectTransform);
+        // Back to the main menu (Esc or Android back does the same).
+        UiKit.BackButton(safe, UiKit.TopLeft, new Vector2(14, -14), Back, 22f);
 
-        // header
-        var t = NewLabel("Title", root, title, 52, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
-        Place(t.rectTransform, new Vector2(0, 1), new Vector2(60, -30), new Vector2(1180, 70));
-        var sub = NewLabel("Subtitle", root, subtitle, 22, Light, TextAnchor.UpperLeft);
-        Place(sub.rectTransform, new Vector2(0, 1), new Vector2(60, -105), new Vector2(1180, 70));
-
-        BuildCards(root);
-        BuildDispatchPanel(root);
-        BuildBoatPanel(root);
+        BuildEquipment(safe);
+        BuildLoadout(safe);
     }
 
-    /// <summary>
-    /// What dispatch has told the crew: how many are where, and which items they will want. It sits in the empty
-    /// corner of the card grid, because packing is a choice and this is what it is a choice about.
-    /// </summary>
-    void BuildDispatchPanel(Transform root)
+    RectTransform Header(Transform parent, string text, Sprite icon, float x, float width)
     {
-        if (string.IsNullOrWhiteSpace(missionIntel)) return;
-
-        var panel = NewImage("Dispatch", root, PanelDark);
-        Place(panel.rectTransform, new Vector2(0, 1), new Vector2(660, -520), new Vector2(580, 300));
-        var head = NewLabel("Head", panel.transform, "Dispatch", 26, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
-        Place(head.rectTransform, new Vector2(0, 1), new Vector2(18, -12), new Vector2(544, 34));
-        var text = NewLabel("Text", panel.transform, missionIntel, 18, Color.white, TextAnchor.UpperLeft);
-        Place(text.rectTransform, new Vector2(0, 1), new Vector2(18, -52), new Vector2(544, 240));
+        var bar = UiKit.Panel("Header_" + text, parent, UiTheme.Orange, UiTheme.RadiusCard);
+        UiKit.Place(bar.rectTransform, UiKit.TopLeft, new Vector2(x, -HeaderY), new Vector2(width, HeaderH));
+        var label = UiKit.Label("Label", bar.transform, text, UiTheme.TitleSize - 4, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+        UiKit.Stretch(label.rectTransform);
+        label.gameObject.AddComponent<Shadow>().effectColor = UiTheme.TitleShadow;
+        if (icon != null)
+        {
+            // icon to the left of the word, as in Figma
+            label.alignment = TextAnchor.MiddleCenter;
+            label.rectTransform.offsetMin = new Vector2(26, 0);
+            UiKit.OptionalIcon(bar.transform, icon, UiKit.Center, new Vector2(-label.preferredWidth * 0.5f - 6f, 0), new Vector2(22, 22));
+        }
+        return bar.rectTransform;
     }
 
-    void BuildCards(Transform root)
+    void BuildEquipment(Transform root)
     {
-        var gridRT = NewRect("Cards", root);
-        Place(gridRT, new Vector2(0, 1), new Vector2(60, -200), new Vector2(1180, 640));
-        var grid = gridRT.gameObject.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(280, 300);
-        grid.spacing = new Vector2(20, 20);
-        grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
-        grid.childAlignment = TextAnchor.UpperLeft;
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 4;
+        Header(root, "EQUIPMENT", UiAssets.Current.equipmentIcon, LeftX, LeftW);
 
-        for (int i = 0; i < RescueItems.All.Length; i++)
-            cards.Add(BuildCard(gridRT, RescueItems.All[i], i));
+        var panel = UiKit.Panel("Equipment", root, UiTheme.Brown, UiTheme.RadiusPanel);
+        UiKit.Place(panel.rectTransform, UiKit.TopLeft, new Vector2(LeftX, -PanelY), new Vector2(LeftW, 252));
+        UiKit.Edge(panel);
+
+        var grid = UiKit.Rect("Grid", panel.transform);
+        UiKit.Inset(grid, 12, 12, 12, 12);
+        var g = grid.gameObject.AddComponent<GridLayoutGroup>();
+        g.cellSize = new Vector2(117, 108);
+        g.spacing = new Vector2(10, 12);
+        g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        g.constraintCount = 3;
+        g.childAlignment = TextAnchor.MiddleCenter;
+
+        foreach (var id in RescueItems.DisplayOrder) cards.Add(BuildCard(grid, RescueItems.Get(id)));
     }
 
-    Card BuildCard(Transform parent, RescueItemDef def, int index)
+    Card BuildCard(Transform parent, RescueItemDef def)
     {
-        var rt = NewRect("Card_" + def.id, parent);
-        var bg = rt.gameObject.AddComponent<Image>();
-        bg.color = Cream;
-
-        var outline = rt.gameObject.AddComponent<Outline>();
-        outline.effectColor = new Color(0.35f, 0.85f, 0.25f);
-        outline.effectDistance = new Vector2(5, -5);
-        outline.enabled = false;
-
-        var group = rt.gameObject.AddComponent<CanvasGroup>();
+        var back = UiKit.Panel("Card_" + def.id, parent, UiTheme.CreamLight, UiTheme.RadiusCard);
+        var rim = UiKit.Edge(back);
         var id = def.id;
-        var button = AddButton(rt.gameObject, bg, () => Toggle(id));
+        var button = back.gameObject.AddComponent<Button>();
+        button.targetGraphic = back;
+        UiKit.PressFeedback(button);
+        button.onClick.AddListener(() => Toggle(id));
 
-        // icon (sprite if provided, coloured letter otherwise)
-        var icon = NewImage("Icon", rt, def.color);
-        Place(icon.rectTransform, new Vector2(0, 1), new Vector2(18, -18), new Vector2(64, 64));
-        if (itemIcons != null && index < itemIcons.Length && itemIcons[index] != null)
+        var iconRoot = UiKit.Rect("IconArea", back.transform);
+        UiKit.Place(iconRoot, UiKit.Top, new Vector2(0, -6), new Vector2(64, 50));
+        var icon = UiKit.ItemIcon(iconRoot, def);
+        UiKit.Stretch(icon.rectTransform);
+
+        var name = UiKit.Label("Name", back.transform, def.name, UiTheme.BodySize + 1, UiTheme.Ink, TextAnchor.LowerLeft, heading: true);
+        UiKit.Place(name.rectTransform, UiKit.TopLeft, new Vector2(7, -58), new Vector2(103, 12));
+        var sub = UiKit.Label("Filipino", back.transform, def.filipino != def.name ? def.filipino : "", UiTheme.SmallSize, UiTheme.InkSoft, TextAnchor.LowerRight);
+        UiKit.Place(sub.rectTransform, UiKit.TopRight, new Vector2(-7, -58), new Vector2(60, 12));
+        var desc = UiKit.Label("Description", back.transform, def.description, UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
+        UiKit.Place(desc.rectTransform, UiKit.TopLeft, new Vector2(7, -71), new Vector2(103, 26));
+        desc.Shrink(4);
+
+        // How it is used, and the recommendation, in the corners.
+        if (def.use != ItemUse.Passive)
         {
-            icon.sprite = itemIcons[index];
-            icon.color = Color.white;
-            icon.preserveAspect = true;
+            var badge = UiKit.Label("Badge", back.transform, def.BadgeText, UiTheme.SmallSize - 1, UiTheme.OrangeDeep, TextAnchor.LowerLeft, heading: true);
+            UiKit.Place(badge.rectTransform, UiKit.BottomLeft, new Vector2(7, 3), new Vector2(103, 9));
         }
-        else
-        {
-            var g = NewLabel("Glyph", icon.transform, def.glyph, 40, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            Stretch(g.rectTransform);
-        }
-
-        var nameL = NewLabel("Name", rt, def.name, 26, Ink, TextAnchor.UpperLeft, FontStyle.Bold);
-        Place(nameL.rectTransform, new Vector2(0, 1), new Vector2(96, -18), new Vector2(170, 34));
-        var engL = NewLabel("English", rt, def.english, 18, InkSoft, TextAnchor.UpperLeft);
-        Place(engL.rectTransform, new Vector2(0, 1), new Vector2(96, -54), new Vector2(170, 28));
-
-        var desc = NewLabel("Description", rt, def.description, 19, Ink, TextAnchor.UpperLeft);
-        Place(desc.rectTransform, new Vector2(0, 1), new Vector2(18, -100), new Vector2(244, 140));
-
-        // use badge (Passive / Toggle - F / 20s cooldown - Q)
-        var badge = NewImage("Badge", rt, Badge);
-        Place(badge.rectTransform, new Vector2(0, 0), new Vector2(18, 16), new Vector2(190, 32));
-        var badgeText = NewLabel("Text", badge.transform, def.BadgeText, 16, Ink, TextAnchor.MiddleCenter, FontStyle.Bold);
-        Stretch(badgeText.rectTransform);
-
-        // REC tag
         if (def.recommended)
         {
-            var rec = NewImage("Rec", rt, new Color(0.30f, 0.65f, 0.10f));
-            Place(rec.rectTransform, new Vector2(1, 1), new Vector2(-10, -10), new Vector2(50, 24));
-            var recText = NewLabel("Text", rec.transform, "REC", 15, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-            Stretch(recText.rectTransform);
+            var rec = UiKit.Panel("Rec", back.transform, UiTheme.GreenDeep, UiTheme.RadiusSmall);
+            UiKit.Place(rec.rectTransform, UiKit.TopRight, new Vector2(-5, -5), new Vector2(24, 10));
+            var recText = UiKit.Label("Text", rec.transform, "REC", UiTheme.SmallSize - 1, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+            UiKit.Stretch(recText.rectTransform);
         }
 
-        // "packed" marker
-        var packed = NewLabel("Packed", rt, "PACKED", 18, new Color(0.15f, 0.55f, 0.10f), TextAnchor.LowerRight, FontStyle.Bold);
-        Place(packed.rectTransform, new Vector2(1, 0), new Vector2(-14, 14), new Vector2(150, 32));
-        packed.gameObject.SetActive(false);
-
-        return new Card { def = def, button = button, group = group, outline = outline, packed = packed };
+        return new Card { def = def, back = back, rim = rim, name = name, sub = sub, desc = desc };
     }
 
-    void BuildBoatPanel(Transform root)
+    void BuildLoadout(Transform root)
     {
-        var panel = NewImage("BoatPanel", root, Panel);
-        Place(panel.rectTransform, new Vector2(1, 1), new Vector2(-40, -40), new Vector2(540, 820));
-        var p = panel.transform;
+        Header(root, "LOADOUT", UiAssets.Current.loadoutIcon, RightX, RightW);
 
-        var head = NewLabel("Head", p, "Ang Bangka · The Boat", 32, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
-        Place(head.rectTransform, new Vector2(0, 1), new Vector2(24, -20), new Vector2(492, 44));
-        var note = NewLabel("Note", p, "Supply slots are physical space on the deck.", 18, Light, TextAnchor.UpperLeft);
-        Place(note.rectTransform, new Vector2(0, 1), new Vector2(24, -66), new Vector2(492, 30));
+        var paper = UiKit.Panel("Loadout", root, UiTheme.Paper, UiTheme.RadiusPanel);
+        UiKit.Place(paper.rectTransform, UiKit.TopLeft, new Vector2(RightX, -PanelY), new Vector2(RightW, 214));
+        UiKit.Edge(paper);
+        var p = paper.transform;
 
-        // 4 slots
+        // Four numbered slots.
         for (int i = 0; i < slots.Length; i++)
         {
-            int idx = i;
-            var img = NewImage("Slot" + (i + 1), p, SlotEmpty);
-            Place(img.rectTransform, new Vector2(0, 1), new Vector2(24 + i * 128, -120), new Vector2(110, 110));
-            var btn = AddButton(img.gameObject, img, () => RemoveAt(idx));
-
-            var lbl = NewLabel("Label", img.transform, "+", 48, Light, TextAnchor.MiddleCenter, FontStyle.Bold);
-            Stretch(lbl.rectTransform);
-            var num = NewLabel("Number", img.transform, (i + 1).ToString(), 18, new Color(0.7f, 0.9f, 1f), TextAnchor.UpperLeft, FontStyle.Bold);
-            Place(num.rectTransform, new Vector2(0, 1), new Vector2(8, -6), new Vector2(30, 26));
-
-            slots[i] = new Slot { bg = img, label = lbl, button = btn };
+            int index = i;
+            var num = UiKit.Label("Number" + (i + 1), p, (i + 1).ToString(), UiTheme.SmallSize + 1, UiTheme.Ink, TextAnchor.UpperLeft, heading: true);
+            UiKit.Place(num.rectTransform, UiKit.TopLeft, new Vector2(12 + i * 70, -8), new Vector2(12, 10));
+            var box = UiKit.Panel("Slot" + (i + 1), p, UiTheme.Cream, UiTheme.RadiusSmall);
+            UiKit.Place(box.rectTransform, UiKit.TopLeft, new Vector2(18 + i * 70, -14), new Vector2(56, 56));
+            UiKit.Edge(box, UiTheme.White);
+            var slotButton = box.gameObject.AddComponent<Button>();
+            UiKit.PressFeedback(slotButton);
+            slotButton.onClick.AddListener(() => RemoveAt(index));
+            var holder = UiKit.Rect("Icon", box.transform);
+            UiKit.Stretch(holder);
+            slots[i] = new Slot { back = box, iconHolder = holder };
         }
 
-        counter = NewLabel("Counter", p, "", 22, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
-        Place(counter.rectTransform, new Vector2(0, 1), new Vector2(24, -244), new Vector2(492, 32));
+        // Dispatch: where, what, and the map.
+        var dispatch = UiKit.Panel("Dispatch", p, UiTheme.Cream, UiTheme.RadiusPanel);
+        UiKit.Place(dispatch.rectTransform, UiKit.TopLeft, new Vector2(14, -80), new Vector2(RightW - 28, 124));
+        var d = dispatch.transform;
 
-        // mission briefing
-        var brief = NewImage("Briefing", p, PanelDark);
-        Place(brief.rectTransform, new Vector2(0, 1), new Vector2(24, -300), new Vector2(492, 262));
-        var bt = NewLabel("Title", brief.transform, missionTitle, 20, Gold, TextAnchor.UpperLeft, FontStyle.Bold);
-        Place(bt.rectTransform, new Vector2(0, 1), new Vector2(16, -12), new Vector2(460, 30));
-        var bb = NewLabel("Text", brief.transform, missionBriefing, 20, Color.white, TextAnchor.UpperLeft);
-        Place(bb.rectTransform, new Vector2(0, 1), new Vector2(16, -46), new Vector2(460, 144));
-        var bm = NewLabel("Meta", brief.transform, missionMeta, 18, Light, TextAnchor.UpperLeft);
-        Place(bm.rectTransform, new Vector2(0, 1), new Vector2(16, -194), new Vector2(460, 60));
+        var pinArt = UiAssets.Current.dispatchIcon;
+        if (pinArt != null) UiKit.OptionalIcon(d, pinArt, UiKit.TopLeft, new Vector2(6, -5), new Vector2(16, 18));
+        else
+        {
+            var pin = UiKit.Image("Pin", d, UiTheme.BrownDark, UiKit.Circle());
+            UiKit.Place(pin.rectTransform, UiKit.TopLeft, new Vector2(8, -7), new Vector2(12, 12));
+            var dot = UiKit.Image("Dot", pin.transform, UiTheme.Cream, UiKit.Circle());
+            UiKit.Place(dot.rectTransform, UiKit.Center, Vector2.zero, new Vector2(5, 5));
+        }
+        var head = UiKit.Label("Head", d, "DISPATCH", UiTheme.MenuSize - 1, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
+        UiKit.Place(head.rectTransform, UiKit.TopLeft, new Vector2(25, -4), new Vector2(90, 18));
 
-        // buttons
-        NewTextButton(p, "SUGGESTED PACK", new Vector2(24, -570), new Vector2(492, 56), SlotEmpty, Suggested, out _);
-        NewTextButton(p, "CLEAR", new Vector2(24, -636), new Vector2(492, 56), SlotEmpty, Clear, out _);
-        NewTextButton(p, "", new Vector2(24, -706), new Vector2(492, 84), Green, Launch, out launchLabel);
+        BuildMapSelector(d);
+
+        titleText = UiKit.Label("Title", d, "", UiTheme.SmallSize + 1, UiTheme.OrangeBurnt, TextAnchor.UpperLeft, heading: true);
+        UiKit.Place(titleText.rectTransform, UiKit.TopLeft, new Vector2(25, -21), new Vector2(240, 10));
+        titleText.Shrink(5);
+        briefText = UiKit.Label("Text", d, "", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
+        UiKit.Place(briefText.rectTransform, UiKit.TopLeft, new Vector2(25, -31), new Vector2(240, 22));
+        briefText.Shrink(4);
+        metaText = UiKit.Label("Meta", d, "", UiTheme.SmallSize - 1, UiTheme.InkSoft, TextAnchor.UpperLeft);
+        UiKit.Place(metaText.rectTransform, UiKit.TopLeft, new Vector2(25, -53), new Vector2(240, 8));
+        metaText.Shrink(4);
+
+        var line = UiKit.Image("Line", d, UiTheme.Rule);
+        UiKit.Place(line.rectTransform, UiKit.TopLeft, new Vector2(8, -63), new Vector2(RightW - 44, UiTheme.RuleThickness));
+        var objHead = UiKit.Label("ObjectivesHead", d, "OBJECTIVES", UiTheme.BodySize, UiTheme.Ink, TextAnchor.UpperLeft, heading: true);
+        UiKit.Place(objHead.rectTransform, UiKit.TopLeft, new Vector2(8, -66), new Vector2(120, 11));
+        objectivesText = UiKit.Label("Objectives", d, "", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
+        UiKit.Place(objectivesText.rectTransform, UiKit.TopLeft, new Vector2(8, -78), new Vector2(RightW - 44, 44));
+        objectivesText.Shrink(4);
+
+        // RECOMMENDED PACK · CLEAR · LAUNCH
+        float bw = 94f, by = -(PanelY + 214 + 14);
+        var rec = UiKit.Button(root, "RECOMMENDED\nPACK", ButtonStyle.Secondary, Recommended, UiTheme.BodySize);
+        rec.name = "Button_RECOMMENDED_PACK";
+        UiKit.Place((RectTransform)rec.transform, UiKit.TopLeft, new Vector2(RightX, by), new Vector2(bw, 36));
+        var clear = UiKit.Button(root, "CLEAR", ButtonStyle.Secondary, Clear, UiTheme.BodySize + 1);
+        UiKit.Place((RectTransform)clear.transform, UiKit.TopLeft, new Vector2(RightX + bw + 8, by), new Vector2(bw, 36));
+        var launch = UiKit.Button(root, "LAUNCH", ButtonStyle.Go, Launch, out launchLabel, UiTheme.BodySize + 1);
+        UiKit.Place((RectTransform)launch.transform, UiKit.TopLeft, new Vector2(RightX + RightW - bw, by), new Vector2(bw, 36));
     }
 
-    // ------------------------------------------------------------------ tiny UI helpers
-    RectTransform NewRect(string name, Transform parent)
+    /// <summary>One small button per map, at the top right of Dispatch: where the flood is.</summary>
+    void BuildMapSelector(Transform dispatch)
     {
-        var go = new GameObject(name, typeof(RectTransform));
-        go.transform.SetParent(parent, false);
-        return (RectTransform)go.transform;
-    }
-
-    Image NewImage(string name, Transform parent, Color color)
-    {
-        var img = NewRect(name, parent).gameObject.AddComponent<Image>();
-        img.color = color;
-        return img;
-    }
-
-    Text NewLabel(string name, Transform parent, string text, int size, Color color,
-                  TextAnchor align = TextAnchor.UpperLeft, FontStyle style = FontStyle.Normal)
-    {
-        var t = NewRect(name, parent).gameObject.AddComponent<Text>();
-        t.font = uiFont;
-        t.text = text;
-        t.fontSize = size;
-        t.color = color;
-        t.alignment = align;
-        t.fontStyle = style;
-        t.horizontalOverflow = HorizontalWrapMode.Wrap;
-        t.verticalOverflow = VerticalWrapMode.Truncate;
-        t.raycastTarget = false;
-        return t;
-    }
-
-    Button AddButton(GameObject go, Graphic target, UnityEngine.Events.UnityAction onClick)
-    {
-        var b = go.AddComponent<Button>();
-        b.targetGraphic = target;
-        var c = b.colors;
-        c.normalColor = new Color(0.94f, 0.94f, 0.94f);
-        c.highlightedColor = Color.white;
-        c.pressedColor = new Color(0.72f, 0.72f, 0.72f);
-        c.disabledColor = new Color(0.8f, 0.8f, 0.8f, 1f);
-        b.colors = c;
-        b.onClick.AddListener(onClick);
-        return b;
-    }
-
-    void NewTextButton(Transform parent, string text, Vector2 pos, Vector2 size, Color color,
-                       UnityEngine.Events.UnityAction onClick, out Text label)
-    {
-        var img = NewImage("Button_" + text, parent, color);
-        Place(img.rectTransform, new Vector2(0, 1), pos, size);
-        AddButton(img.gameObject, img, onClick);
-        label = NewLabel("Label", img.transform, text, 26, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
-        Stretch(label.rectTransform);
-    }
-
-    static void Stretch(RectTransform rt)
-    {
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-    }
-
-    /// <summary>Anchor + pivot at the same corner, then position/size from that corner.</summary>
-    static void Place(RectTransform rt, Vector2 anchor, Vector2 pos, Vector2 size)
-    {
-        rt.anchorMin = anchor;
-        rt.anchorMax = anchor;
-        rt.pivot = anchor;
-        rt.anchoredPosition = pos;
-        rt.sizeDelta = size;
+        if (MapChoice.All.Count < 2) return;
+        float w = 54f;
+        for (int i = 0; i < MapChoice.All.Count; i++)
+        {
+            var map = MapChoice.All[i];
+            string shortName = map.title.Split('·')[0].Trim();
+            var b = UiKit.Button(dispatch, shortName, ButtonStyle.Secondary, () => PickMap(map), out var label, UiTheme.SmallSize + 1);
+            var rt = (RectTransform)b.transform;
+            rt.gameObject.name = "Map_" + map.id;
+            UiKit.Place(rt, UiKit.TopRight, new Vector2(-6 - (MapChoice.All.Count - 1 - i) * (w + 4), -5), new Vector2(w, 14));
+            var outline = b.gameObject.AddComponent<Outline>();
+            outline.effectColor = UiTheme.OrangeBurnt;
+            outline.enabled = false;
+            mapButtons.Add(new MapButton { map = map, back = (Image)b.targetGraphic, outline = outline, label = label });
+        }
     }
 }

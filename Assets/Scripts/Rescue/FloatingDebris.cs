@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum DebrisKind { Plank, Crate, Drum, Log }
+/// <summary>
+/// What is floating: wreckage (a board, a crate, a drum, a log) or plant scraps torn loose by the flood (a branch, an
+/// uprooted banana, a mat of grass, a raft of creeper).
+/// </summary>
+public enum DebrisKind { Plank, Crate, Drum, Log, Branch, BananaLeaf, GrassMat, WeedRaft }
 
 /// <summary>
 /// A piece of wreckage afloat in the flood: a board, a crate, a drum, a log. It rides the waves on the same
@@ -18,6 +22,14 @@ public enum DebrisKind { Plank, Crate, Drum, Log }
 public class FloatingDebris : MonoBehaviour
 {
     public static readonly List<FloatingDebris> All = new List<FloatingDebris>();
+
+    /// <summary>The wreckage: what a field scatters when it is not told otherwise.</summary>
+    public static readonly DebrisKind[] Wreckage = { DebrisKind.Plank, DebrisKind.Crate, DebrisKind.Drum, DebrisKind.Log };
+    /// <summary>The plant scraps from the barangay's foliage.</summary>
+    public static readonly DebrisKind[] PlantScraps = { DebrisKind.Branch, DebrisKind.BananaLeaf, DebrisKind.GrassMat, DebrisKind.WeedRaft };
+
+    /// <summary>Leaves, grass and creeper: soft, so the boat goes through them without harm. A branch is wood and still counts.</summary>
+    public static bool IsSoft(DebrisKind kind) => kind == DebrisKind.BananaLeaf || kind == DebrisKind.GrassMat || kind == DebrisKind.WeedRaft;
 
     [Tooltip("How quickly it picks up the speed of the water (per second). Higher = it follows the current more closely.")]
     public float driftResponse = 0.8f;
@@ -73,6 +85,7 @@ public class FloatingDebris : MonoBehaviour
         var other = collision.rigidbody;
         if (other == null || !other.TryGetComponent(out SimpleBoat boat)) return;
         if (collision.collider != boat.Hull) return;                       // somebody sitting on the boat is not the hull
+        if (IsSoft(Kind)) return;                                           // leaves and grass do not dent a hull
         if (collision.relativeVelocity.magnitude < strikeSpeed) return;
 
         if (boat.Strike("Debris strike! Slow down where the wreckage is floating.")) Strikes++;

@@ -63,7 +63,7 @@ public class ThrowRescueTests
         yield return WaitSeconds(0.5f);
 
         Assert.AreSame(ben, rescue.Target, "somebody 10 m ahead in open water is who a throw would go to");
-        StringAssert.Contains("throw the Salbabida", rescue.Prompt);
+        StringAssert.Contains("throw the Floatie", rescue.Prompt);
         Assert.IsFalse(rescue.PromptIsWarning);
 
         Assert.IsTrue(rescue.Throw(ben), "the throw should go ahead");
@@ -111,7 +111,7 @@ public class ThrowRescueTests
         yield return WaitSeconds(0.5f);
 
         Assert.AreSame(ben, rescue.Target);
-        StringAssert.Contains("Salbabida", rescue.Prompt);
+        StringAssert.Contains("Floatie", rescue.Prompt);
         StringAssert.Contains("not packed", rescue.Prompt);
         Assert.IsTrue(rescue.PromptIsWarning);
         Assert.IsFalse(rescue.Throw(ben));
@@ -203,7 +203,7 @@ public class ThrowRescueTests
         Assert.IsFalse(cesar.CanBeRescued(out string reason), "out of reach until there is a line");
         StringAssert.Contains("line", reason);
         Assert.AreSame(cesar, rescue.Target, "a rooftop resident within 12 m with a clear view is who a throw goes to");
-        StringAssert.Contains("Lubid", rescue.Prompt);
+        StringAssert.Contains("Rope", rescue.Prompt);
 
         Assert.IsTrue(rescue.Throw(cesar));
         Assert.IsTrue(rescue.RopeOut);

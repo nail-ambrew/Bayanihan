@@ -180,9 +180,9 @@ public static class AfterActionReport
     public static string WhyNot(ResidentRecord r, Func<RescueItemId, bool> isPacked)
     {
         var missing = new List<string>();
-        if ((r.needs & Need.Lifebuoy) != 0 && !isPacked(RescueItemId.Lifebuoy)) missing.Add("a Salbabida");
-        if ((r.needs & Need.Rope) != 0 && !isPacked(RescueItemId.Rope)) missing.Add("a Lubid");
-        if (((r.needs & Need.FirstAid) != 0 || r.endCritical) && !isPacked(RescueItemId.FirstAid)) missing.Add("a Botika");
+        if ((r.needs & Need.Lifebuoy) != 0 && !isPacked(RescueItemId.Lifebuoy)) missing.Add("a Floatie");
+        if ((r.needs & Need.Rope) != 0 && !isPacked(RescueItemId.Rope)) missing.Add("a Rope");
+        if (((r.needs & Need.FirstAid) != 0 || r.endCritical) && !isPacked(RescueItemId.FirstAid)) missing.Add("a First-Aid Kit");
         if (missing.Count > 0) return "needed " + string.Join(" and ", missing) + " - not packed";
 
         if (r.leftInLiveWire) return "left in a live wire - the power was never cut";
@@ -259,7 +259,7 @@ public static class AfterActionReport
         if (safety.UnsafePasses > 0)    s.Add(safety.UnsafePasses + " fast pass(es) close to someone in the water", ReportTone.Warning);
         if (safety.RushedPickups > 0)   s.Add(safety.RushedPickups + " pick-up(s) tried before the boat had slowed", ReportTone.Warning);
         if (safety.Shocks > 0)          s.Add(safety.Shocks + " shock(s) from a live wire", ReportTone.Warning);
-        if (safety.UntetheredSwims > 0) s.Add(safety.UntetheredSwims + " swim(s) far from the boat with no tether (pack the Lubid)", ReportTone.Warning);
+        if (safety.UntetheredSwims > 0) s.Add(safety.UntetheredSwims + " swim(s) far from the boat with no tether (pack the Rope)", ReportTone.Warning);
         if (safety.UnneededSwims > 0)   s.Add(safety.UnneededSwims + " swim(s) to somebody a thrown line would have reached", ReportTone.Warning);
         if (safety.LinesLost > 0)       s.Add(safety.LinesLost + " line(s) lost: the boat pulled away", ReportTone.Warning);
         return s;

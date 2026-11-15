@@ -186,7 +186,7 @@ public class HazardTests
 
         LoadoutState.Set(new[] { RescueItemId.Lifebuoy });
         Assert.IsFalse(tools.TryRequestCut(), "no Radyo packed");
-        StringAssert.Contains("Radyo", boat.ActiveStatus);
+        StringAssert.Contains("Radio", boat.ActiveStatus);
         Assert.IsFalse(zone.CutRequested);
 
         LoadoutState.Set(new[] { RescueItemId.Radio });
@@ -225,7 +225,7 @@ public class HazardTests
 
         LoadoutState.Set(new[] { RescueItemId.Lifebuoy });
         yield return WaitSeconds(0.2f);
-        StringAssert.Contains("no Radyo", tools.PowerPrompt);
+        StringAssert.Contains("no Radio", tools.PowerPrompt);
         Assert.IsTrue(tools.PowerPromptIsWarning, "without the Radyo it is only a warning");
         Assert.IsNull(tools.ZoneToCut);
 
@@ -306,7 +306,7 @@ public class HazardTests
         yield return WaitSeconds(0.8f);
 
         Assert.AreSame(cora, rescue.Target, "she is in range and in view, over the top of the jam");
-        StringAssert.Contains("Lubid", rescue.Prompt);
+        StringAssert.Contains("Rope", rescue.Prompt);
         Assert.IsTrue(rescue.Throw(cora));
         yield return WaitUntil(() => cora.IsHeld, 4f, "her to catch the rope");
     }
@@ -368,6 +368,52 @@ public class HazardTests
 
         Assert.AreEqual(1, boat.HullStrikes, "ramming it at speed counts against the crew");
         StringAssert.Contains("Debris strike", boat.ActiveStatus);
+    }
+
+    [UnityTest]
+    public IEnumerator Ramming_soft_plant_scraps_at_speed_is_not_a_hull_strike()
+    {
+        // Leaves, grass and creeper do not dent a hull, however fast the boat goes through them.
+        float ahead = boat.Hull.bounds.min.x - 1.5f;
+        var mat = FloatingDebris.Spawn(DebrisKind.GrassMat, new Vector3(ahead, 0f, boat.transform.position.z));
+        var leaf = FloatingDebris.Spawn(DebrisKind.BananaLeaf, new Vector3(ahead - 3f, 0f, boat.transform.position.z));
+        yield return WaitSeconds(0.3f);
+
+        boat.GetComponent<Rigidbody>().linearVelocity = West * 6f;
+        yield return WaitSeconds(1.5f);
+
+        Assert.AreEqual(0, mat.Strikes + leaf.Strikes);
+        Assert.AreEqual(0, boat.HullStrikes, "ploughing through floating leaves and grass is no strike");
+        Assert.IsTrue(FloatingDebris.IsSoft(DebrisKind.GrassMat) && !FloatingDebris.IsSoft(DebrisKind.Branch), "a branch is wood, and still counts");
+    }
+
+    [UnityTest]
+    public IEnumerator Plant_scraps_float_and_drift_with_the_flood_like_the_wreckage()
+    {
+        // The set-up stills the water; let the flood run again, as the wreckage test does.
+        FloodCurrent.Instance.speed = 1f;
+        FloodCurrent.Instance.surge = 0f;
+        FloodCurrent.Instance.slackDistance = 0f;
+
+        // Spread along the open street east of the boat, so each drifts on its own instead of jostling the others or the hull.
+        var pieces = new List<FloatingDebris>();
+        float x = -60f;
+        foreach (var kind in FloatingDebris.PlantScraps)
+        {
+            pieces.Add(FloatingDebris.Spawn(kind, new Vector3(x, 0f, -6.5f)));
+            x += 5f;
+        }
+        yield return WaitSeconds(0.5f);
+        var start = pieces.ConvertAll(p => p.transform.position.x);
+
+        yield return WaitSeconds(4f);
+        for (int i = 0; i < pieces.Count; i++)
+        {
+            var p = pieces[i];
+            Assert.Greater(p.transform.position.x - start[i], 1.5f, p.Kind + " drifts east with the flood");
+            Assert.Greater(p.transform.position.y, -0.6f, p.Kind + " stays afloat");
+            Assert.IsNotNull(p.GetComponentInChildren<MeshRenderer>(), p.Kind + " has something to see");
+        }
     }
 
     [UnityTest]
