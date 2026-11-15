@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85d80de25858b4e88a8f04b38cdcfe7d, type: 3}
+  m_Name: PropLibrary
+  m_EditorClassIdentifier: Bayanihan::PropLibrary
+  jeepneys:
+  - {fileID: 279973015686746687, guid: fbd9578adfae54ce58f7b470b0a1b498, type: 3}
+  - {fileID: 3598073577253341656, guid: 4f1483825a3274dfc97aad093fac7897, type: 3}
+  - {fileID: 8764164977282575681, guid: 4591cc599056d471ea329c3edde4d080, type: 3}
+  - {fileID: 8934254692123997817, guid: 7576b53032c2644aaa034ad893f8cadc, type: 3}
+  - {fileID: 4046484111439817231, guid: c4b183821261e4de3aa4184a727a9451, type: 3}
+  roofSheets:
+  - {fileID: 8704904307567988631, guid: 0ef06813588884402b49b4dc274a9c21, type: 3}
+  - {fileID: 3205506133883121332, guid: ed597e9e817f444d2bef386e3d8117f2, type: 3}
+  - {fileID: 4504995868507469616, guid: e915fb5c10f7f4e82a8b345c6e05bf4b, type: 3}
+  - {fileID: 6505802369972137253, guid: de5f67e30d0fa4ca38b2d6783244d70a, type: 3}
+  - {fileID: 1374333645696927899, guid: 93f121ab47008488eb5fcdd35a003c54, type: 3}
+  - {fileID: 9069629679902030708, guid: 060045cba3f6442aaadf53bf13b45704, type: 3}
+  - {fileID: 7855895427230861335, guid: 834277ae3b20c4048a92c0066d52b4d4, type: 3}
+  - {fileID: 1565465887085424239, guid: 4f78c6033ba8e40f0ba2de33c3743429, type: 3}
+  - {fileID: 1810958724918364648, guid: f1e4082f5f6f945ac80aedd72c47ac59, type: 3}
+  - {fileID: 2439574496148655255, guid: 34ddce8efd3004ff49cc023beddb69ed, type: 3}
+  buckets:
+  - {fileID: 2606041722942513876, guid: 4bca6f52ede61467aa6d138c2fed93b7, type: 3}
+  - {fileID: 527780734442002916, guid: 18d8e3c282d9745d6b26199d4c355bb0, type: 3}
+  - {fileID: 8100441105043812466, guid: ea51e604eb9bc468d8201884ccfa374a, type: 3}
+  - {fileID: 8161744503853577058, guid: 03cd5d462d67742d084b7a38cefbe682, type: 3}
+  - {fileID: 2697112649665935555, guid: 6cfb27c2c662c4eda94c74359aaa2c31, type: 3}
+  - {fileID: 3758453559425150367, guid: 8be55ce980cb24c5c9991a4be7e9b252, type: 3}
+  blockStacks:
+  - {fileID: 3112165643805452537, guid: 0849c7882360f452597e3541cd9aaa03, type: 3}
+  - {fileID: 1915758090400951846, guid: 0b53ff83e9eb8405692b7678ec65e9fb, type: 3}
+  - {fileID: 6423853815508332948, guid: 1a3085bc8ad4e4f25be4058f8ddb6c8b, type: 3}
+  barrier: {fileID: 7447170177475615346, guid: 3f6efcdd6ac9b4f91b145b5bab15dcd0, type: 3}
+  rubble:
+  - {fileID: 977540582607149086, guid: 2fecf1c13e1f14951a544fc2f8525b0e, type: 3}
+  - {fileID: 2463392989265719971, guid: 493ed4fb48e2e4e818744540ee354cdb, type: 3}
+  people:
+  - {fileID: 5040994894652191635, guid: 64ed1906d58594b7286f09d1bd12ea82, type: 3}
+  - {fileID: 227035716481441066, guid: 2197f01942e644a9eba20014d4cff616, type: 3}
+  - {fileID: 2628703681488443643, guid: 26d1c12a42bff4de4922ae73694dc0d6, type: 3}
+  - {fileID: 5977806630200940818, guid: 36095ab7569da420cba785e2da2a5e3d, type: 3}
+  - {fileID: 4254602750833298583, guid: e9d7926575be748e0896129c1cddb22d, type: 3}
+  - {fileID: 9184434240364629960, guid: 9d050da34c27c42198cf5ae6c8776005, type: 3}
+  - {fileID: 6318129468293750880, guid: 732563a7307604909893457b4487e699, type: 3}
+  - {fileID: 3087909445960625608, guid: 5dc786d5a6e454edc9713e6c98b4606d, type: 3}
+  - {fileID: 4704771207828304654, guid: 470d8632b126d4f4ea232a50394a594b, type: 3}
+  - {fileID: 5574985125631823823, guid: 875f8b5ace83f45f3b860de7530a4169, type: 3}
+  - {fileID: 5233918943673877370, guid: 95b0bbfe308204f13a99038a31b65b1d, type: 3}
+  - {fileID: 3539706593280990009, guid: 51a7a3f07a9ab49d6a377ac3ab060658, type: 3}
+  - {fileID: 1930146859190206824, guid: 3dcc9d833c9fe4dde8c09e7f3b9eff49, type: 3}
+  - {fileID: 1940434771372705737, guid: d4a5fcbdad6224c57af8fe8ac784cadc, type: 3}
+  - {fileID: 9031356234891231489, guid: 1ec892680e49048fe9199a458c166df6, type: 3}
+  - {fileID: 5702525202271656774, guid: 75a031d92d2c44ccf93af287f243e70d, type: 3}
+  - {fileID: 7972748655487208624, guid: 2bd659a64f201487895c542aaea1a0c7, type: 3}
+  - {fileID: 2453804197196752315, guid: 9cf1289836a384510b3de41d6669dcdf, type: 3}
+  - {fileID: 3488625340362776722, guid: 1e25ac97c583d4788ae51e23cff71d30, type: 3}
+  - {fileID: 4714300544740558656, guid: 6f1a8abc523194384a03c2a0dcee1d40, type: 3}
+  - {fileID: 1711203713791127381, guid: f089617e486e34d8da9c51ed5e3e27eb, type: 3}
+  - {fileID: 7791947000573091483, guid: fe97c1850665f4d70a4293adb4621378, type: 3}
+  - {fileID: 1169015549763806740, guid: 6b87993626f46465b8aba23d7cfbceb3, type: 3}
+  - {fileID: 8894472554177466432, guid: 8aab035ca6be94bfa97f4d3d789401e8, type: 3}
+  - {fileID: 7848751788580212586, guid: fa750ae0c27a24c82b3f29e3c1eddc30, type: 3}
+  - {fileID: 968006478697405179, guid: 212ccef13c568475eb671c7dfb3e9673, type: 3}
+  rescuers:
+  - {fileID: 4632467317707810800, guid: 936513322ca3b475086a81ca5ad18275, type: 3}
+  - {fileID: 5427496337765100943, guid: 174472b17c2444e3f95a062bf616a045, type: 3}
+  - {fileID: 1722203705969759019, guid: 8dc0417b6876a46f1bb64c960a2fdba5, type: 3}
+  - {fileID: 6939018649409228173, guid: 84953f867e13a4829abb87eabc2f7fd4, type: 3}
+  jeepneyCount: 16
+  jeepneyGap: 45
+  roofSheetShare: 0.18
+  roofBucketShare: 0.08
+  concreteShare: 0.07
+  barrierRuns: 10
+  porchPeople: 10
+  leveeGroups: 8
+  seed: 7319

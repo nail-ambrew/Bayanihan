@@ -418,6 +418,51 @@ MonoBehaviour:
     size: {x: 4.4993877, y: 5.608412, z: 4.0034795}
     scale: {x: 0.85, y: 1.2}
     maxLean: 5
+  - code: LP01
+    name: Low-Poly Oak
+    prefab: {fileID: 76724708201455769, guid: 3da23bcc68f264d5995d91a9557dbdbb, type: 3}
+    group: 0
+    habitats: 14
+    weight: 0.5
+    size: {x: 4.7816944, y: 6.4282975, z: 4.0401917}
+    scale: {x: 0.85, y: 1.15}
+    maxLean: 3
+  - code: LP05
+    name: Low-Poly Palm
+    prefab: {fileID: 3510060287009459540, guid: cc364c85af07d4ae0944bb3f104fb13e, type: 3}
+    group: 1
+    habitats: 67
+    weight: 0.8
+    size: {x: 6.576065, y: 7.3390565, z: 6.403839}
+    scale: {x: 0.85, y: 1.15}
+    maxLean: 5
+  - code: LP08
+    name: Low-Poly Chestnut
+    prefab: {fileID: 7981919353833797290, guid: 60f35c48d77604c079ea1c912c491049, type: 3}
+    group: 1
+    habitats: 11
+    weight: 0.5
+    size: {x: 3.1774585, y: 6.457938, z: 3.0009327}
+    scale: {x: 0.85, y: 1.15}
+    maxLean: 5
+  - code: LP09
+    name: Low-Poly Shrub
+    prefab: {fileID: 7409539424768125727, guid: fa1b9dc0ce4854e84894978d87bd0f94, type: 3}
+    group: 4
+    habitats: 7
+    weight: 0.6
+    size: {x: 1.1943116, y: 2.1043484, z: 0.9491272}
+    scale: {x: 0.85, y: 1.15}
+    maxLean: 3
+  - code: LP10
+    name: Low-Poly Stump
+    prefab: {fileID: 4773983734929676412, guid: 70e921442a536416d99c41832ae67a03, type: 3}
+    group: 4
+    habitats: 76
+    weight: 0.4
+    size: {x: 2.4829085, y: 1.6728032, z: 1.2381945}
+    scale: {x: 0.85, y: 1.15}
+    maxLean: 3
   density: 1
   greenDensity: 0.55
   farmDensity: 0.45

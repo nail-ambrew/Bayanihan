@@ -95,12 +95,14 @@ public static class MabuhayGameplayBuilder
         var level = MabuhayLevelBuilder.Build(scene, settings, mission);
         // Last: the plants keep clear of the boat's start, the hall, the residents and the hazards the level has just laid out.
         string foliage = FoliageBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
+        // Then the jeepneys, roof sheets, buckets, concrete and people, which look for room among the houses and the plants.
+        string props = PropBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         AddToBuildSettings();
         foreach (var trouble in level.problems) Debug.LogWarning("MabuhayGameplayBuilder: " + trouble);
-        return root.GetComponent<BarangayMockInfo>().summary + "\n" + foliage + "\n" + level;
+        return root.GetComponent<BarangayMockInfo>().summary + "\n" + foliage + "\n" + props + "\n" + level;
     }
 
     /// <summary>The scene has to be in Build Settings to be loaded by name, and for R on the report to reload it.</summary>
