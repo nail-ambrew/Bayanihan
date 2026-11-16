@@ -6,9 +6,8 @@ using static GameplayTestHelpers;
 
 /// <summary>
 /// The player's own body, checked on whichever map it is given: that the water rescuer's skin is on him, that his head
-/// is hidden from his own first-person view in the water and shown again at the helm, and that nothing of his body fills
-/// the middle of the view when he looks ahead or a little down. The hands and shoulders may reach the bottom edge when
-/// looking steeply down.
+/// stays on in every view yet never comes into his own first-person view, and that nothing of his body fills the middle of
+/// the view when he looks ahead or down as far as first person allows. The hands may reach the bottom edge.
 ///
 /// Each map has a subclass that says how to load it (RescuerViewTests for Manila, MabuhayRescuerViewTests for Mabuhay).
 /// This base class is not a fixture of its own.
@@ -18,6 +17,7 @@ public abstract class RescuerViewChecks
     protected PlayerRescuer player;
     protected CharacterAnimator body;
     protected SimpleBoat boat;
+    PlayerRescuer.PovMode viewBefore;
 
     /// <summary>Loads the map and leaves it ready: the swimmer in the water beside the boat.</summary>
     protected abstract IEnumerator LoadTheMap();
@@ -28,6 +28,7 @@ public abstract class RescuerViewChecks
     [UnitySetUp]
     public IEnumerator Load()
     {
+        viewBefore = GameSettings.SwimView;
         LoadoutState.Clear();
         yield return LoadTheMap();
         StillWater();
@@ -41,6 +42,7 @@ public abstract class RescuerViewChecks
     [UnityTearDown]
     public IEnumerator Restore()
     {
+        GameSettings.SwimView = viewBefore;
         LoadoutState.Clear();
         Time.timeScale = 1f;
         AfterTheTest();
@@ -67,20 +69,21 @@ public abstract class RescuerViewChecks
     }
 
     [UnityTest]
-    public IEnumerator In_the_water_in_first_person_his_own_head_is_hidden()
+    public IEnumerator In_the_water_in_first_person_his_head_is_on_but_out_of_his_view()
     {
-        player.povMode = PlayerRescuer.PovMode.FirstPerson;
+        player.SetView(PlayerRescuer.PovMode.FirstPerson);
         yield return WaitSeconds(0.3f);
 
         Assert.IsFalse(player.IsMounted, "the swimmer should be in the water");
-        Assert.IsTrue(body.HeadHidden);
-        Assert.AreEqual(Vector3.zero, body.Bone("Head").localScale, "the head is shrunk to nothing");
+        Assert.IsFalse(body.HeadHidden, "the head stays on: his shadow and the view from the boat have one");
+        Assert.Greater(body.Bone("Head").localScale.x, 0.5f);
+        Assert.AreEqual(0, CountHeadInView(SwimmersView()), "part of his own head is in front of his eye");
     }
 
     [UnityTest]
     public IEnumerator At_the_helm_the_head_is_shown_again()
     {
-        player.povMode = PlayerRescuer.PovMode.FirstPerson;
+        player.SetView(PlayerRescuer.PovMode.FirstPerson);
         yield return WaitSeconds(0.2f);
         Board(player);
         yield return WaitSeconds(0.3f);
@@ -93,9 +96,10 @@ public abstract class RescuerViewChecks
     [UnityTest]
     public IEnumerator Third_person_always_shows_the_head()
     {
-        player.povMode = PlayerRescuer.PovMode.ThirdPerson;
+        player.SetView(PlayerRescuer.PovMode.ThirdPerson);
         yield return WaitSeconds(0.3f);
 
+        Assert.AreEqual(PlayerRescuer.PovMode.ThirdPerson, player.povMode);
         Assert.IsFalse(body.HeadHidden);
         Assert.Greater(body.Bone("Head").localScale.x, 0.5f);
     }
@@ -103,10 +107,10 @@ public abstract class RescuerViewChecks
     [UnityTest]
     public IEnumerator Looking_ahead_and_a_little_down_nothing_of_his_body_fills_the_middle_of_the_view()
     {
-        player.povMode = PlayerRescuer.PovMode.FirstPerson;
+        player.SetView(PlayerRescuer.PovMode.FirstPerson);
         var mesh = body.Character.GetComponentInChildren<SkinnedMeshRenderer>();
 
-        foreach (float pitch in new[] { 0f, 20f, 40f, 50f })
+        foreach (float pitch in new[] { 0f, 10f, 20f, player.firstPersonMaxDown })
         {
             LookAt(pitch);
             yield return WaitSeconds(0.2f);
@@ -117,17 +121,46 @@ public abstract class RescuerViewChecks
     }
 
     [UnityTest]
-    public IEnumerator The_check_would_catch_the_old_eye_point_that_was_inside_the_head()
+    public IEnumerator The_checks_would_catch_an_eye_inside_the_head_or_looking_steeply_down()
     {
-        // The control for the test above: the placement it used to have (at the back of the skull, 6 cm forward)
-        // must show the body in the middle of the view when looking down. Otherwise the check proves nothing.
-        player.povMode = PlayerRescuer.PovMode.FirstPerson;
-        player.firstPersonEye = new Vector2(0.2f, 0.06f);
-        LookAt(40f);
+        // The controls for the tests above. An eye in the middle of the head must see some of the head, and looking 50°
+        // down (past what first person allows) must put the body in the middle of the view. Otherwise the checks prove nothing.
+        player.SetView(PlayerRescuer.PovMode.FirstPerson);
         yield return WaitSeconds(0.2f);
+        Assert.IsTrue(player.HeadSphere(out Vector3 centre, out _), "the head was measured");
+        var inside = SwimmersView();
+        inside.transform.position = centre;
+        Assert.Greater(CountHeadInView(inside), 0, "an eye inside the head should see the head");
 
-        int inTheMiddle = CountBodyInTheMiddleOfView(body.Character.GetComponentInChildren<SkinnedMeshRenderer>(), SwimmersView());
-        Assert.Greater(inTheMiddle, 0, "the old placement should have shown the body in the middle of the view");
+        LookAt(50f);                                // past the limit, placed the way the game would place it
+        Invoke(player, "PlaceCamera");
+        var eye = SwimmersView();
+        int inTheMiddle = CountBodyInTheMiddleOfView(body.Character.GetComponentInChildren<SkinnedMeshRenderer>(), eye);
+        Assert.Greater(inTheMiddle, 0, "looking 50° down should have shown the body in the middle of the view");
+    }
+
+    /// <summary>Vertices of his head in front of the eye's near plane (anything there could be drawn across the view).</summary>
+    int CountHeadInView(Camera eye)
+    {
+        var mesh = body.Character.GetComponentInChildren<SkinnedMeshRenderer>();
+        int head = System.Array.IndexOf(mesh.bones, body.Bone("Head"));
+        var baked = new Mesh();
+        mesh.BakeMesh(baked, true);
+        var vertices = baked.vertices;
+        var weights = mesh.sharedMesh.boneWeights;
+        int count = 0;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            var w = weights[i];
+            float onHead = (w.boneIndex0 == head ? w.weight0 : 0f) + (w.boneIndex1 == head ? w.weight1 : 0f) +
+                           (w.boneIndex2 == head ? w.weight2 : 0f) + (w.boneIndex3 == head ? w.weight3 : 0f);
+            if (onHead < 0.05f) continue;
+            Vector3 p = mesh.transform.TransformPoint(vertices[i]);
+            if (Vector3.Dot(p - eye.transform.position, eye.transform.forward) > eye.nearClipPlane) count++;
+        }
+        Object.DestroyImmediate(baked);
+        Object.DestroyImmediate(eye.gameObject);
+        return count;
     }
 
     /// <summary>A camera at the swimmer's eye, with the same lens as the game's first-person camera.</summary>

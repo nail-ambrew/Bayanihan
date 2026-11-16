@@ -47,10 +47,12 @@ public class DebrisBarrier : MonoBehaviour
         Jam.center = new Vector3(0f, (size.y - depthBelowWater) * 0.5f, 0f);
 
         BuildPile();
+        FloatingDebris.MoveToDebrisLayer(gameObject);           // a pile of wreckage too: the camera looks past it
     }
 
     void Start()
     {
+        FloatingDebris.CamerasLookPastDebris();
         // The swimmer slips through the gaps; only the boat is stopped.
         var player = FindFirstObjectByType<PlayerRescuer>();
         if (player == null) return;
