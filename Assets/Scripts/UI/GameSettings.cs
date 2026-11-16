@@ -17,6 +17,7 @@ public static class GameSettings
     const string SensitivityKey = "settings.lookSensitivity";
     const string SideKey = "settings.controlSide";
     const string TouchKey = "settings.touchMode";
+    const string ViewKey = "settings.swimView";
 
     public const float MinSensitivity = 0.25f, MaxSensitivity = 2.5f;
 
@@ -51,6 +52,14 @@ public static class GameSettings
     {
         get => (TouchMode)PlayerPrefs.GetInt(TouchKey, (int)TouchMode.Auto);
         set => PlayerPrefs.SetInt(TouchKey, (int)value);
+    }
+
+    /// <summary>How the swimmer is seen: from their own eyes, or from behind and above with the whole body in view. V switches it in play.</summary>
+    public static PlayerRescuer.PovMode SwimView
+    {
+        get => PlayerPrefs.GetInt(ViewKey, (int)PlayerRescuer.PovMode.FirstPerson) == (int)PlayerRescuer.PovMode.ThirdPerson
+            ? PlayerRescuer.PovMode.ThirdPerson : PlayerRescuer.PovMode.FirstPerson;
+        set => PlayerPrefs.SetInt(ViewKey, (int)value);
     }
 
     /// <summary>Phones and tablets start on Medium, everything else on High.</summary>
@@ -104,5 +113,6 @@ public static class GameSettings
         PlayerPrefs.DeleteKey(SensitivityKey);
         PlayerPrefs.DeleteKey(SideKey);
         PlayerPrefs.DeleteKey(TouchKey);
+        PlayerPrefs.DeleteKey(ViewKey);
     }
 }

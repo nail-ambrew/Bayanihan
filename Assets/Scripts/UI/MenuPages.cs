@@ -77,6 +77,10 @@ public static class MenuPages
         Row(UiKit.Choice(content, "GRAPHICS", new[] { "LOW", "MEDIUM", "HIGH" }, GameSettings.Quality, i => GameSettings.Quality = i).transform);
         Row(UiKit.Slider(content, "LOOK SPEED", GameSettings.LookSensitivity, v => GameSettings.LookSensitivity = v,
                          GameSettings.MinSensitivity, GameSettings.MaxSensitivity).transform.parent);
+        // How the swimmer is seen (V switches it in play): from their own eyes, or from behind with the whole body in view.
+        Row(UiKit.Choice(content, "SWIM VIEW", new[] { "1ST PERSON", "3RD PERSON" },
+                         GameSettings.SwimView == PlayerRescuer.PovMode.FirstPerson ? 0 : 1,
+                         i => GameSettings.SwimView = i == 0 ? PlayerRescuer.PovMode.FirstPerson : PlayerRescuer.PovMode.ThirdPerson).transform);
         Row(UiKit.Choice(content, "TOUCH CONTROLS", new[] { "AUTO", "ON", "OFF" }, (int)GameSettings.Touch, i =>
         {
             GameSettings.Touch = (TouchMode)i;

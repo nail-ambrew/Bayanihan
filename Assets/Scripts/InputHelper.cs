@@ -73,6 +73,17 @@ public static class InputHelper
     /// <summary>C or the power-cut button (radio for a live wire to be cut).</summary>
     public static bool PowerCutPressed() => Pressed(TouchAction.PowerCut, KeyC);
 
+    /// <summary>V pressed this frame: switch the swimmer between first and third person.</summary>
+    public static bool ViewTogglePressed()
+    {
+        if (GameplayLocked) return false;
+#if ENABLE_INPUT_SYSTEM
+        return Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.V);
+#endif
+    }
+
     /// <summary>R pressed this frame (restart, on the report).</summary>
     public static bool RestartPressed()
     {

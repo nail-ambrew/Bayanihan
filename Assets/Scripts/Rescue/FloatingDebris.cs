@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,8 +58,37 @@ public class FloatingDebris : MonoBehaviour
         Float = GetComponent<Buoyancy>();
     }
 
+    /// <summary>
+    /// The layer wreckage lives on. The chase camera does not dodge it: a camera that pulled in front of every board and bucket
+    /// that drifted between it and the boat would lurch up against the debris each time the boat nudged some aside.
+    /// </summary>
+    public static int Layer
+    {
+        get
+        {
+            int layer = LayerMask.NameToLayer("Debris");
+            return layer >= 0 ? layer : 0;
+        }
+    }
+
+    /// <summary>Puts a piece of wreckage, and everything it is made of, on the debris layer.</summary>
+    public static void MoveToDebrisLayer(GameObject piece)
+    {
+        foreach (var t in piece.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = Layer;
+    }
+
+    /// <summary>Every camera that steers round obstacles leaves the debris layer out: drifting wreckage is never a wall to it.</summary>
+    public static void CamerasLookPastDebris()
+    {
+        int bit = 1 << Layer;
+        if (Layer == 0) return;                     // no debris layer in this project: nothing to leave out
+        foreach (var deoccluder in FindObjectsByType<CinemachineDeoccluder>(FindObjectsSortMode.None))
+            deoccluder.CollideAgainst &= ~bit;
+    }
+
     void Start()
     {
+        CamerasLookPastDebris();
         // The swimmer slips round wreckage rather than being pinned against it.
         var player = FindFirstObjectByType<PlayerRescuer>();
         if (player != null) IgnoreAll(player.GetComponentsInChildren<Collider>());
@@ -105,7 +135,9 @@ public class FloatingDebris : MonoBehaviour
         root.transform.SetParent(parent, false);
         root.transform.SetPositionAndRotation(at, Quaternion.Euler(0f, yaw, 0f));
 
+        root.layer = Layer;
         DebrisProps.AddVisual(root.transform, kind, Vector3.zero, Quaternion.identity);
+        MoveToDebrisLayer(root);
 
         // Everything the Rigidbody and Buoyancy read in Awake has to be in place before they are added.
         var body = root.AddComponent<Rigidbody>();

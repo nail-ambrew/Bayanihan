@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 
@@ -64,13 +65,20 @@ public class PlayerRescuer : MonoBehaviour
     public float boardingCooldown = 0.35f;
 
     [Header("Swim camera")]
+    [Tooltip("The view while swimming. Follows the SWIM VIEW setting (and V) in play; this is only what the scene starts on.")]
     public PovMode povMode = PovMode.ThirdPerson;
     [Tooltip("Height the camera pivots around, above the swimmer's origin.")]
     public float eyeHeight = 1.1f;
     [Tooltip("Third person only: how far behind the swimmer the camera sits.")]
     public float cameraDistance = 4.5f;
-    [Tooltip("First person only: where the eye sits, from the head bone - x = up, y = forward along the way you look (metres).")]
+    [Tooltip("First person, if the head could not be measured: where the eye sits, from the head bone - x = up, y = forward along the way you look (metres).")]
     public Vector2 firstPersonEye = new Vector2(0.22f, 0.22f);
+    [Tooltip("First person: how far in front of the head the eye sits, past its outer edge, so no part of the head is ever in view (metres).")]
+    public float firstPersonClearance = 0.08f;
+    [Tooltip("First person: the furthest you can look down, in degrees. Further, and the eye is over the swimmer's own vest and arms.")]
+    public float firstPersonMaxDown = 25f;
+    [Tooltip("Third person: how far clear of walls the camera keeps, and how far above the water.")]
+    public float thirdPersonClearance = 0.25f;
     public float minCameraDistance = 2f;
     public float maxCameraDistance = 10f;
     [Tooltip("Degrees per pixel of mouse movement.")]
@@ -129,6 +137,10 @@ public class PlayerRescuer : MonoBehaviour
     readonly Collider[] overlaps = new Collider[8];
 
     Vector2 rawInput, input;
+    // The head, measured once from the mesh: its middle in the head bone's own space, and how far its furthest point is from that.
+    Vector3 headCentreLocal;
+    float headRadius;
+    float shownDistance;             // third person: how far back the camera is now, after pulling in from walls
     float yaw;                       // the swimmer's facing
     float camYaw, camPitch;          // where the player is looking
     float boardingReadyAt;
@@ -189,6 +201,8 @@ public class PlayerRescuer : MonoBehaviour
         // Swimming through the hull beats shoving the boat around every time the player brushes against it.
         if (boat != null && boat.Hull != null) Physics.IgnoreCollision(body, boat.Hull, true);
 
+        povMode = GameSettings.SwimView;
+        MeasureHead();
         BuildCamera();
         SetUpBoatCamera();
         SnapToWater();
@@ -252,7 +266,78 @@ public class PlayerRescuer : MonoBehaviour
     Vector3 CameraLocalOffset() =>
         povMode == PovMode.FirstPerson
             ? Vector3.zero                          // the eye point already carries the forward offset (PlaceCamera)
-            : new Vector3(0f, 0f, -Mathf.Clamp(cameraDistance, minCameraDistance, maxCameraDistance));
+            : new Vector3(0f, 0f, -(shownDistance > 0f ? shownDistance : Mathf.Clamp(cameraDistance, minCameraDistance, maxCameraDistance)));
+
+    /// <summary>
+    /// Finds the swimmer's head in their mesh: the vertices the head bone moves, where their middle is and how far the furthest
+    /// is from it. First person puts the eye just outside that sphere, in the direction of the look, so the head stays on (its
+    /// shadow, its reflection, the view from the boat) and yet nothing of it can come between the eye and the world.
+    /// </summary>
+    void MeasureHead()
+    {
+        headRadius = 0f;
+        if (anim == null) return;
+        var head = anim.Bone("Head");
+        var skin = anim.GetComponentInChildren<SkinnedMeshRenderer>();
+        if (head == null || skin == null || skin.sharedMesh == null || !skin.sharedMesh.isReadable) return;
+        int index = System.Array.IndexOf(skin.bones, head);
+        var weights = skin.sharedMesh.boneWeights;
+        if (index < 0 || weights.Length == 0) return;
+
+        anim.SetHeadHidden(false);
+        var baked = new Mesh();
+        skin.BakeMesh(baked, true);
+        var vertices = baked.vertices;
+        var points = new List<Vector3>();
+        for (int i = 0; i < vertices.Length && i < weights.Length; i++)
+        {
+            var w = weights[i];
+            float onHead = (w.boneIndex0 == index ? w.weight0 : 0f) + (w.boneIndex1 == index ? w.weight1 : 0f) +
+                           (w.boneIndex2 == index ? w.weight2 : 0f) + (w.boneIndex3 == index ? w.weight3 : 0f);
+            if (onHead > 0.2f) points.Add(skin.transform.TransformPoint(vertices[i]));
+        }
+        Destroy(baked);
+        if (points.Count == 0) return;
+
+        var bounds = new Bounds(points[0], Vector3.zero);
+        foreach (var p in points) bounds.Encapsulate(p);
+        foreach (var p in points) headRadius = Mathf.Max(headRadius, Vector3.Distance(p, bounds.center));
+        headCentreLocal = head.InverseTransformPoint(bounds.center);
+    }
+
+    /// <summary>Where the middle of the head is now, and how big it is (zero if it could not be measured).</summary>
+    public bool HeadSphere(out Vector3 centre, out float radius)
+    {
+        var head = anim != null ? anim.Bone("Head") : null;
+        centre = head != null ? head.TransformPoint(headCentreLocal) : transform.position;
+        radius = headRadius;
+        return head != null && headRadius > 0f;
+    }
+
+    /// <summary>The camera the swimmer sees through (null before the game starts).</summary>
+    public Transform SwimCamera => pov != null ? pov.transform : null;
+
+    /// <summary>Switches between first and third person, and keeps the setting.</summary>
+    public void SetView(PovMode mode)
+    {
+        GameSettings.SwimView = mode;
+        ApplyView(mode);
+    }
+
+    /// <summary>Third person: the camera never goes lower than this over the water, so a low look-up does not skim the surface.</summary>
+    const float ThirdPersonAboveWater = 0.6f;
+
+    float MaxPitch => povMode == PovMode.FirstPerson ? Mathf.Min(pitchLimits.y, firstPersonMaxDown) : pitchLimits.y;
+
+    void ApplyView(PovMode mode)
+    {
+        if (povMode == mode) return;
+        povMode = mode;
+        shownDistance = 0f;
+        camPitch = Mathf.Clamp(camPitch, pitchLimits.x, MaxPitch);
+        if (pov != null) pov.transform.localPosition = CameraLocalOffset();
+        PlaceCamera();
+    }
 
     void OnDestroy()
     {
@@ -291,6 +376,8 @@ public class PlayerRescuer : MonoBehaviour
     void Update()
     {
         KeepCursorFreeForMenus();
+        if (InputHelper.ViewTogglePressed()) SetView(povMode == PovMode.FirstPerson ? PovMode.ThirdPerson : PovMode.FirstPerson);
+        else ApplyView(GameSettings.SwimView);          // the settings page may have changed it
         if (IsMounted)
         {
             rawInput = Vector2.zero;
@@ -316,7 +403,7 @@ public class PlayerRescuer : MonoBehaviour
         Vector2 d = InputHelper.LookDelta();
         camYaw += d.x * lookSensitivity;
         camPitch += (invertY ? d.y : -d.y) * lookSensitivity;
-        camPitch = Mathf.Clamp(camPitch, pitchLimits.x, pitchLimits.y);
+        camPitch = Mathf.Clamp(camPitch, pitchLimits.x, MaxPitch);
 
         if (povMode == PovMode.ThirdPerson)
         {
@@ -324,7 +411,6 @@ public class PlayerRescuer : MonoBehaviour
             if (Mathf.Abs(scroll) > 0.0001f)
             {
                 cameraDistance = Mathf.Clamp(cameraDistance - scroll, minCameraDistance, maxCameraDistance);
-                if (pov != null) pov.transform.localPosition = CameraLocalOffset();
             }
         }
     }
@@ -362,23 +448,66 @@ public class PlayerRescuer : MonoBehaviour
         if (camRig == null) return;
         Vector3 anchor = IsMounted && boat != null ? boat.transform.position : transform.position;
         Vector3 eye = anchor + Vector3.up * eyeHeight;
+        Quaternion look = Quaternion.Euler(camPitch, camYaw, 0f);
+        float water = WaterSurface.Instance != null ? WaterSurface.Instance.GetHeight(anchor) : anchor.y;
 
-        // First person, in the water: the eye is at the swimmer's own face, so the head is hidden - otherwise the
-        // helmet fills the view. A swimmer sees very little, which is exactly why the boat is the better place to
-        // search from. At the helm the head is shown again, as the boat's chase camera sees it.
+        // The head is always on: from the boat, in the swimmer's shadow and in third person. In first person the eye sits just
+        // outside the head, on the side the player is looking: every part of the head is then behind the eye, whichever way
+        // they look, so it never fills the view.
+        if (anim != null) anim.SetHeadHidden(false);
         bool firstPerson = povMode == PovMode.FirstPerson && !IsMounted && anim != null;
-        if (anim != null) anim.SetHeadHidden(firstPerson);
         if (firstPerson)
         {
-            var head = anim.Bone("Head");
-            if (head != null)
+            if (HeadSphere(out Vector3 centre, out float radius))
+                eye = centre + look * Vector3.forward * (radius + firstPersonClearance);
+            else
             {
-                Vector3 lookingAlong = Quaternion.Euler(0f, camYaw, 0f) * Vector3.forward;
-                eye = head.position + Vector3.up * firstPersonEye.x + lookingAlong * firstPersonEye.y;
+                var head = anim.Bone("Head");
+                if (head != null)
+                {
+                    Vector3 lookingAlong = Quaternion.Euler(0f, camYaw, 0f) * Vector3.forward;
+                    eye = head.position + Vector3.up * firstPersonEye.x + lookingAlong * firstPersonEye.y;
+                }
             }
+            eye.y = Mathf.Max(eye.y, water + 0.12f);           // never looking out from under the surface
         }
         camRig.position = eye;
-        camRig.rotation = Quaternion.Euler(camPitch, camYaw, 0f);
+        camRig.rotation = look;
+
+        if (pov == null) return;
+        if (firstPerson || IsMounted)
+        {
+            pov.transform.localPosition = Vector3.zero;
+            shownDistance = 0f;
+            return;
+        }
+
+        // Third person: back along the look, but in front of any wall behind the swimmer and above the water.
+        float wanted = Mathf.Clamp(cameraDistance, minCameraDistance, maxCameraDistance);
+        float room = ClearDistanceBehind(eye, look * Vector3.back, wanted);
+        Vector3 back = look * Vector3.back;
+        if (back.y < -0.01f)
+            room = Mathf.Min(room, Mathf.Max(0.3f, (eye.y - (water + ThirdPersonAboveWater)) / -back.y));
+        // Pull in at once (a wall must never come between), ease back out.
+        shownDistance = shownDistance <= 0f || room < shownDistance ? room : Mathf.MoveTowards(shownDistance, room, 6f * Time.deltaTime);
+        pov.transform.localPosition = new Vector3(0f, 0f, -shownDistance);
+    }
+
+    /// <summary>
+    /// How far the camera can go back from <paramref name="eye"/> before it would touch something fixed: a wall, a roof, a post.
+    /// Anything with a body (the swimmer, the boat, residents, floating debris) is not in the way.
+    /// </summary>
+    float ClearDistanceBehind(Vector3 eye, Vector3 back, float wanted)
+    {
+        int mask = Physics.DefaultRaycastLayers & ~(1 << FloatingDebris.Layer);
+        float best = wanted;
+        foreach (var hit in Physics.SphereCastAll(eye, thirdPersonClearance, back, wanted, mask, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.collider.attachedRigidbody != null || hit.collider.GetComponent<WaterSurface>() != null) continue;
+            if (hit.distance <= 0f) continue;                   // the cast starts inside it: the eye is not, so it is round the swimmer
+            best = Mathf.Min(best, hit.distance);
+        }
+        return Mathf.Max(0.3f, best);
     }
 
     void FixedUpdate()
@@ -409,18 +538,36 @@ public class PlayerRescuer : MonoBehaviour
             Vector3 wish = camFwd * input.y + camRight * input.x;
 
             float amount = Mathf.Clamp01(wish.magnitude);
-            if (amount > 0.01f)
+            if (povMode == PovMode.FirstPerson)
             {
-                Vector3 dir = wish.normalized;
-                float wanted = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                yaw = Mathf.MoveTowardsAngle(yaw, wanted, turnSpeed * dt);
+                // First person: the body faces where the player looks, as their head would, and the stick swims any way
+                // from there - forward, back, sideways. The eye then always sits at the front of the face, never over a
+                // shoulder or the pack.
+                yaw = Mathf.MoveTowardsAngle(yaw, camYaw, turnSpeed * dt);
+                Vector3 flat = new Vector3(throughWater.x, 0f, throughWater.z);
+                Vector3 along = amount > 0.01f ? wish.normalized
+                              : flat.sqrMagnitude > 0.0001f ? flat.normalized : Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+                bool backing = amount > 0.01f && input.y < -0.01f && Mathf.Abs(input.x) < Mathf.Abs(input.y);
+                float top = (backing ? reverseSpeed : swimSpeed) * SpeedScale;
+                float now = Vector3.Dot(throughWater, along);
+                float rate1 = amount > 0.01f ? acceleration : coastDeceleration;
+                planar = along * Mathf.MoveTowards(now, amount * top, rate1 * dt);
             }
+            else
+            {
+                if (amount > 0.01f)
+                {
+                    Vector3 dir = wish.normalized;
+                    float wanted = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                    yaw = Mathf.MoveTowardsAngle(yaw, wanted, turnSpeed * dt);
+                }
 
-            Vector3 fwd = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
-            float current = Vector3.Dot(throughWater, fwd);
-            float rate = amount > 0.01f ? acceleration : coastDeceleration;
-            float speed = Mathf.MoveTowards(current, amount * swimSpeed * SpeedScale, rate * dt);
-            planar = fwd * speed;
+                Vector3 fwd = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+                float current = Vector3.Dot(throughWater, fwd);
+                float rate = amount > 0.01f ? acceleration : coastDeceleration;
+                float speed = Mathf.MoveTowards(current, amount * swimSpeed * SpeedScale, rate * dt);
+                planar = fwd * speed;
+            }
         }
         else
         {
