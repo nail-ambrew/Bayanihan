@@ -25,6 +25,16 @@ public struct RoadProfile
 
     public float Half => total * 0.5f;
 
+    /// <summary>A narrow street drawn as an asphalt road with a centre line and edge lines, like the others.</summary>
+    public static RoadProfile Asphalt(float total) => new RoadProfile
+    {
+        total = total, carriage = total - 1f, side = 0.5f, surface = RoadSurface.Asphalt,
+        sidewalks = false, centre = CentreLine.WhiteDashed, edgeLines = true
+    };
+
+    /// <summary>Streets the map draws as asphalt roads although OpenStreetMap calls them service lanes (by OSM id).</summary>
+    public static readonly HashSet<string> AsphaltLanes = new HashSet<string> { "w936561212" };   // the lane in front of the four houses east of the Iglesia Ni Cristo
+
     public static RoadProfile For(RoadClass c, float total)
     {
         var p = new RoadProfile { total = total, surface = RoadSurface.Asphalt };
@@ -130,7 +140,7 @@ public class RoadNetwork
         foreach (var r in roads)
         {
             if (r.points == null || r.points.Count < 2) continue;
-            var profile = RoadProfile.For(r.roadClass, width(r.roadClass));
+            var profile = RoadProfile.AsphaltLanes.Contains(r.osmId) ? RoadProfile.Asphalt(width(r.roadClass)) : RoadProfile.For(r.roadClass, width(r.roadClass));
             var current = new List<Vector2> { r.points[0] };
             float trimStart = junctionAt.TryGetValue(Key(r.points[0]), out var j0) ? j0.radius : 0f;
             for (int i = 1; i < r.points.Count; i++)

@@ -90,13 +90,15 @@ public static class FoliagePlanner
     /// <param name="drawn">Where buildings are drawn (null = everywhere). Past it the layout's buildings are not on the map,
     /// so their ground is open and planted like any other.</param>
     public static FoliagePlan Plan(BarangayLayout layout, Rect region, MockPlan mock, PlaceholderLibrary lib, FoliageLibrary flora,
-                                   IList<KeepClear> keepClear, Rect? drawn = null)
+                                   IList<KeepClear> keepClear, Rect? drawn = null, IList<(Vector2 centre, Vector2 half, float yaw)> extraBuildings = null)
     {
         var plan = new FoliagePlan();
         if (layout == null || flora == null || flora.species.Count == 0) return plan;
 
         var g = new Grid(region);
         MarkBuildings(g, layout, mock, drawn);
+        if (extraBuildings != null)
+            foreach (var b in extraBuildings) FillRotatedBox(g, b.centre, b.half, b.yaw, i => g.kind[i] = CellKind.Building);
         MarkRoads(g, layout, lib);
         MarkWater(g, layout, lib);
         MarkAreas(g, layout);

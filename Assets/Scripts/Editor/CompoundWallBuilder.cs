@@ -168,7 +168,7 @@ public static class CompoundWallBuilder
         int opened = 0;
         if (boat != null)
         {
-            for (int pass = 0; pass < 3; pass++)
+            for (int pass = 0; pass < 6; pass++)
             {
                 var water = new BoatReach(Rect.MinMaxRect(area.xMin - 20f, area.yMin - 20f, area.xMax + 20f, area.yMax + 20f), 1f, BoatReach.DefaultRadius, 0f);
                 water.Flood(boat.transform.position);
@@ -191,6 +191,39 @@ public static class CompoundWallBuilder
                     OpenGate(cpd, (piece.a + piece.b) * 0.5f, 6f);
                     changed = true; opened++;
                 }
+                // Each landmark lot, measured as the level test measures it: its open, boat-sized places the water reaches.
+                // Short of 90 %, a gate on the wall nearest the closed-off part, on a side the water already comes to.
+                var landmarks = root.transform.Find("Landmarks");
+                if (landmarks != null)
+                    foreach (Transform model in landmarks)
+                    {
+                        var rs = model.GetComponentsInChildren<MeshRenderer>();
+                        if (rs.Length == 0) continue;
+                        var bb = rs[0].bounds;
+                        foreach (var r in rs) bb.Encapsulate(r.bounds);
+                        int roomy = 0, reached = 0;
+                        var closedOff = new List<Vector2>();
+                        for (float x = bb.min.x + 1f; x < bb.max.x; x += 2f)
+                        for (float z = bb.min.z + 1f; z < bb.max.z; z += 2f)
+                        {
+                            var above = new Vector3(x, bb.max.y + 1f, z);
+                            if (Physics.Raycast(above, Vector3.down, above.y - 0.4f, ~0, QueryTriggerInteraction.Ignore)) continue;
+                            var xz = new Vector2(x, z);
+                            if (!water.IsClear(xz)) continue;
+                            roomy++;
+                            if (water.Reached(xz)) reached++; else closedOff.Add(xz);
+                        }
+                        if (roomy < 30 || reached >= roomy * 0.92f || closedOff.Count == 0) continue;
+                        var middle = new Vector2(closedOff.Average(p => p.x), closedOff.Average(p => p.y));
+                        var near = compounds.Where(x => x.pieces.Count > 0)
+                                            .SelectMany(x => x.pieces.Select(p => (cpd: x, mid: (p.a + p.b) * 0.5f)))
+                                            .Where(p => water.DistanceToReached(p.mid, 8f) < 8f)
+                                            .OrderBy(p => closedOff.Min(q => Vector2.Distance(q, p.mid)) + 0.25f * Vector2.Distance(p.mid, middle))
+                                            .FirstOrDefault();
+                        if (near.cpd == null) continue;
+                        OpenGate(near.cpd, near.mid, 6f);
+                        changed = true; opened++;
+                    }
                 if (!changed) break;
                 pieces = Draw();
             }

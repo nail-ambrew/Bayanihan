@@ -20,6 +20,12 @@ Barangay Mabuhay is generated from real map data; nothing on it is placed by han
    Openings wherever a street or driveway crosses, at least two ways into each compound, and a gate opened wherever the
    boat could not otherwise reach a resident or a compound's open ground. The layout has no residential subdivisions
    inside the map's region, so none are walled.
+5b. **Infill buildings** — `InfillBuilder` fills the empty land with the building kit (`Source Assets/Buildings`,
+   made by `make_buildings.py` in Blender; prefabs via `Bayanihan > Buildings > Import Building Kit`, `BuildingLibrary`):
+   lots facing the nearest street, 70/20/10 one/two/three storeys (also per 80 m neighbourhood), ~30 % commercial on main
+   roads and corners. Never inside WalterMart or Macaria Business Center (+5 m buffer), other walled compounds, landmark
+   lots, the mission's places or within 1.5 m of a road. Buildings that close the boat's way to a resident, the hall or a
+   landmark lot are taken out again. Writes `Placement.json` and `Infill_Report.md` next to the models.
 6. **Foliage** — `FoliagePlanner`/`FoliageBuilder`: the Carmona Roadside Flora pack plus five low-poly trees, by
    habitat (yards, roadsides, banks, open lots), planted out to the levee. A grassland pass leaves no bare ground: tall
    cogon/talahib stands (now and then a bush or a tree) wherever nothing grows, and low grass over all open ground.

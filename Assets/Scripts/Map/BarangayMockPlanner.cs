@@ -691,9 +691,28 @@ public static class BarangayMockPlanner
         /// frontage is the side that faces the street, the depth the other. With no street near, the long side faces
         /// one way or the other, chosen by the building's id so the same plan is made every time.
         /// </summary>
+        /// <summary>
+        /// Landmarks whose front is set by hand, in degrees (0 = north, 90 = east, the way the map's +X points). The planner
+        /// turns everything else to face the nearest street; these are the ones it gets wrong for the game's view.
+        /// </summary>
+        public static readonly Dictionary<string, float> FrontOverrides = new Dictionary<string, float>
+        {
+            { "r10749238", 90f },      // Iglesia Ni Cristo: faces right (east) across its lot
+        };
+
         Facing FaceStreet(MapGeometry.OrientedRect rect, string id)
         {
             var f = new Facing();
+            if (FrontOverrides.TryGetValue(id, out float degrees))
+            {
+                float rad = degrees * Mathf.Deg2Rad;
+                f.front = new Vector2(Mathf.Sin(rad), Mathf.Cos(rad));
+                f.onStreet = true;
+                bool alongU = Mathf.Abs(Vector2.Dot(f.front, rect.axisU)) > 0.5f;
+                f.frontage = alongU ? rect.sizeV : rect.sizeU;
+                f.depth = alongU ? rect.sizeU : rect.sizeV;
+                return f;
+            }
             Vector2 toStreet = Vector2.zero;
             if (streets.Nearest(rect.centre, StreetReach, out Vector2 closest, out RoadClass road))
             {

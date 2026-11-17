@@ -1,0 +1,401 @@
+{
+  "seed": 20261117,
+  "units": "meters",
+  "upAxis": "+Y",
+  "forward": "+Z (front door / shop sign)",
+  "pivot": "bottom-centre of the footprint at ground level",
+  "storeyHeight": 3.0,
+  "collision": "<Name>_COL box (material Collision) over the building body",
+  "models": [
+    {
+      "name": "House_1S_01",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 8
+      },
+      "height": 3.0,
+      "triangles": 182,
+      "budget": 250
+    },
+    {
+      "name": "House_1S_02",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 8
+      },
+      "height": 3.0,
+      "triangles": 182,
+      "budget": 250
+    },
+    {
+      "name": "House_1S_03",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 9
+      },
+      "height": 3.0,
+      "triangles": 202,
+      "budget": 250
+    },
+    {
+      "name": "House_1S_04",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 7,
+        "z": 8
+      },
+      "height": 3.0,
+      "triangles": 186,
+      "budget": 250
+    },
+    {
+      "name": "House_1S_05",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 7,
+        "z": 9
+      },
+      "height": 3.0,
+      "triangles": 202,
+      "budget": 250
+    },
+    {
+      "name": "House_1S_06",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 8
+      },
+      "height": 3.0,
+      "triangles": 166,
+      "budget": 250
+    },
+    {
+      "name": "House_1S_07",
+      "category": "residential",
+      "type": "house",
+      "storeys": 1,
+      "footprint": {
+        "x": 8,
+        "z": 9
+      },
+      "height": 3.0,
+      "triangles": 206,
+      "budget": 250
+    },
+    {
+      "name": "Shop_1S_01",
+      "category": "commercial",
+      "type": "sari-sari store",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 8
+      },
+      "height": 3.0,
+      "triangles": 100,
+      "budget": 250
+    },
+    {
+      "name": "Shop_1S_02",
+      "category": "commercial",
+      "type": "eatery",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 7
+      },
+      "height": 3.0,
+      "triangles": 96,
+      "budget": 250
+    },
+    {
+      "name": "Shop_1S_03",
+      "category": "commercial",
+      "type": "pharmacy",
+      "storeys": 1,
+      "footprint": {
+        "x": 7,
+        "z": 8
+      },
+      "height": 3.0,
+      "triangles": 96,
+      "budget": 250
+    },
+    {
+      "name": "Shop_1S_04",
+      "category": "commercial",
+      "type": "laundromat",
+      "storeys": 1,
+      "footprint": {
+        "x": 6,
+        "z": 7
+      },
+      "height": 3.0,
+      "triangles": 96,
+      "budget": 250
+    },
+    {
+      "name": "House_2S_01",
+      "category": "residential",
+      "type": "house",
+      "storeys": 2,
+      "footprint": {
+        "x": 6,
+        "z": 9
+      },
+      "height": 6.0,
+      "triangles": 250,
+      "budget": 400
+    },
+    {
+      "name": "House_2S_02",
+      "category": "residential",
+      "type": "house",
+      "storeys": 2,
+      "footprint": {
+        "x": 8,
+        "z": 10
+      },
+      "height": 6.0,
+      "triangles": 250,
+      "budget": 400
+    },
+    {
+      "name": "House_2S_03",
+      "category": "residential",
+      "type": "house",
+      "storeys": 2,
+      "footprint": {
+        "x": 8,
+        "z": 10
+      },
+      "height": 6.0,
+      "triangles": 250,
+      "budget": 400
+    },
+    {
+      "name": "Rowhouse_2S_01",
+      "category": "residential",
+      "type": "rowhouse",
+      "storeys": 2,
+      "footprint": {
+        "x": 10,
+        "z": 8
+      },
+      "height": 6.0,
+      "triangles": 212,
+      "budget": 400
+    },
+    {
+      "name": "Rowhouse_2S_02",
+      "category": "residential",
+      "type": "rowhouse",
+      "storeys": 2,
+      "footprint": {
+        "x": 11,
+        "z": 9
+      },
+      "height": 6.0,
+      "triangles": 236,
+      "budget": 400
+    },
+    {
+      "name": "Apartment_2S_01",
+      "category": "residential",
+      "type": "apartment",
+      "storeys": 2,
+      "footprint": {
+        "x": 10,
+        "z": 12
+      },
+      "height": 6.0,
+      "triangles": 266,
+      "budget": 400
+    },
+    {
+      "name": "Shop_2S_01",
+      "category": "commercial",
+      "type": "laundromat",
+      "storeys": 2,
+      "footprint": {
+        "x": 5,
+        "z": 8
+      },
+      "height": 6.0,
+      "triangles": 146,
+      "budget": 400
+    },
+    {
+      "name": "Shop_2S_02",
+      "category": "commercial",
+      "type": "repair shop",
+      "storeys": 2,
+      "footprint": {
+        "x": 5,
+        "z": 8
+      },
+      "height": 6.0,
+      "triangles": 160,
+      "budget": 400
+    },
+    {
+      "name": "MixedUse_2S_01",
+      "category": "commercial",
+      "type": "mixed-use (bakery)",
+      "storeys": 2,
+      "footprint": {
+        "x": 8,
+        "z": 9
+      },
+      "height": 6.0,
+      "triangles": 166,
+      "budget": 400
+    },
+    {
+      "name": "MixedUse_2S_02",
+      "category": "commercial",
+      "type": "mixed-use (hardware)",
+      "storeys": 2,
+      "footprint": {
+        "x": 6,
+        "z": 9
+      },
+      "height": 6.0,
+      "triangles": 196,
+      "budget": 400
+    },
+    {
+      "name": "House_3S_01",
+      "category": "residential",
+      "type": "house",
+      "storeys": 3,
+      "footprint": {
+        "x": 8,
+        "z": 10
+      },
+      "height": 9.0,
+      "triangles": 332,
+      "budget": 600
+    },
+    {
+      "name": "Rowhouse_3S_01",
+      "category": "residential",
+      "type": "rowhouse",
+      "storeys": 3,
+      "footprint": {
+        "x": 10,
+        "z": 9
+      },
+      "height": 9.0,
+      "triangles": 342,
+      "budget": 600
+    },
+    {
+      "name": "Apartment_3S_01",
+      "category": "residential",
+      "type": "apartment",
+      "storeys": 3,
+      "footprint": {
+        "x": 10,
+        "z": 12
+      },
+      "height": 9.0,
+      "triangles": 372,
+      "budget": 600
+    },
+    {
+      "name": "Apartment_3S_02",
+      "category": "residential",
+      "type": "apartment",
+      "storeys": 3,
+      "footprint": {
+        "x": 10,
+        "z": 12
+      },
+      "height": 9.0,
+      "triangles": 372,
+      "budget": 600
+    },
+    {
+      "name": "Apartment_3S_03",
+      "category": "residential",
+      "type": "apartment",
+      "storeys": 3,
+      "footprint": {
+        "x": 10,
+        "z": 12
+      },
+      "height": 9.0,
+      "triangles": 356,
+      "budget": 600
+    },
+    {
+      "name": "MixedUse_3S_01",
+      "category": "commercial",
+      "type": "mixed-use (bakery)",
+      "storeys": 3,
+      "footprint": {
+        "x": 8,
+        "z": 9
+      },
+      "height": 9.0,
+      "triangles": 226,
+      "budget": 600
+    },
+    {
+      "name": "MixedUse_3S_02",
+      "category": "commercial",
+      "type": "mixed-use (hardware)",
+      "storeys": 3,
+      "footprint": {
+        "x": 8,
+        "z": 9
+      },
+      "height": 9.0,
+      "triangles": 226,
+      "budget": 600
+    },
+    {
+      "name": "MixedUse_3S_03",
+      "category": "commercial",
+      "type": "mixed-use (sari-sari store)",
+      "storeys": 3,
+      "footprint": {
+        "x": 6,
+        "z": 9
+      },
+      "height": 9.0,
+      "triangles": 242,
+      "budget": 600
+    },
+    {
+      "name": "MixedUse_3S_04",
+      "category": "commercial",
+      "type": "mixed-use (eatery)",
+      "storeys": 3,
+      "footprint": {
+        "x": 8,
+        "z": 9
+      },
+      "height": 9.0,
+      "triangles": 220,
+      "budget": 600
+    }
+  ]
+}

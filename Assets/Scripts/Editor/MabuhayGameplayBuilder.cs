@@ -104,6 +104,8 @@ public static class MabuhayGameplayBuilder
         // The bridges and what stands along the streets, then the walls round the compounds, both clear of the mission.
         string streets = RoadBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         string walls = CompoundWallBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
+        // The empty land filled with houses and shops, clear of the protected zones, the streets and the mission.
+        string infill = InfillBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         // Last: the plants keep clear of the boat's start, the hall, the residents and the hazards the level has just laid out.
         string foliage = FoliageBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         // Then the jeepneys, roof sheets, buckets, concrete and people, which look for room among the houses and the plants.
@@ -113,7 +115,7 @@ public static class MabuhayGameplayBuilder
         EditorSceneManager.SaveScene(scene);
         AddToBuildSettings();
         foreach (var trouble in level.problems) Debug.LogWarning("MabuhayGameplayBuilder: " + trouble);
-        return root.GetComponent<BarangayMockInfo>().summary + "\n" + streets + "\n" + walls + "\n" + foliage + "\n" + props + "\n" + level;
+        return root.GetComponent<BarangayMockInfo>().summary + "\n" + streets + "\n" + walls + "\n" + infill + "\n" + foliage + "\n" + props + "\n" + level;
     }
 
     public const string MurkyWaterPath = "Assets/Materials/Water_Mabuhay.mat";

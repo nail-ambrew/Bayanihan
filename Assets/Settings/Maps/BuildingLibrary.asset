@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0883852d8d7b741f0a8c4d122fa45f8d, type: 3}
+  m_Name: BuildingLibrary
+  m_EditorClassIdentifier: Bayanihan::BuildingLibrary
+  models:
+  - name: House_1S_01
+    prefab: {fileID: 1147565719883877641, guid: 0fb60e94b88d940448649e741fa2540c, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 6, y: 8}
+    triangles: 182
+  - name: House_1S_02
+    prefab: {fileID: 7481537683149623213, guid: 6576a66eae4fd4d9ab82d98c9a1fab0a, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 6, y: 8}
+    triangles: 182
+  - name: House_1S_03
+    prefab: {fileID: 8554051380751493900, guid: 5c2a3a3797c644305b34c93077eb45fc, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 6, y: 9}
+    triangles: 202
+  - name: House_1S_04
+    prefab: {fileID: 8905346247630892462, guid: 1c74ebadbbf074d6dac8c4da5350dc22, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 7, y: 8}
+    triangles: 186
+  - name: House_1S_05
+    prefab: {fileID: 4327831643230290084, guid: 0ea52609f64f34e1fbf58c1752c29b66, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 7, y: 9}
+    triangles: 202
+  - name: House_1S_06
+    prefab: {fileID: 4157357973522332794, guid: 78de7df28d40646f4bbb0f741d17f4f8, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 6, y: 8}
+    triangles: 166
+  - name: House_1S_07
+    prefab: {fileID: 6825815552116272002, guid: 1b6810f7e42184f31bef4c18c1300d5f, type: 3}
+    commercial: 0
+    storeys: 1
+    footprint: {x: 8, y: 9}
+    triangles: 206
+  - name: Shop_1S_01
+    prefab: {fileID: 4502595053903007105, guid: afd9bea5d79414da09b7a1cb2ac7b50c, type: 3}
+    commercial: 1
+    storeys: 1
+    footprint: {x: 6, y: 8}
+    triangles: 100
+  - name: Shop_1S_02
+    prefab: {fileID: 4684350510291178782, guid: f4ab6d2dd14b24b23853fa2ca3472f27, type: 3}
+    commercial: 1
+    storeys: 1
+    footprint: {x: 6, y: 7}
+    triangles: 96
+  - name: Shop_1S_03
+    prefab: {fileID: 7935533854069593630, guid: cdc9a1cf90e6a421f84216dade740414, type: 3}
+    commercial: 1
+    storeys: 1
+    footprint: {x: 7, y: 8}
+    triangles: 96
+  - name: Shop_1S_04
+    prefab: {fileID: 945463877732934637, guid: 3019d87290d3c4138a67780604e7606b, type: 3}
+    commercial: 1
+    storeys: 1
+    footprint: {x: 6, y: 7}
+    triangles: 96
+  - name: House_2S_01
+    prefab: {fileID: 3907703288349841114, guid: 969f7daebc2694dc38c87e54a23f4b2e, type: 3}
+    commercial: 0
+    storeys: 2
+    footprint: {x: 6, y: 9}
+    triangles: 250
+  - name: House_2S_02
+    prefab: {fileID: 3278735472274980360, guid: cd8af848654ee41b4aa4a1023cf57892, type: 3}
+    commercial: 0
+    storeys: 2
+    footprint: {x: 8, y: 10}
+    triangles: 250
+  - name: House_2S_03
+    prefab: {fileID: 1228633479034843412, guid: 54179cce7a8884966b8623d479ecebdb, type: 3}
+    commercial: 0
+    storeys: 2
+    footprint: {x: 8, y: 10}
+    triangles: 250
+  - name: Rowhouse_2S_01
+    prefab: {fileID: 2912126668956668681, guid: 528485ef8e757493bb7cc0228f1a9ee4, type: 3}
+    commercial: 0
+    storeys: 2
+    footprint: {x: 10, y: 8}
+    triangles: 212
+  - name: Rowhouse_2S_02
+    prefab: {fileID: 8377800556938291744, guid: 21ed8d4c1b6a3409eaa68cbc531b6dc9, type: 3}
+    commercial: 0
+    storeys: 2
+    footprint: {x: 11, y: 9}
+    triangles: 236
+  - name: Apartment_2S_01
+    prefab: {fileID: 3775842393854895679, guid: 983f1ce5ddfbd446097ff0ad41549904, type: 3}
+    commercial: 0
+    storeys: 2
+    footprint: {x: 10, y: 12}
+    triangles: 266
+  - name: Shop_2S_01
+    prefab: {fileID: 6013900614012506720, guid: 4d287734cac13408aa037cf22f032139, type: 3}
+    commercial: 1
+    storeys: 2
+    footprint: {x: 5, y: 8}
+    triangles: 146
+  - name: Shop_2S_02
+    prefab: {fileID: 2577395610776619163, guid: cb450e93ec5e94fe39ec6a6ccf2f5636, type: 3}
+    commercial: 1
+    storeys: 2
+    footprint: {x: 5, y: 8}
+    triangles: 160
+  - name: MixedUse_2S_01
+    prefab: {fileID: 1380210731252375999, guid: 053be4ff076f740a3bf55990a7403097, type: 3}
+    commercial: 1
+    storeys: 2
+    footprint: {x: 8, y: 9}
+    triangles: 166
+  - name: MixedUse_2S_02
+    prefab: {fileID: 1291005272431825206, guid: 947141f69b7f1469ebaa4accb948c8f1, type: 3}
+    commercial: 1
+    storeys: 2
+    footprint: {x: 6, y: 9}
+    triangles: 196
+  - name: House_3S_01
+    prefab: {fileID: 2294591292588161306, guid: 4d9082acd775d46c0916287117e5a865, type: 3}
+    commercial: 0
+    storeys: 3
+    footprint: {x: 8, y: 10}
+    triangles: 332
+  - name: Rowhouse_3S_01
+    prefab: {fileID: 3643751552507724830, guid: 106bf411b10534c4492a00c7e8b459c0, type: 3}
+    commercial: 0
+    storeys: 3
+    footprint: {x: 10, y: 9}
+    triangles: 342
+  - name: Apartment_3S_01
+    prefab: {fileID: 8861407263615606381, guid: cd299df60bbc141ebb48db23e5a2159d, type: 3}
+    commercial: 0
+    storeys: 3
+    footprint: {x: 10, y: 12}
+    triangles: 372
+  - name: Apartment_3S_02
+    prefab: {fileID: 798466960364410351, guid: 0a9166cdcec884679b131b5729dbe39d, type: 3}
+    commercial: 0
+    storeys: 3
+    footprint: {x: 10, y: 12}
+    triangles: 372
+  - name: Apartment_3S_03
+    prefab: {fileID: 5476870955799266691, guid: 33dacef3796c34bd1a918c453b5d715a, type: 3}
+    commercial: 0
+    storeys: 3
+    footprint: {x: 10, y: 12}
+    triangles: 356
+  - name: MixedUse_3S_01
+    prefab: {fileID: 5848252402039114911, guid: 2f76a39f1181f42a4a3d44eb583ada0b, type: 3}
+    commercial: 1
+    storeys: 3
+    footprint: {x: 8, y: 9}
+    triangles: 226
+  - name: MixedUse_3S_02
+    prefab: {fileID: 5443590591397426855, guid: e87cf4d401fdd45d1b224d52d20cc579, type: 3}
+    commercial: 1
+    storeys: 3
+    footprint: {x: 8, y: 9}
+    triangles: 226
+  - name: MixedUse_3S_03
+    prefab: {fileID: 970924961775536374, guid: 7ebce060d79cf4ab192005e6de20aa7c, type: 3}
+    commercial: 1
+    storeys: 3
+    footprint: {x: 6, y: 9}
+    triangles: 242
+  - name: MixedUse_3S_04
+    prefab: {fileID: 1397090786222054190, guid: bc7f222c6f779429a959eb86380a4458, type: 3}
+    commercial: 1
+    storeys: 3
+    footprint: {x: 8, y: 9}
+    triangles: 220
+  oneStorey: 0.7
+  twoStorey: 0.2
+  threeStorey: 0.1
+  commercialShare: 0.3
+  setback: {x: 1.5, y: 3}
+  sideGap: {x: 1, y: 2}
+  alley: 2.5
+  lotsPerAlley: 6
+  protectedBuffer: 5
+  sizeJitter: 0.1
+  seed: 20261117
