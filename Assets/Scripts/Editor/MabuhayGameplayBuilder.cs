@@ -41,6 +41,13 @@ public static class MabuhayGameplayBuilder
 
     // ------------------------------------------------------------------ the settings the play map is built from
 
+    /// <summary>
+    /// How many times real size the map is drawn: houses, lots, streets and trees. The crew, the boat, the props and the
+    /// metre of flood stay real-sized, so at 1 a two-storey house is barely taller than a rescuer standing in the boat.
+    /// The mission is laid out from the layout at this scale (MabuhayLevelBuilder), so its distances grow with it.
+    /// </summary>
+    public const float MapScale = 2f;
+
     /// <summary>The map's own settings, made from the default ones the first time: colliders on, a metre under the water.</summary>
     public static BarangayMockSettings EnsureSettings()
     {
@@ -57,7 +64,7 @@ public static class MabuhayGameplayBuilder
 
         // These are the point of this asset: they are put back every time, so nobody edits them by accident.
         settings.region = MockRegion.FocusArea;
-        settings.scale = 1f;
+        settings.scale = MapScale;
         settings.groundHeight = -1f;
         settings.colliders = true;
         settings.scenePath = ScenePath;
@@ -93,6 +100,10 @@ public static class MabuhayGameplayBuilder
 
         var mission = MabuhayMissionBuilder.Build();
         var level = MabuhayLevelBuilder.Build(scene, settings, mission);
+        MurkyWater();
+        // The bridges and what stands along the streets, then the walls round the compounds, both clear of the mission.
+        string streets = RoadBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
+        string walls = CompoundWallBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         // Last: the plants keep clear of the boat's start, the hall, the residents and the hazards the level has just laid out.
         string foliage = FoliageBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         // Then the jeepneys, roof sheets, buckets, concrete and people, which look for room among the houses and the plants.
@@ -102,7 +113,48 @@ public static class MabuhayGameplayBuilder
         EditorSceneManager.SaveScene(scene);
         AddToBuildSettings();
         foreach (var trouble in level.problems) Debug.LogWarning("MabuhayGameplayBuilder: " + trouble);
-        return root.GetComponent<BarangayMockInfo>().summary + "\n" + foliage + "\n" + props + "\n" + level;
+        return root.GetComponent<BarangayMockInfo>().summary + "\n" + streets + "\n" + walls + "\n" + foliage + "\n" + props + "\n" + level;
+    }
+
+    public const string MurkyWaterPath = "Assets/Materials/Water_Mabuhay.mat";
+
+    /// <summary>
+    /// The flood here is murky but see-through: the streets, their lines, the junctions and the grass show faintly a metre
+    /// down, as they do in shallow flood water. Its own material, so Manila's water is left as it is.
+    /// </summary>
+    public static Material MurkyWater()
+    {
+        var water = UnityEngine.Object.FindFirstObjectByType<WaterSurface>();
+        var mat = AssetDatabase.LoadAssetAtPath<Material>(MurkyWaterPath);
+        if (mat == null)
+        {
+            var from = water != null ? water.GetComponent<MeshRenderer>().sharedMaterial : null;
+            mat = from != null ? new Material(from) : new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            AssetDatabase.CreateAsset(mat, MurkyWaterPath);
+        }
+        mat.SetColor("_BaseColor", new Color(0.42f, 0.40f, 0.30f, 0.62f));
+        mat.SetFloat("_Surface", 1f);                              // transparent
+        mat.SetFloat("_Blend", 0f);                                // alpha
+        mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
+        mat.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetFloat("_ZWrite", 0f);
+        mat.SetFloat("_Smoothness", 0.78f);
+        mat.SetOverrideTag("RenderType", "Transparent");
+        mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        mat.DisableKeyword("_ALPHATEST_ON");
+        mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        EditorUtility.SetDirty(mat);
+        if (water != null)
+            foreach (var r in water.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                r.sharedMaterial = mat;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                EditorUtility.SetDirty(r);
+            }
+        AssetDatabase.SaveAssets();
+        return mat;
     }
 
     /// <summary>The scene has to be in Build Settings to be loaded by name, and for R on the report to reload it.</summary>

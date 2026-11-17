@@ -36,13 +36,50 @@ public static class FoliageBuilder
         if (lib != null) lib.MeasureAll();
         var region = settings.Region(layout);
         var mock = BarangayMockPlanner.Plan(layout, region, lib);
-        var plan = FoliagePlanner.Plan(layout, region, mock, lib, flora, keepClear);
+        // The planting is worked out on the layout (real metres); the places to keep clear were measured in the world.
+        float scale = Mathf.Max(0.05f, settings.scale);
+        var clearOnLayout = keepClear.Select(k => new KeepClear(k.centre / scale, k.radius / scale)).ToList();
+        // The whole ground out to the levee is planted; buildings are only drawn inside the region.
+        var ground = MabuhayLevelBuilder.EdgeArea(settings, layout);
+        var plan = FoliagePlanner.Plan(layout, ground, mock, lib, flora, clearOnLayout, region);
 
         var group = new GameObject(GroupName).transform;
         group.SetParent(root.transform, false);
+
+        // Everything without a trunk (grass, low plants, bushes, vines, bananas) is drawn instanced: one line each in the
+        // scene, not a prefab instance. Trees keep their trunk colliders, so they stay objects.
+        var undergrowth = new GameObject(UndergrowthName).AddComponent<InstancedFoliage>();
+        undergrowth.transform.SetParent(group, false);
+        var speciesIndex = new Dictionary<int, int>();
+        float groundY = root.transform.position.y;
+
         var tiles = new Dictionary<Vector2Int, Transform>();
         foreach (var p in plan.placements)
         {
+            var spec = flora.species[p.species];
+            if (spec.prefab.GetComponentInChildren<Collider>(true) == null)
+            {
+                if (!speciesIndex.TryGetValue(p.species, out int si))
+                {
+                    si = undergrowth.species.Count;
+                    speciesIndex[p.species] = si;
+                    bool tall = IsTree(spec.group);
+                    undergrowth.species.Add(new InstancedFoliage.Species
+                    {
+                        name = spec.name, prefab = spec.prefab, shadows = tall,
+                        drawDistance = tall ? 300f : spec.group == FoliageGroup.Bush || spec.group == FoliageGroup.Vine ? 240f : 180f
+                    });
+                }
+                undergrowth.plants.Add(new InstancedFoliage.Plant
+                {
+                    species = si,
+                    position = new Vector3(p.position.x * scale, groundY, p.position.y * scale),
+                    euler = new Vector3(p.leanX, p.yaw, p.leanZ),
+                    scale = p.scale * (IsTree(spec.group) ? scale : 1f)
+                });
+                continue;
+            }
+
             var key = new Vector2Int(Mathf.FloorToInt(p.position.x / Tile), Mathf.FloorToInt(p.position.y / Tile));
             if (!tiles.TryGetValue(key, out var tile))
             {
@@ -56,16 +93,120 @@ public static class FoliageBuilder
             var go = (GameObject)PrefabUtility.InstantiatePrefab(sp.prefab, tile);
             go.transform.localPosition = new Vector3(p.position.x, 0f, p.position.y);
             go.transform.localRotation = Quaternion.Euler(p.leanX, p.yaw, p.leanZ);
-            go.transform.localScale = Vector3.one * p.scale;
+            // Under the map's root the trees grow with the map; grass, bushes and vines stay their real size beside the crew.
+            go.transform.localScale = Vector3.one * (p.scale * (IsTree(sp.group) ? 1f : 1f / scale));
         }
 
+        int blades = GrowGrass(group, plan.openGround, flora, scale);
         int edge = PlantLevee(group, root.transform, settings, layout, flora);
 
         // Trunks glance a hull off like every other solid thing on the map, instead of catching it.
         var slippery = BarangayMockBuilder.SlipperySurface();
         foreach (var trunk in group.GetComponentsInChildren<Collider>(true)) trunk.sharedMaterial = slippery;
 
-        return Summary(plan, flora) + " Along the levee: " + edge + " more.";
+        EditorUtility.SetDirty(undergrowth);
+        return Summary(plan, flora) + " Drawn instanced: " + undergrowth.Count + "." + " Grassland: " + plan.Grassland + " stands over open ground, " + blades + " tufts of low grass." +
+               " Along the levee: " + edge + " more.";
+    }
+
+    public const string GrassName = "Grassland";
+    public const string UndergrowthName = "Undergrowth";
+
+    /// <summary>
+    /// Low grass over every open spot of ground: a patch of tufts round each, sticking up out of the flood. A handful of patch
+    /// meshes are made once (assets); the patches themselves are a list on a <see cref="GrassField"/>, drawn with GPU
+    /// instancing near the camera only. No collider, no shadow. Under Foliage/Grassland.
+    /// </summary>
+    static int GrowGrass(Transform foliage, List<Vector2> openGround, FoliageLibrary flora, float scale)
+    {
+        if (openGround.Count == 0 || flora.grassTuftsPerSpot <= 0) return 0;
+        var holder = new GameObject(GrassName);
+        holder.transform.SetParent(foliage, false);
+        var field = holder.AddComponent<GrassField>();
+        field.groundY = foliage.parent != null ? foliage.parent.position.y : -1f;
+        float patchSize = flora.grasslandGap * scale;             // one patch covers one open spot's square
+        field.patches = PatchMeshes(flora, patchSize);
+        field.materials = GrassMaterials();
+        var random = new System.Random(flora.seed + 7);
+        int kinds = field.patches.Length * field.materials.Length;
+        foreach (var spot in openGround)
+        {
+            Vector2 at = spot * scale;
+            field.instances.Add(new Vector4(at.x, at.y, (float)random.NextDouble() * 360f, random.Next(kinds)));
+        }
+        EditorUtility.SetDirty(field);
+        return field.instances.Count * flora.grassTuftsPerSpot;
+    }
+
+    const string GrassFolder = "Assets/Generated/Grass";
+
+    /// <summary>Four patches of tufts, each <paramref name="size"/> metres across, blades a few centimetres wide.</summary>
+    static Mesh[] PatchMeshes(FoliageLibrary flora, float size)
+    {
+        PlaceholderBaker.EnsureFolder(GrassFolder);
+        var result = new Mesh[4];
+        for (int variant = 0; variant < result.Length; variant++)
+        {
+            var random = new System.Random(911 + variant * 31);
+            float R() => (float)random.NextDouble();
+            var v = new List<Vector3>(); var n = new List<Vector3>(); var t = new List<int>();
+            float half = size * 0.5f;
+            for (int k = 0; k < flora.grassTuftsPerSpot; k++)
+            {
+                var at = new Vector3((R() * 2f - 1f) * half, 0f, (R() * 2f - 1f) * half);
+                float height = Mathf.Lerp(flora.grassTuftHeight.x, flora.grassTuftHeight.y, R());
+                int blades = 4 + random.Next(3);
+                for (int b = 0; b < blades; b++)
+                {
+                    float yaw = R() * Mathf.PI * 2f;
+                    Vector3 across = new Vector3(Mathf.Cos(yaw), 0f, Mathf.Sin(yaw)) * (0.07f + R() * 0.06f);
+                    Vector3 basePos = at + new Vector3((R() - 0.5f) * 0.5f, 0f, (R() - 0.5f) * 0.5f);
+                    Vector3 tip = basePos + Vector3.up * height * (0.75f + 0.25f * R()) + new Vector3(R() - 0.5f, 0f, R() - 0.5f) * 0.6f;
+                    int first = v.Count;
+                    v.Add(basePos - across); v.Add(basePos + across); v.Add(tip);
+                    Vector3 normal = Vector3.Cross(tip - basePos, across).normalized;
+                    if (normal.y < 0f) normal = -normal;
+                    normal = (normal + Vector3.up).normalized;               // lit like the ground, not edge-on
+                    n.Add(normal); n.Add(normal); n.Add(normal);
+                    t.Add(first); t.Add(first + 1); t.Add(first + 2);
+                }
+            }
+            string path = GrassFolder + "/GrassPatch_" + variant + ".asset";
+            var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+            if (mesh == null) { mesh = new Mesh(); AssetDatabase.CreateAsset(mesh, path); }
+            mesh.Clear();
+            mesh.name = "GrassPatch_" + variant;
+            mesh.SetVertices(v); mesh.SetNormals(n); mesh.SetTriangles(t, 0);
+            mesh.RecalculateBounds();
+            EditorUtility.SetDirty(mesh);
+            result[variant] = mesh;
+        }
+        AssetDatabase.SaveAssets();
+        return result;
+    }
+
+    /// <summary>Three greens, two-sided, instanced.</summary>
+    static Material[] GrassMaterials()
+    {
+        PlaceholderBaker.EnsureFolder(FoliageImporter.MaterialFolder);
+        var shader = Shader.Find("Universal Render Pipeline/Simple Lit") ?? Shader.Find("Universal Render Pipeline/Lit");
+        Color[] greens = { new Color(0.34f, 0.50f, 0.21f), new Color(0.44f, 0.58f, 0.25f), new Color(0.52f, 0.56f, 0.30f) };
+        var result = new Material[greens.Length];
+        for (int i = 0; i < greens.Length; i++)
+        {
+            string path = FoliageImporter.MaterialFolder + "/M_GrassBlades_" + i + ".mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m == null) { m = new Material(shader); AssetDatabase.CreateAsset(m, path); }
+            m.shader = shader;
+            m.SetColor("_BaseColor", greens[i]);
+            if (m.HasProperty("_Cull")) m.SetFloat("_Cull", 0f);
+            if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", 0.05f);
+            m.doubleSidedGI = true;
+            m.enableInstancing = true;
+            EditorUtility.SetDirty(m);
+            result[i] = m;
+        }
+        return result;
     }
 
     /// <summary>
@@ -79,13 +220,13 @@ public static class FoliageBuilder
         {
             var sp = flora.species[i];
             if (sp.prefab == null || sp.size.y < flora.minStandingHeight) continue;
-            if (sp.group == FoliageGroup.CanopyTree || sp.group == FoliageGroup.SmallTree || sp.group == FoliageGroup.Bamboo || sp.group == FoliageGroup.Banana)
-                pool.Add(i);
+            if (IsTree(sp.group)) pool.Add(i);
         }
         if (pool.Count == 0) return 0;
 
+        // Planted under the map's root, so in layout metres: the levee's run is world metres.
         var inner = MabuhayLevelBuilder.EdgeArea(settings, layout);
-        float run = MabuhayLevelBuilder.LeveeRun;
+        float run = MabuhayLevelBuilder.LeveeRun / Mathf.Max(0.05f, settings.scale);
         var crest = Rect.MinMaxRect(inner.xMin - run, inner.yMin - run, inner.xMax + run, inner.yMax + run);
         float localY = (MabuhayLevelBuilder.LeveeCrestY - mapRoot.position.y) / Mathf.Max(0.01f, mapRoot.lossyScale.y);
         var random = new System.Random(flora.seed + 1);
@@ -120,6 +261,9 @@ public static class FoliageBuilder
         return planted;
     }
 
+    static bool IsTree(FoliageGroup g) =>
+        g == FoliageGroup.CanopyTree || g == FoliageGroup.SmallTree || g == FoliageGroup.Bamboo || g == FoliageGroup.Banana;
+
     public static string Summary(FoliagePlan plan, FoliageLibrary flora)
     {
         var groups = new[] { FoliageGroup.CanopyTree, FoliageGroup.SmallTree, FoliageGroup.Bamboo, FoliageGroup.Banana,
@@ -153,6 +297,24 @@ public static class FoliageBuilder
                 case "Posts": foreach (Transform t in go.transform) Add(t.position, 3f); break;
                 case "Hazards": foreach (Transform t in go.transform) Add(t.position, 14f); break;
             }
+        }
+        // What the street and wall builders have put up: the plants keep off the poles and out of the walls.
+        var map = scene.GetRootGameObjects().FirstOrDefault(g => g.name == MapRootName);
+        if (map != null)
+        {
+            var walls = map.transform.Find(CompoundWallBuilder.GroupName);
+            if (walls != null)
+                foreach (var f in walls.GetComponentsInChildren<MeshFilter>())
+                    if (f.name == "Wall" && f.sharedMesh != null)
+                    {
+                        // A wall mesh is many pieces; its vertices every few metres along it are near enough.
+                        var verts = f.sharedMesh.vertices;
+                        for (int v = 0; v < verts.Length; v += 96) Add(f.transform.TransformPoint(verts[v]), 2.5f);
+                    }
+            var street = map.transform.Find(RoadBuilder.FurnitureName);
+            if (street != null)
+                foreach (Transform holder in street)
+                    foreach (Transform t in holder) Add(t.position, holder.name == "Bridges" ? 10f : 1.2f);
         }
         foreach (var boat in Object.FindObjectsByType<SimpleBoat>(FindObjectsSortMode.None)) Add(boat.transform.position, 16f);
         foreach (var evac in Object.FindObjectsByType<EvacuationCenter>(FindObjectsSortMode.None)) Add(evac.transform.position, 18f);

@@ -162,6 +162,14 @@ public class PlaceholderLibrary : ScriptableObject
     [Tooltip("A building this small (square metres) becomes a shop house when a shop is in it; bigger ones become a block with a sign.")]
     [Min(10f)] public float hostMaxArea = 150f;
 
+    [Header("Extra building scale (on top of the map's scale)")]
+    [Tooltip("Houses, landmarks and blocks are drawn this much taller than their storeys, on top of the map's own scale " +
+             "(the Mabuhay map is drawn at 2x, which already makes the buildings 2x beside the crew). 1 = as fitted.")]
+    [Min(0.5f)] public float buildingHeightScale = 1f;
+    [Tooltip("Houses and landmark models are also this much wider and deeper, about the middle of their lot. The lots are " +
+             "real, so much over 1 pushes houses into each other and into the streets the boat uses. 1 = as fitted.")]
+    [Min(0.5f)] public float buildingWidthScale = 1f;
+
     /// <summary>How a category is drawn: its entry, or a plain block if it has none.</summary>
     public LandmarkStyle StyleFor(LandmarkCategory category)
     {

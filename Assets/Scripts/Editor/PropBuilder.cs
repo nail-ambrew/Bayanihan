@@ -41,6 +41,8 @@ public static class PropBuilder
         public Transform root, group;
         public float groundY;
         public BarangayLayout layout;
+        /// <summary>The map's scale; <see cref="region"/> and <see cref="roads"/> are already at it (world metres).</summary>
+        public float scale = 1f;
         public Rect region;
         public List<KeepClear> keepClear;
         public List<(MapRoad road, float half)> roads = new List<(MapRoad, float)>();
@@ -64,7 +66,10 @@ public static class PropBuilder
         if (old != null) Object.DestroyImmediate(old.gameObject);
         Physics.SyncTransforms();
 
+        // Props are placed in the world: the streets and the region are taken from the layout at the map's scale, and the
+        // props themselves are people-sized, whatever size the map is drawn at.
         var layout = settings.Layout;
+        float scale = Mathf.Max(0.05f, settings.scale);
         var c = new Context
         {
             lib = lib,
@@ -72,14 +77,19 @@ public static class PropBuilder
             root = root.transform,
             groundY = root.transform.position.y,
             layout = layout,
-            region = settings.Region(layout),
+            scale = scale,
+            region = MabuhayLevelBuilder.Scaled(settings.Region(layout), scale),
             keepClear = new List<KeepClear>(keepClear),
         };
         var widths = settings.library != null ? settings.library.roadWidths : new BarangayLayoutView.RoadWidths();
-        foreach (var r in layout.roads) if (r.points.Count >= 2) c.roads.Add((r, widths.For(r.roadClass) * 0.5f));
+        foreach (var r in layout.roads)
+            if (r.points.Count >= 2)
+                c.roads.Add((new MapRoad { osmId = r.osmId, name = r.name, roadClass = r.roadClass, points = r.points.Select(p => p * scale).ToList() },
+                             widths.For(r.roadClass) * 0.5f * scale));
 
         c.group = new GameObject(GroupName).transform;
         c.group.SetParent(root.transform, false);
+        c.group.localScale = Vector3.one / scale;        // so a prop's own scale is its size in the world
 
         var houses = new List<Transform>();
         var buildings = root.transform.Find("Buildings");
@@ -384,7 +394,7 @@ public static class PropBuilder
 
     static Rect Crest(BarangayMockSettings settings, BarangayLayout layout)
     {
-        var inner = MabuhayLevelBuilder.EdgeArea(settings, layout);
+        var inner = MabuhayLevelBuilder.EdgeAreaWorld(settings, layout);
         float run = MabuhayLevelBuilder.LeveeRun;
         return Rect.MinMaxRect(inner.xMin - run, inner.yMin - run, inner.xMax + run, inner.yMax + run);
     }

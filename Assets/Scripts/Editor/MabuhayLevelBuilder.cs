@@ -44,6 +44,13 @@ public static class MabuhayLevelBuilder
     const float KerbOffset = 3.4f;           // posts stand on the kerb: half the 6 m road, and a little
     const float JamX = -47f;                 // where in A. Mapalad Street (real metres east) the jam is
 
+    /// <summary>
+    /// A place near the start, given as metres along the street at real size, kept at that distance from the boat in the world
+    /// on a map drawn bigger than real: the first trip (Joy, Ben, the Bautistas and their wire, the wreckage between) plays the
+    /// same at any scale, and only the run on to the hall grows with the map.
+    /// </summary>
+    static float NearStart(float s) => StartS + (s - StartS) / mapScale;
+
     public sealed class Result
     {
         public readonly List<string> notes = new List<string>();
@@ -125,7 +132,21 @@ public static class MabuhayLevelBuilder
         return road != null ? new Street(road) : null;
     }
 
-    static Vector3 W(Vector2 metres, float y = 0f) => new Vector3(metres.x, y, metres.y);
+    /// <summary>
+    /// The map's scale (BarangayMockSettings.scale): the layout is in real metres and the map is drawn this many times bigger.
+    /// A place on the layout is turned into the world with <see cref="W"/>; a size that belongs to the people and the boat
+    /// (a post's girth, how far a clinger stands from it, a roof's height above the water) stays in world metres.
+    /// </summary>
+    static float mapScale = 1f;
+
+    /// <summary>A place on the layout (real metres east, north), in the world.</summary>
+    static Vector3 W(Vector2 metres, float y = 0f) => new Vector3(metres.x * mapScale, y, metres.y * mapScale);
+
+    /// <summary>A direction on the layout, in the world (a direction is the same at any scale).</summary>
+    static Vector3 D(Vector2 direction) => new Vector3(direction.x, 0f, direction.y);
+
+    /// <summary>A place on the layout, as world (x, z).</summary>
+    static Vector2 W2(Vector2 metres) => metres * mapScale;
 
     // ------------------------------------------------------------------ the hall
 
@@ -174,6 +195,7 @@ public static class MabuhayLevelBuilder
 
     public static Result Build(Scene scene, BarangayMockSettings settings, MissionDefinition mission)
     {
+        mapScale = Mathf.Max(0.05f, settings.scale);
         var s = new Scenery
         {
             scene = scene,
@@ -256,7 +278,7 @@ public static class MabuhayLevelBuilder
         var evac = s.evac.transform;
         evac.position = W(zoneCentre, 0.25f);
         evac.rotation = Quaternion.Euler(0f, MapGeometry.Heading(tangent), 0f);
-        evac.localScale = new Vector3(10f, 3f, 12f);                    // across the street, high, along it
+        evac.localScale = new Vector3(10f * mapScale, 3f, 12f * mapScale);     // across the street, high, along it (the street grows with the map)
         s.evac.arrivalMargin = 2f;
 
         var landing = s.evac.landingArea;
@@ -265,9 +287,30 @@ public static class MabuhayLevelBuilder
             landing = new GameObject("EvaCen Landing").transform;
             s.evac.landingArea = landing;
         }
-        landing.position = W(hall.FrontCentre + hall.front * 1.1f, -0.25f);
+        // The porch strip is 1.1 m out from the front wall in the world, whatever the map's scale. The wall is found where it is
+        // drawn (a ray from the street at waist height), not where the planner's rectangle says: the two differ by a metre or so,
+        // and by twice that on a map drawn at twice real size.
+        // The strip is put 1 m clear of whatever part of the hall stands furthest out in front of it, across its whole width
+        // and from the knees to above the head: the wall, or the posts and steps of a porch (a deeper one on a bigger map).
+        s.evac.landingAreaSize = new Vector2(Mathf.Clamp(hall.frontage * mapScale * 0.4f, 3f, 6.4f), 0.8f);    // a porch's width, people-sized
+        Vector3 centre = W(hall.FrontCentre, -0.25f);
+        Vector3 outward = D(hall.front), across = Vector3.Cross(Vector3.up, outward);
+        float reachOut = 8f * mapScale, halfWidth = s.evac.landingAreaSize.x * 0.5f + 0.5f;
+        float outermost = float.NegativeInfinity;                // how far out of the front-centre the hall reaches
+        for (float x = -halfWidth; x <= halfWidth + 0.01f; x += halfWidth * 0.25f)
+            foreach (float y in new[] { 0.5f, 1.0f, 1.75f })
+            {
+                Vector3 probe = centre + outward * reachOut + across * x + Vector3.up * y;
+                foreach (var hit in Physics.RaycastAll(probe, -outward, reachOut * 2f, ~0, QueryTriggerInteraction.Ignore).OrderBy(h => h.distance))
+                {
+                    if (hit.collider.attachedRigidbody != null || hit.collider.GetComponent<WaterSurface>() != null) continue;
+                    outermost = Mathf.Max(outermost, reachOut - hit.distance);
+                    break;
+                }
+            }
+        if (float.IsNegativeInfinity(outermost)) outermost = 0f;
+        landing.position = centre + outward * (outermost + 1.4f);    // the strip's near edge 1 m clear, its far edge 1.8 m out
         landing.rotation = Quaternion.Euler(0f, MapGeometry.Heading(hall.front), 0f);
-        s.evac.landingAreaSize = new Vector2(Mathf.Clamp(hall.frontage * 0.4f, 3f, 6.4f), 0.8f);
         EditorUtility.SetDirty(s.evac);
 
         s.result.notes.Add("Hall: faces (" + hall.front.x.ToString("0.00") + ", " + hall.front.y.ToString("0.00") + ") (yaw " + MapGeometry.Heading(hall.front).ToString("0") +
@@ -284,14 +327,14 @@ public static class MabuhayLevelBuilder
         float yaw = MapGeometry.Heading(tangent);
 
         // Which end of this boat is the bow is SimpleBoat's business (Bow Direction), so aim from there.
-        Quaternion rotation = Quaternion.LookRotation(W(tangent)) * Quaternion.Inverse(Quaternion.LookRotation(s.boat.LocalBow));
+        Quaternion rotation = Quaternion.LookRotation(D(tangent)) * Quaternion.Inverse(Quaternion.LookRotation(s.boat.LocalBow));
         s.boat.transform.SetPositionAndRotation(W(at, 0.06f), rotation);
 
         // As in Gameplay: the swimmer is 1.4 m off the hull on the side of the tiller, with "Press E to board" showing.
         s.player.transform.SetPositionAndRotation(s.boat.transform.TransformPoint(new Vector3(2.69f, 1.35f, 0f)), Quaternion.Euler(0f, yaw, 0f));
 
         // The camera rig starts where it would settle: behind and above the boat, looking along it.
-        Vector3 behind = W(at, 0f) - W(tangent) * 8.3f + Vector3.up * 4.8f;
+        Vector3 behind = W(at, 0f) - D(tangent) * 8.3f + Vector3.up * 4.8f;
         var cam = Camera.main;
         if (cam != null) cam.transform.SetPositionAndRotation(behind, Quaternion.Euler(30f, yaw, 0f));
         foreach (var mb in UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
@@ -305,21 +348,22 @@ public static class MabuhayLevelBuilder
     static void PlaceResidents(Scenery s, Street bag, Street mapalad, HallPose hall)
     {
         // ---- Joy, adrift in the street ahead of the start
-        AddAnchor(s, "joy", W(bag.At(JoyS, JoySide)), 55f);
+        float joyS = NearStart(JoyS), benS = NearStart(BenS), wireS = NearStart(WireS);
+        AddAnchor(s, "joy", W(bag.At(joyS, JoySide)), 55f);
 
         // ---- Ben, clinging to a post on the south kerb
-        Vector2 benPost = bag.At(BenS, -KerbOffset);
+        Vector2 benPost = bag.At(benS, -KerbOffset);
         AddPost(s, "post_ben", benPost, 5.2f, s.postMaterial);
-        AddClinger(s, "ben", benPost, towardsPost: -MapGeometry.Left(bag.Tangent(BenS)));
+        AddClinger(s, "ben", benPost, towardsPost: -MapGeometry.Left(bag.Tangent(benS)));
 
         // ---- the Bautistas, either side of the pole that holds the live cable
-        Vector2 polePost = bag.At(WireS, KerbOffset);
-        Vector2 celiaPost = bag.At(WireS, -KerbOffset);
+        Vector2 polePost = bag.At(wireS, KerbOffset);
+        Vector2 celiaPost = bag.At(wireS, -KerbOffset);
         var pole = AddPost(s, "post_pole", polePost, 9.5f, s.poleMaterial);
         AddPost(s, "post_celia", celiaPost, 5.2f, s.postMaterial);
-        AddClinger(s, "jun", polePost, towardsPost: MapGeometry.Left(bag.Tangent(WireS)));
-        AddClinger(s, "celia", celiaPost, towardsPost: -MapGeometry.Left(bag.Tangent(WireS)));
-        AddLiveWire(s, bag, pole);
+        AddClinger(s, "jun", polePost, towardsPost: MapGeometry.Left(bag.Tangent(wireS)));
+        AddClinger(s, "celia", celiaPost, towardsPost: -MapGeometry.Left(bag.Tangent(wireS)));
+        AddLiveWire(s, bag, wireS, pole);
 
         // ---- Ador, clinging to a post on the north kerb nearer the hall
         Vector2 adorPost = bag.At(AdorS, KerbOffset);
@@ -329,7 +373,8 @@ public static class MabuhayLevelBuilder
         // ---- Lito, hurt, in the open water
         AddAnchor(s, "lito", W(bag.At(LitoS, LitoSide)), 90f);
 
-        // ---- the two on roofs: Nena by the corner, near the start; Tessa nearer the hall
+        // ---- the two on roofs: Nena by the corner, near the start; Tessa nearer the hall. The roof heights are world metres
+        //      above the flooded ground: low enough for a thrown line from the boat, whatever the map's scale.
         AddRoofer(s, "nena", new Vector2(-88f, -34f), bag.At(StartS - 2f, -6f), 4.5f, 10f);
         AddRoofer(s, "tessa", hall.centre + new Vector2(-26f, -14f), bag.At(104f, -2f), 4.5f, 10f);
 
@@ -354,8 +399,7 @@ public static class MabuhayLevelBuilder
     static void AddClinger(Scenery s, string id, Vector2 post, Vector2 towardsPost)
     {
         Vector2 dir = towardsPost.normalized;
-        Vector2 where = post - dir * ResidentSpawner.ClingDistance;
-        AddAnchor(s, id, W(where), MapGeometry.Heading(dir));
+        AddAnchor(s, id, W(post) - D(dir) * ResidentSpawner.ClingDistance, MapGeometry.Heading(dir));     // an arm's length from it, in the world
     }
 
     // ---- posts
@@ -391,17 +435,19 @@ public static class MabuhayLevelBuilder
 
     // ---- the live wire
 
-    static void AddLiveWire(Scenery s, Street bag, GameObject pole)
+    static void AddLiveWire(Scenery s, Street bag, float wireS, GameObject pole)
     {
         var go = new GameObject("Live wire (Bagumbayan Street)");
         go.transform.SetParent(s.hazards, false);
-        go.transform.position = W(bag.At(WireS), 0f);
+        go.transform.position = W(bag.At(wireS), 0f);
         var top = new GameObject("Cable from the pole top").transform;
         top.SetParent(go.transform, false);
         top.position = pole.transform.position + Vector3.up * (pole.transform.localScale.y);
 
         var zone = go.AddComponent<LiveWireZone>();
-        zone.radius = 6.5f;
+        // Out to the posts on both kerbs, the pole and the Bautistas with them, and nobody else: 6.5 m at real size, a little
+        // more on a map drawn bigger, where the kerbs are further apart.
+        zone.radius = Mathf.Max(6.5f, KerbOffset * mapScale + 0.6f);
         zone.cableFrom = top;
     }
 
@@ -415,6 +461,9 @@ public static class MabuhayLevelBuilder
     /// </summary>
     static void AddRoofer(Scenery s, string id, Vector2 target, Vector2 towards, float minHeight, float maxHeight)
     {
+        Vector2 layoutTarget = target;
+        target = W2(target);            // the houses are measured in the world
+        towards = W2(towards);
         var map = GameObject.Find("BarangayMock");
         var buildings = map != null ? map.transform.Find("Buildings") : null;
         var candidates = new List<(Transform house, float score)>();
@@ -423,7 +472,7 @@ public static class MabuhayLevelBuilder
             {
                 if (!house.name.StartsWith("House ") || !DrawnBounds(house, out Bounds drawn)) continue;
                 var centre = new Vector2(drawn.center.x, drawn.center.z);
-                if (Vector2.Distance(centre, target) > 24f + new Vector2(drawn.extents.x, drawn.extents.z).magnitude) continue;
+                if (Vector2.Distance(centre, target) > 24f * mapScale + new Vector2(drawn.extents.x, drawn.extents.z).magnitude) continue;
                 float height = drawn.max.y - s.groundY;
                 if (height < minHeight || height > maxHeight) continue;
                 candidates.Add((house, Vector2.Distance(centre, target) + 1.2f * Mathf.Abs(height - 6f)));
@@ -437,8 +486,8 @@ public static class MabuhayLevelBuilder
             return;
         }
 
-        s.result.problems.Add("no roof to stand on between " + minHeight + " and " + maxHeight + " m near " + target + " for " + id + ".");
-        AddAnchor(s, id, W(target, 4f), 0f);
+        s.result.problems.Add("no roof to stand on between " + minHeight + " and " + maxHeight + " m near " + layoutTarget + " for " + id + ".");
+        AddAnchor(s, id, W(layoutTarget, 4f), 0f);
     }
 
     /// <summary>The box round everything drawn of a placed model, in world space.</summary>
@@ -516,21 +565,28 @@ public static class MabuhayLevelBuilder
     /// </summary>
     static void AddJam(Scenery s, Street mapalad)
     {
+        var jam = AddJamAcrossLane(s, mapalad, out var trapped);
+        CutOff(s, jam, trapped);
+    }
+
+    static DebrisBarrier AddJamAcrossLane(Scenery s, Street mapalad, out List<Vector3> trapped)
+    {
         float along = mapalad.Project(new Vector2(JamX, -40f), out _);
         Vector2 on = mapalad.At(along);
         Vector2 tangent = mapalad.Tangent(along);
         Vector2 left = MapGeometry.Left(tangent);
 
-        // Measure the lane from its middle to the wall on each side, with a ray a little above the water.
+        // Measure the lane from its middle to the wall on each side, with a ray a little above the water (in the world).
         Vector3 from = W(on, 0.6f);
-        float toLeft = Wall(from, W(left), 14f), toRight = Wall(from, W(-left), 14f);
-        Vector2 middle = on + left * ((toLeft - toRight) * 0.5f);
+        float toLeft = Wall(from, D(left), 14f * mapScale), toRight = Wall(from, D(-left), 14f * mapScale);
+        Vector3 middleWorld = from + D(left) * ((toLeft - toRight) * 0.5f);
+        Vector2 middle = new Vector2(middleWorld.x, middleWorld.z);         // world (x, z) from here on
         float width = toLeft + toRight;
 
         var go = new GameObject("Debris jam (A. Mapalad Street)");
         go.transform.SetParent(s.hazards, false);
-        go.transform.position = W(middle, 0f);
-        go.transform.rotation = Quaternion.LookRotation(W(tangent), Vector3.up);       // its x runs across the lane
+        go.transform.position = new Vector3(middle.x, 0f, middle.y);
+        go.transform.rotation = Quaternion.LookRotation(D(tangent), Vector3.up);       // its x runs across the lane
         var barrier = go.AddComponent<DebrisBarrier>();
         // The solid block is 92% of the width given, so ask for enough to bury its ends in the walls.
         barrier.size = new Vector3((width + 0.8f) / 0.92f, 1.6f, 2.6f);
@@ -541,9 +597,131 @@ public static class MabuhayLevelBuilder
         Vector2 eastward = tangent.x >= 0f ? tangent : -tangent;
         Vector2 eastFace = middle + eastward * (barrier.size.z * 0.9f * 0.5f);
         Vector2 sideways = MapGeometry.Left(eastward);
-        AddAnchor(s, "rosa", W(eastFace + eastward * 4.8f + sideways * 0.7f), MapGeometry.Heading(-eastward));
-        AddAnchor(s, "migo", W(eastFace + eastward * 6.0f - sideways * 0.7f), MapGeometry.Heading(-eastward));
-        s.result.notes.Add("Jam: " + width.ToString("0.0") + " m of lane, centred " + middle.x.ToString("0") + ", " + middle.y.ToString("0") + ".");
+        // In world metres: just out of the boat's reach behind the jam, within a thrown line's.
+        Vector2 rosa = eastFace + eastward * 4.8f + sideways * 0.7f, migo = eastFace + eastward * 6.0f - sideways * 0.7f;
+        AddAnchor(s, "rosa", new Vector3(rosa.x, 0f, rosa.y), MapGeometry.Heading(-eastward));
+        AddAnchor(s, "migo", new Vector3(migo.x, 0f, migo.y), MapGeometry.Heading(-eastward));
+        s.result.notes.Add("Jam: " + width.ToString("0.0") + " m of lane, centred " + (middle.x / mapScale).ToString("0") + ", " + (middle.y / mapScale).ToString("0") + " on the layout.");
+        trapped = new List<Vector3> { new Vector3(rosa.x, 0f, rosa.y), new Vector3(migo.x, 0f, migo.y) };
+        return barrier;
+    }
+
+    /// <summary>How near (metres, centre of the boat to the person) the boat has to get to take somebody aboard by hand.</summary>
+    const float PickUpReach = 4.5f;
+
+    /// <summary>
+    /// Makes sure the ones behind the jam really are cut off. On a map drawn bigger than real (MabuhayGameplayBuilder.MapScale)
+    /// the gaps between houses grow but the boat does not, so an alley that was too narrow for it can become a way round the
+    /// jam. The water the boat can reach is flooded from its start, with the jam in place; while it reaches anybody behind the
+    /// jam, the route to them is followed back from their end to its narrowest gap between two walls, more wreckage is wedged
+    /// across that gap, and the water is flooded again.
+    /// </summary>
+    static void CutOff(Scenery s, DebrisBarrier jam, List<Vector3> trapped)
+    {
+        var area = Scaled(s.settings.Region(s.layout), mapScale);
+        area = Rect.MinMaxRect(area.xMin - 20f, area.yMin - 20f, area.xMax + 20f, area.yMax + 20f);
+        var stands = new List<GameObject> { StandIn(jam) };
+        int added = 0;
+        try
+        {
+            for (int round = 0; round < 10; round++)
+            {
+                Physics.SyncTransforms();
+                var reach = new BoatReach(area, 1f, BoatReach.DefaultRadius, 0f);
+                reach.Flood(s.boat.transform.position);
+
+                Vector2 person = default;
+                bool open = false;
+                foreach (var t in trapped)
+                {
+                    var xz = new Vector2(t.x, t.z);
+                    if (float.IsInfinity(reach.DistanceToReached(xz, PickUpReach))) continue;
+                    person = xz;
+                    open = true;
+                    break;
+                }
+                if (!open) break;
+
+                if (!Choke(reach.RouteTo(person, PickUpReach), trapped, jam, out Vector2 at, out Vector2 along, out float width))
+                {
+                    s.result.problems.Add("the boat can get round the jam to " + person + " and no gap on its way could be closed.");
+                    break;
+                }
+                var extra = AddBarrier(s, "Debris jam (alley " + (++added) + ")", at, along, width, 40 + added);
+                stands.Add(StandIn(extra));
+            }
+        }
+        finally
+        {
+            foreach (var stand in stands) UnityEngine.Object.DestroyImmediate(stand);
+        }
+        if (added > 0) s.result.notes.Add("Jam: " + added + " more piled across alleys that led round it.");
+    }
+
+    /// <summary>
+    /// The narrowest gap between two walls on the last stretch of a route, the end nearest the person: where wreckage closes it
+    /// with the least. Not on top of the people behind the jam, and not where the jam already is.
+    /// </summary>
+    static bool Choke(List<Vector2> route, List<Vector3> trapped, DebrisBarrier jam, out Vector2 at, out Vector2 along, out float width)
+    {
+        at = along = default;
+        width = float.PositiveInfinity;
+        if (route.Count < 2) return false;
+        const float maxSide = 15f, lookBack = 120f;
+        Vector2 jamXZ = new Vector2(jam.transform.position.x, jam.transform.position.z);
+        float walked = 0f;
+        for (int i = route.Count - 1; i > 0 && walked < lookBack; i--)
+        {
+            Vector2 a = route[i], b = route[i - 1];
+            float length = Vector2.Distance(a, b);
+            if (length < 0.01f) continue;
+            Vector2 dir = (a - b) / length;                 // the way the boat is going
+            Vector2 side = new Vector2(-dir.y, dir.x);
+            for (float d = 0f; d < length && walked + d < lookBack; d += 1f)
+            {
+                Vector2 p = a - dir * d;
+                if (trapped.Any(t => Vector2.Distance(p, new Vector2(t.x, t.z)) < 8f) || Vector2.Distance(p, jamXZ) < 10f) continue;
+                var from = new Vector3(p.x, 0.6f, p.y);
+                float left = Wall(from, D(side), maxSide), right = Wall(from, D(-side), maxSide);
+                if (left >= maxSide || right >= maxSide) continue;      // open water on a side: not a gap
+                float w = left + right;
+                if (w < width)
+                {
+                    width = w;
+                    at = p + side * ((left - right) * 0.5f);
+                    along = dir;
+                }
+            }
+            walked += length;
+        }
+        return !float.IsInfinity(width);
+    }
+
+    /// <summary>A pile of wreckage across a gap of <paramref name="width"/> metres at a world point, wall to wall.</summary>
+    static DebrisBarrier AddBarrier(Scenery s, string name, Vector2 at, Vector2 along, float width, int seed)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(s.hazards, false);
+        go.transform.SetPositionAndRotation(new Vector3(at.x, 0f, at.y), Quaternion.LookRotation(D(along), Vector3.up));
+        var barrier = go.AddComponent<DebrisBarrier>();
+        barrier.size = new Vector3((width + 0.8f) / 0.92f, 1.6f, 2.6f);      // its ends buried in the walls
+        barrier.pieces = Mathf.Clamp(Mathf.RoundToInt(width * 2.5f), 10, 36);
+        barrier.seed = seed;
+        return barrier;
+    }
+
+    /// <summary>
+    /// The wreckage is made when the scene plays, so this stands in for a barrier while the water is measured: solid to the
+    /// boat, and (being a kinematic body, like the real pieces) not in the way of a sight line.
+    /// </summary>
+    static GameObject StandIn(DebrisBarrier barrier)
+    {
+        var stand = new GameObject("Jam stand-in");
+        var box = stand.AddComponent<BoxCollider>();
+        stand.AddComponent<Rigidbody>().isKinematic = true;
+        stand.transform.SetPositionAndRotation(barrier.transform.position, barrier.transform.rotation);
+        box.size = new Vector3(barrier.size.x * 0.92f, 4f, barrier.size.z * 0.9f);
+        return stand;
     }
 
     static float Wall(Vector3 from, Vector3 direction, float maxDistance)
@@ -558,20 +736,20 @@ public static class MabuhayLevelBuilder
     static void PlaceWreckage(Scenery s, Street bag, Street mapalad)
     {
         // Wreckage drifts with the flood, away from the hall: nothing starts in front of it, where it would pile up and pen the boat in.
-        AddWreckage(s, "Wreckage (east of the start)", bag.At(56f, 1f), bag.Tangent(56f), new Vector2(14f, 8f), 5, 3);
-        AddWreckage(s, "Wreckage (before the live wire)", bag.At(76f, 0f), bag.Tangent(76f), new Vector2(14f, 8f), 6, 8);
+        AddWreckage(s, "Wreckage (east of the start)", bag.At(NearStart(56f), 1f), bag.Tangent(NearStart(56f)), new Vector2(14f, 8f), 5, 3);
+        AddWreckage(s, "Wreckage (before the live wire)", bag.At(NearStart(76f), 0f), bag.Tangent(NearStart(76f)), new Vector2(14f, 8f), 6, 8);
         float lane = mapalad.Project(new Vector2(-78f, -44f), out _);
         AddWreckage(s, "Wreckage (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(10f, 3f), 3, 13);
 
         // Plant scraps the flood has torn from the yards and lots: branches, uprooted bananas, mats of grass and creeper.
         // Soft (only a branch dents a hull), so they can float where the boat works, but still not in front of the hall.
-        AddWreckage(s, "Plant scraps (east of the start)", bag.At(54f, -2f), bag.Tangent(54f), new Vector2(18f, 9f), 7, 21, FloatingDebris.PlantScraps);
-        AddWreckage(s, "Plant scraps (before the live wire)", bag.At(72f, 2f), bag.Tangent(72f), new Vector2(18f, 9f), 7, 22, FloatingDebris.PlantScraps);
+        AddWreckage(s, "Plant scraps (east of the start)", bag.At(NearStart(54f), -2f), bag.Tangent(NearStart(54f)), new Vector2(18f, 9f), 7, 21, FloatingDebris.PlantScraps);
+        AddWreckage(s, "Plant scraps (before the live wire)", bag.At(NearStart(72f), 2f), bag.Tangent(NearStart(72f)), new Vector2(18f, 9f), 7, 22, FloatingDebris.PlantScraps);
         AddWreckage(s, "Plant scraps (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(12f, 3f), 4, 23, FloatingDebris.PlantScraps);
 
         // And from the houses: buckets washed off porches, corrugated sheets torn from the roofs of the shacks.
-        AddWreckage(s, "Household scraps (east of the start)", bag.At(60f, 3f), bag.Tangent(60f), new Vector2(16f, 8f), 5, 31, FloatingDebris.HouseholdScraps);
-        AddWreckage(s, "Household scraps (before the live wire)", bag.At(80f, -2f), bag.Tangent(80f), new Vector2(14f, 8f), 5, 32, FloatingDebris.HouseholdScraps);
+        AddWreckage(s, "Household scraps (east of the start)", bag.At(NearStart(60f), 3f), bag.Tangent(NearStart(60f)), new Vector2(16f, 8f), 5, 31, FloatingDebris.HouseholdScraps);
+        AddWreckage(s, "Household scraps (before the live wire)", bag.At(NearStart(80f), -2f), bag.Tangent(NearStart(80f)), new Vector2(14f, 8f), 5, 32, FloatingDebris.HouseholdScraps);
         AddWreckage(s, "Household scraps (A. Mapalad Street)", mapalad.At(lane), mapalad.Tangent(lane), new Vector2(10f, 3f), 3, 33, FloatingDebris.HouseholdScraps);
     }
 
@@ -579,9 +757,11 @@ public static class MabuhayLevelBuilder
     {
         var go = new GameObject(name);
         go.transform.SetParent(s.hazards, false);
-        go.transform.SetPositionAndRotation(W(at), Quaternion.LookRotation(W(along), Vector3.up));
+        go.transform.SetPositionAndRotation(W(at), Quaternion.LookRotation(D(along), Vector3.up));
         var field = go.AddComponent<DebrisField>();
-        field.area = new Vector2(area.y, area.x);           // across (x) and along (z) the street
+        // Across (x) and along (z) the street, in world metres: a field drawn bigger would reach back over the boat's start,
+        // and the current would bring it down on the boat.
+        field.area = new Vector2(area.y, area.x);
         field.count = count;
         field.seed = seed;
         if (kinds != null) field.kinds = kinds;
@@ -596,13 +776,19 @@ public static class MabuhayLevelBuilder
     /// <summary>How far out from the map's middle the dry land goes: past the water's skirt, so no open water shows beyond the levee.</summary>
     public const float DryLandReach = 1200f;
 
-    /// <summary>The flooded ground the map lies on; the levee rises from its edge.</summary>
+    /// <summary>The flooded ground the map lies on, on the layout (real metres); the levee rises from its edge.</summary>
     public static Rect EdgeArea(BarangayMockSettings settings, BarangayLayout layout)
     {
         var region = settings.Region(layout);
         float margin = settings.margin;
         return Rect.MinMaxRect(region.xMin - margin, region.yMin - margin, region.xMax + margin, region.yMax + margin);
     }
+
+    /// <summary><see cref="EdgeArea"/> in the world: the layout rectangle at the map's scale.</summary>
+    public static Rect EdgeAreaWorld(BarangayMockSettings settings, BarangayLayout layout) => Scaled(EdgeArea(settings, layout), settings.scale);
+
+    /// <summary>A rectangle on the layout, at a map scale.</summary>
+    public static Rect Scaled(Rect r, float scale) => Rect.MinMaxRect(r.xMin * scale, r.yMin * scale, r.xMax * scale, r.yMax * scale);
 
     /// <summary>
     /// The edge of the world is something you can see: an earth levee all round the flooded ground, from the bottom of the water up to
@@ -611,7 +797,7 @@ public static class MabuhayLevelBuilder
     /// </summary>
     static void PlaceEdge(Scenery s)
     {
-        var inner = EdgeArea(s.settings, s.layout);
+        var inner = EdgeAreaWorld(s.settings, s.layout);
         var crest = Rect.MinMaxRect(inner.xMin - LeveeRun, inner.yMin - LeveeRun, inner.xMax + LeveeRun, inner.yMax + LeveeRun);
         var outer = Rect.MinMaxRect(Mathf.Min(crest.xMin - 1f, -DryLandReach), Mathf.Min(crest.yMin - 1f, -DryLandReach),
                                     Mathf.Max(crest.xMax + 1f, DryLandReach), Mathf.Max(crest.yMax + 1f, DryLandReach));
@@ -699,17 +885,11 @@ public static class MabuhayLevelBuilder
     /// </summary>
     static void Validate(Scenery s, MissionDefinition mission)
     {
-        // The jam is made when the scene plays, so stand in for it while the water is measured: solid to the boat, and (being a
-        // kinematic body, like the real one) not in the way of a sight line.
-        var stand = new GameObject("Jam stand-in");
-        var barrier = s.hazards.GetComponentInChildren<DebrisBarrier>();
-        var standBox = stand.AddComponent<BoxCollider>();
-        stand.AddComponent<Rigidbody>().isKinematic = true;
-        stand.transform.SetPositionAndRotation(barrier.transform.position, barrier.transform.rotation);
-        standBox.size = new Vector3(barrier.size.x * 0.92f, 4f, barrier.size.z * 0.9f);
+        // The jam (and whatever closes the alleys round it) is made when the scene plays, so stand in for it while the water is measured.
+        var standIns = s.hazards.GetComponentsInChildren<DebrisBarrier>().Select(StandIn).ToList();
         Physics.SyncTransforms();
 
-        var wide = s.settings.Region(s.layout);
+        var wide = Scaled(s.settings.Region(s.layout), mapScale);
         var reach = new BoatReach(Rect.MinMaxRect(wide.xMin - 20f, wide.yMin - 20f, wide.xMax + 20f, wide.yMax + 20f), 1f, BoatReach.DefaultRadius, 0f);
         int cells = reach.Flood(s.boat.transform.position);
         s.result.notes.Add("The boat's start reaches " + cells + " cells of water.");
@@ -754,7 +934,7 @@ public static class MabuhayLevelBuilder
                 s.result.problems.Add(spec.displayName + " is under " + above.collider.name + ".");
         }
 
-        UnityEngine.Object.DestroyImmediate(stand);
+        foreach (var stand in standIns) UnityEngine.Object.DestroyImmediate(stand);
     }
 
     /// <summary>Is there water the boat can reach from which somebody at this spot is in a thrown line's range, in plain view?</summary>

@@ -310,7 +310,7 @@ public static class BarangayMockPlanner
                     kind = PlacementKind.House, sourceId = id, modelName = v.name, prefab = v.prefab, modelSize = v.size,
                     position = s.rect.centre + widthAxis * (((i + 0.5f) / units - 0.5f) * f.frontage),
                     yaw = MapGeometry.Heading(f.front),
-                    scale = new Vector3(sx, Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.9f, 1.25f), sz)
+                    scale = GameScale(new Vector3(sx, Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.9f, 1.25f), sz))
                 });
                 last = v.name;
             }
@@ -380,7 +380,7 @@ public static class BarangayMockPlanner
                 var lf = FaceStreet(lot, l.id);
                 LotScale(style.model, style, lf, out float lx, out float lz);
                 AddModel(l, style.model, lot.centre, lf.front, lx, lz);
-                signHeight = style.model.size.y * Mathf.Clamp(Mathf.Sqrt(lx * lz), 0.7f, 1.25f);
+                signHeight = GameHeight(style.model.size.y * Mathf.Clamp(Mathf.Sqrt(lx * lz), 0.7f, 1.25f));
                 ClearUnder(l, lot.centre, lf, style.model, lx, lz, signHeight);
                 plan.notes.Add(l.Label + ": " + style.model.name + " scaled " + lx.ToString("0.00") + " x " + lz.ToString("0.00") +
                                " to fill its " + Mathf.RoundToInt(lot.sizeU) + " x " + Mathf.RoundToInt(lot.sizeV) + " m lot.");
@@ -400,7 +400,7 @@ public static class BarangayMockPlanner
                         kind = PlacementKind.Grounds, sourceId = l.id, category = l.category, outline = fp,
                         colour = Color.Lerp(colour, new Color(0.62f, 0.66f, 0.56f), 0.65f)
                     });
-                    float top = style.blockHeight;
+                    float top = GameHeight(style.blockHeight);
                     foreach (var s in inside)
                     {
                         s.claimed = true;
@@ -507,7 +507,7 @@ public static class BarangayMockPlanner
             AddBlock(l.id, new List<Vector2>(outline), style.blockHeight, blockColour ?? colour, l.category);
             plan.notes.Add(l.Label + ": a block of its " + Mathf.RoundToInt(rect.sizeU) + " x " + Mathf.RoundToInt(rect.sizeV) + " m outline" +
                            (style.placement == LandmarkPlacement.Prefab ? ", too far from the model's size to fit it" : "") + ".");
-            return style.blockHeight;
+            return GameHeight(style.blockHeight);
         }
 
         /// <summary>A landmark with no building to stand in: a shop house (or a block) of its own, facing the nearest street.</summary>
@@ -542,7 +542,7 @@ public static class BarangayMockPlanner
             }
             AddBlock(l.id, rect.Corners(), Mathf.Min(style.blockHeight, 8f), colour, l.category);
             plan.notes.Add(l.Label + ": no building at its position, so a " + Mathf.RoundToInt(size.x) + " x " + Mathf.RoundToInt(size.y) + " m block stands there.");
-            return Mathf.Min(style.blockHeight, 8f);
+            return GameHeight(Mathf.Min(style.blockHeight, 8f));
         }
 
         /// <summary>One building inside a landmark's grounds: the best-fitting part if there are any, otherwise a block.</summary>
@@ -561,7 +561,7 @@ public static class BarangayMockPlanner
             }
             AddBlock(s.b.osmId, MapGeometry.CounterClockwise(s.b.outline), style.blockHeight, Color.Lerp(colour, Color.white, 0.25f), l.category);
             plan.fates[s.b.osmId] = l.Label + ": block";
-            return style.blockHeight;
+            return GameHeight(style.blockHeight);
         }
 
         bool TryFitModel(MapLandmark l, PlaceholderModel model, LandmarkStyle style, MapGeometry.OrientedRect rect, out float height, string what)
@@ -579,7 +579,7 @@ public static class BarangayMockPlanner
             AddModel(l, model, at, f.front, sx, sz);
             plan.notes.Add(what + ": " + model.name + " model fitted at " + sx.ToString("0.00") + " x " + sz.ToString("0.00") +
                            (style.fitToLot ? " to fill its " + Mathf.RoundToInt(rect.sizeU) + " x " + Mathf.RoundToInt(rect.sizeV) + " m lot." : ". Swap in the real model when it is made."));
-            height = model.size.y * Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.2f);
+            height = GameHeight(model.size.y * Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.2f));
             if (style.realSize && style.fitToLot) ClearUnder(l, at, f, model, sx, sz, height);
             return true;
         }
@@ -730,7 +730,7 @@ public static class BarangayMockPlanner
             plan.placements.Add(new MockPlacement
             {
                 kind = height <= 3f ? PlacementKind.Shed : PlacementKind.Block, sourceId = id, category = category,
-                outline = outline, height = height, colour = colour
+                outline = outline, height = GameHeight(height), colour = colour     // a shed is told by its real height
             });
         }
 
@@ -740,8 +740,15 @@ public static class BarangayMockPlanner
             {
                 kind = PlacementKind.Model, sourceId = l.id, category = l.category, modelName = model.name, prefab = model.prefab,
                 modelSize = model.size, position = position, yaw = MapGeometry.Heading(front),
-                scale = new Vector3(sx, Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.25f), sz)
+                scale = GameScale(new Vector3(sx, Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.25f), sz))
             });
         }
+
+        /// <summary>A model's fitted scale, made roomier for the game's characters (see <see cref="PlaceholderLibrary.buildingHeightScale"/>).</summary>
+        Vector3 GameScale(Vector3 fitted) =>
+            new Vector3(fitted.x * lib.buildingWidthScale, fitted.y * lib.buildingHeightScale, fitted.z * lib.buildingWidthScale);
+
+        /// <summary>A real height in metres, drawn at the game's building scale.</summary>
+        float GameHeight(float real) => real * lib.buildingHeightScale;
     }
 }
