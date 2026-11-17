@@ -257,10 +257,21 @@ public class MabuhayLevelTests
         yield return null;
     }
 
+    /// <summary>
+    /// The jam across A. Mapalad Street. On a map drawn bigger than real there is more wreckage, piled across the alleys that
+    /// would have led round it ("Debris jam (alley N)"); this is the one in the lane itself.
+    /// </summary>
+    static DebrisBarrier TheJam()
+    {
+        var jam = DebrisBarrier.All.Where(b => b != null && b.name == "Debris jam (A. Mapalad Street)").ToList();
+        Assert.AreEqual(1, jam.Count, "there should be exactly one jam across A. Mapalad Street");
+        return jam[0];
+    }
+
     [UnityTest]
     public IEnumerator The_Santos_are_behind_the_jam_where_the_boat_cannot_go_but_a_line_can_reach()
     {
-        var jam = DebrisBarrier.All.Single();
+        var jam = TheJam();
         var rosa = Resident("rosa");
         var migo = Resident("migo");
         yield return WaitSeconds(0.2f);
@@ -282,7 +293,7 @@ public class MabuhayLevelTests
     [UnityTest]
     public IEnumerator The_jam_is_wall_to_wall_so_the_boat_has_no_short_way_round_it()
     {
-        var jam = DebrisBarrier.All.Single();
+        var jam = TheJam();
         yield return null;
 
         // Both ends of the pile are buried in the walls of the lane.
@@ -458,9 +469,11 @@ public class MabuhayLevelTests
                 // asset it is: the solid part covers exactly what is drawn on the same object.
                 var drawn = c.GetComponent<MeshRenderer>();
                 Assert.IsTrue(drawn != null && drawn.enabled, what + " is solid but nothing is drawn there");
-                // 25 cm of slack: a model's stored drawing box can lag its real vertices a little. An invisible box round a model
-                // is off by metres.
-                Assert.IsTrue(Same(drawn.bounds, c.bounds, 0.25f), what + " is not the shape drawn there (" + c.bounds + " vs " + drawn.bounds + ")");
+                // 25 cm of slack: a model's stored drawing box can lag its real vertices a little (more on a map drawn bigger than
+                // real, MabuhayGameplayBuilder.MapScale). An invisible box round a model is off by metres.
+                var scale = c.transform.lossyScale;
+                float slack = 0.25f * Mathf.Max(1f, Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z)));
+                Assert.IsTrue(Same(drawn.bounds, c.bounds, slack), what + " is not the shape drawn there (" + c.bounds + " vs " + drawn.bounds + ")");
             }
             else if (c.gameObject.layer == 2)
                 Assert.IsNotNull(c.transform.parent?.GetComponentInChildren<MeshRenderer>(), what + " is a trunk with no tree");

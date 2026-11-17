@@ -226,7 +226,11 @@ public static class BarangayMockBuilder
     {
         var b = new MapGeometry.MeshBuffers();
         MapGeometry.Fill(RectRing(c.wide), GroundY, b, 0.05f);
-        MeshObject(c, c.ground, "Ground", b, c.mats.Get("Ground", new Color(0.55f, 0.60f, 0.47f)), true);
+        // Grassy, so the open ground reads as grassland a metre down through the murky flood.
+        var ground = c.mats.Get("Ground", new Color(0.36f, 0.45f, 0.24f));
+        ground.SetColor("_BaseColor", new Color(0.36f, 0.45f, 0.24f));
+        EditorUtility.SetDirty(ground);
+        MeshObject(c, c.ground, "Ground", b, ground, true);
     }
 
     static void BuildAreas(Context c)
@@ -256,6 +260,25 @@ public static class BarangayMockBuilder
 
     static void BuildRoads(Context c)
     {
+        // With the RoadKit imported, each street is its kit cross-section along its real line, with paved junctions; the
+        // bridges are the kit's (RoadBuilder.Build, once the level is laid out).
+        var kit = RoadKitImporter.LoadLibrary();
+        if (kit != null && kit.Ready)
+        {
+            var surfaces = RoadBuilder.Surfaces(c.layout, c.lib, c.wide);
+            void Surface(string key, Material m, bool solid)
+            {
+                if (surfaces.TryGetValue(key, out var b) && m != null) MeshObject(c, c.roads, "road_" + key, b, m, solid);
+            }
+            Surface("sidewalk", kit.sidewalk, true);
+            Surface("concrete", kit.concrete, true);
+            Surface("dirt", kit.dirt, true);
+            Surface("asphalt", kit.asphalt, true);
+            Surface("white", kit.paintWhite, false);
+            Surface("yellow", kit.paintYellow, false);
+            return;
+        }
+
         foreach (var group in c.layout.roads.GroupBy(r => r.roadClass).OrderBy(g => (int)g.Key))
         {
             float y = RoadY + RoadStep * (int)group.Key;

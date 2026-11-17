@@ -463,6 +463,7 @@ MonoBehaviour:
     size: {x: 2.4829085, y: 1.6728032, z: 1.2381945}
     scale: {x: 0.85, y: 1.15}
     maxLean: 3
+  treeScale: 1
   density: 1
   greenDensity: 0.55
   farmDensity: 0.45

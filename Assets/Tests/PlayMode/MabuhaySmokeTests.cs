@@ -148,7 +148,8 @@ public class MabuhaySmokeTests
         var map = GameObject.Find("BarangayMock");
         Assert.IsNotNull(map, "the scene has no map");
         Assert.AreEqual(-1f, map.transform.position.y, 1e-4f, "the ground is a metre under the water, as in the Manila scene");
-        Assert.AreEqual(1f, map.transform.localScale.x, 1e-4f, "the map is at real size");
+        // MabuhayGameplayBuilder.MapScale: houses, lots, streets and trees at twice real size beside the real-sized crew.
+        Assert.AreEqual(2f, map.transform.localScale.x, 1e-4f, "the map is drawn at twice real size");
 
         // Houses are solid where they are drawn: a mesh collider on each drawn part, not a box round the whole model.
         var buildings = map.transform.Find("Buildings");

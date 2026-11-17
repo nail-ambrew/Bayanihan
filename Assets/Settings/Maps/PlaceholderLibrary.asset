@@ -2481,6 +2481,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: Carmona Hospital and Medical Center
     osmTag: 
     model:
@@ -2492,6 +2495,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: Dali
     osmTag: 
     model:
@@ -2503,6 +2509,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: Iglesia Ni Cristo
     osmTag: 
     model:
@@ -2514,6 +2523,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: LTO Carmona District Office
     osmTag: 
     model:
@@ -2525,6 +2537,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: Mabuhay Elementary School
     osmTag: 
     model:
@@ -2536,6 +2551,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: Metrobank
     osmTag: 
     model:
@@ -2547,6 +2565,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: The Feast Carmona
     osmTag: 
     model:
@@ -2558,6 +2579,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: WalterMart
     osmTag: 
     model:
@@ -2569,6 +2593,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   - name: 
     osmTag: man_made=water_tower
     model:
@@ -2580,6 +2607,9 @@ MonoBehaviour:
       sourceFrontYaw: 0
       strip: []
       bodyPattern: 
+    fitToLot: 1
+    lotFill: 0.85
+    maxLotScale: 5
   roadWidths:
     trunk: 12
     primary: 10
@@ -2603,3 +2633,5 @@ MonoBehaviour:
   shedArea: 15
   hostReach: 8
   hostMaxArea: 150
+  buildingHeightScale: 1
+  buildingWidthScale: 1

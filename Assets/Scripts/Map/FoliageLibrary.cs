@@ -60,6 +60,16 @@ public class FoliageLibrary : ScriptableObject
 {
     public List<FoliageSpecies> species = new List<FoliageSpecies>();
 
+    [Header("Extra tree scale (on top of the map's scale)")]
+    [Tooltip("Trees, bamboo and bananas are drawn this much bigger, on top of the map's own scale (the Mabuhay map is drawn " +
+             "at 2x, trees included). Grass, bushes and vines are always real-sized. 1 = the pack's sizes at the map's scale.")]
+    [Min(0.5f)] public float treeScale = 1f;
+
+    /// <summary>The extra size a species is drawn at: <see cref="treeScale"/> for the trees, 1 for the undergrowth.</summary>
+    public float GameScale(FoliageSpecies sp) =>
+        sp.group == FoliageGroup.CanopyTree || sp.group == FoliageGroup.SmallTree ||
+        sp.group == FoliageGroup.Bamboo || sp.group == FoliageGroup.Banana ? treeScale : 1f;
+
     [Header("How much")]
     [Tooltip("Everything at once: 1 = the tuned amount, 0.5 = half, 2 = twice.")]
     [Range(0f, 3f)] public float density = 1f;
@@ -70,6 +80,16 @@ public class FoliageLibrary : ScriptableObject
     public Vector2 roadsideTreeGap = new Vector2(12f, 25f);
     [Tooltip("Chance a long blank wall gets a vine curtain.")]
     [Range(0f, 1f)] public float wallVineChance = 0.3f;
+
+    [Header("Grassland (no bare ground)")]
+    [Tooltip("Metres (on the layout) between the stands that fill every open patch nothing else grows in. Smaller = thicker, and more to draw.")]
+    [Min(1.5f)] public float grasslandGap = 3.5f;
+    [Tooltip("Share of those stands that are a bush, and a tree; the rest is tall cogon and talahib.")]
+    [Range(0f, 0.5f)] public float grasslandBushShare = 0.08f;
+    [Range(0f, 0.2f)] public float grasslandTreeShare = 0.025f;
+    [Tooltip("Low grass blades drawn over all open ground: tufts per open spot, and how tall (world metres; the ground is a metre under the flood).")]
+    [Range(0, 40)] public int grassTuftsPerSpot = 18;
+    public Vector2 grassTuftHeight = new Vector2(1.2f, 2.2f);
 
     [Header("Where not")]
     [Tooltip("Plants shorter than this are under the flood (the ground is a metre down), so they are only used as floating scraps.")]

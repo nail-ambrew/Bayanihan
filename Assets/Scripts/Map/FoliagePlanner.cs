@@ -29,6 +29,13 @@ public class FoliagePlan
     public readonly Dictionary<FoliageHabitat, int> perHabitat = new Dictionary<FoliageHabitat, int>();
     public readonly Dictionary<FoliageGroup, int> perGroup = new Dictionary<FoliageGroup, int>();
 
+    /// <summary>
+    /// Points of open ground (no building, street, water or mission spot), one every <see cref="FoliageLibrary.grasslandGap"/>
+    /// metres: where the low grass that fills every bare patch is grown (FoliageBuilder draws it as blades).
+    /// </summary>
+    public readonly List<Vector2> openGround = new List<Vector2>();
+    public int Grassland;
+
     public int Count(FoliageGroup g) => perGroup.TryGetValue(g, out int n) ? n : 0;
     public int Count(FoliageHabitat h) => perHabitat.TryGetValue(h, out int n) ? n : 0;
 }
@@ -79,14 +86,17 @@ public static class FoliagePlanner
         public Vector2 Centre(int x, int y) => new Vector2(area.xMin + (x + 0.5f) * Cell, area.yMin + (y + 0.5f) * Cell);
     }
 
+    /// <param name="region">The ground to plant: the whole map out to the levee.</param>
+    /// <param name="drawn">Where buildings are drawn (null = everywhere). Past it the layout's buildings are not on the map,
+    /// so their ground is open and planted like any other.</param>
     public static FoliagePlan Plan(BarangayLayout layout, Rect region, MockPlan mock, PlaceholderLibrary lib, FoliageLibrary flora,
-                                   IList<KeepClear> keepClear)
+                                   IList<KeepClear> keepClear, Rect? drawn = null)
     {
         var plan = new FoliagePlan();
         if (layout == null || flora == null || flora.species.Count == 0) return plan;
 
         var g = new Grid(region);
-        MarkBuildings(g, layout, mock);
+        MarkBuildings(g, layout, mock, drawn);
         MarkRoads(g, layout, lib);
         MarkWater(g, layout, lib);
         MarkAreas(g, layout);
@@ -104,15 +114,20 @@ public static class FoliagePlanner
         PlantRoadsides(g, layout, lib, flora, random, placed, plan);
         PlantWalls(g, mock, flora, random, placed, plan);
         Scatter(g, flora, random, placed, last, plan);
+        FillGrassland(g, flora, random, placed, plan);
         return plan;
     }
 
     // ------------------------------------------------------------------ what each cell is
 
-    static void MarkBuildings(Grid g, BarangayLayout layout, MockPlan mock)
+    static void MarkBuildings(Grid g, BarangayLayout layout, MockPlan mock, Rect? drawn)
     {
         foreach (var b in layout.buildings)
-            if (b.outline != null && b.outline.Count >= 3) FillPolygon(g, b.outline, i => g.kind[i] = CellKind.Building);
+        {
+            if (b.outline == null || b.outline.Count < 3) continue;
+            if (drawn.HasValue && !drawn.Value.Contains(MapGeometry.Centroid(b.outline))) continue;
+            FillPolygon(g, b.outline, i => g.kind[i] = CellKind.Building);
+        }
         if (mock == null) return;
         foreach (var p in mock.placements)
         {
@@ -297,6 +312,56 @@ public static class FoliagePlanner
         }
     }
 
+    /// <summary>
+    /// No bare ground: wherever nothing grows within <see cref="FoliageLibrary.grasslandGap"/> of an open spot, a stand of the
+    /// tall cogon and talahib that rises above the flood - now and then a bush, more rarely a tree - and every open spot is
+    /// noted for the low grass drawn under it all.
+    /// </summary>
+    static void FillGrassland(Grid g, FoliageLibrary flora, System.Random random, SpatialHash placed, FoliagePlan plan)
+    {
+        float gap = Mathf.Max(1.5f, flora.grasslandGap);
+        var grass = new List<int>();
+        var bushes = new List<int>();
+        var trees = new List<int>();
+        for (int s = 0; s < flora.species.Count; s++)
+        {
+            var sp = flora.species[s];
+            if (sp.prefab == null || sp.weight <= 0f || sp.size.y < flora.minStandingHeight) continue;
+            if (sp.group == FoliageGroup.TallGrass) grass.Add(s);
+            else if (sp.group == FoliageGroup.Bush) bushes.Add(s);
+            else if ((sp.group == FoliageGroup.SmallTree || sp.group == FoliageGroup.Banana) && (sp.habitats & FoliageHabitat.OpenLot) != 0) trees.Add(s);
+        }
+        if (grass.Count == 0) return;
+
+        int cols = Mathf.CeilToInt(g.area.width / gap), rows = Mathf.CeilToInt(g.area.height / gap);
+        for (int row = 0; row < rows; row++)
+        for (int col = 0; col < cols; col++)
+        {
+            var at = new Vector2(g.area.xMin + (col + 0.15f + 0.7f * (float)random.NextDouble()) * gap,
+                                 g.area.yMin + (row + 0.15f + 0.7f * (float)random.NextDouble()) * gap);
+            double roll = random.NextDouble();
+            if (!g.Index(at, out int i)) continue;
+            // Low grass grows right up to a path, a kerb or a wall; the bigger stands keep the usual room. A square only
+            // partly open (beside a street or a house) gets its grass on the open part: a few spots in it are tried.
+            for (int tryAt = 0; tryAt < 5; tryAt++)
+            {
+                var spot = tryAt == 0 ? at : new Vector2(g.area.xMin + (col + (float)random.NextDouble()) * gap, g.area.yMin + (row + (float)random.NextDouble()) * gap);
+                if (g.Index(spot, out int si) && OpenForGrass(g, si)) { plan.openGround.Add(spot); break; }
+            }
+            var h = HabitatOf(g, i, flora);
+            if (h == FoliageHabitat.None) continue;
+            if (placed.AnyWithin(at, gap * 0.8f)) continue;
+
+            var pool = roll < flora.grasslandTreeShare && trees.Count > 0 ? trees
+                     : roll < flora.grasslandTreeShare + flora.grasslandBushShare && bushes.Count > 0 ? bushes : grass;
+            if (TryPlant(g, flora, random, placed, plan, at, pool, h, -1, out _)) plan.Grassland++;
+        }
+    }
+
+    /// <summary>Open ground low grass can grow on: not built on, paved, water or kept clear, a metre off any of them.</summary>
+    static bool OpenForGrass(Grid g, int i) =>
+        g.kind[i] == CellKind.Free && !g.keepClear[i] && g.distRoad[i] >= 1 && g.distBuilding[i] >= 1 && g.distWater[i] >= 2;
+
     static bool TryPlant(Grid g, FoliageLibrary flora, System.Random random, SpatialHash placed, FoliagePlan plan, Vector2 at,
                          List<int> pool, FoliageHabitat habitat, int? avoid) =>
         TryPlant(g, flora, random, placed, plan, at, pool, habitat, avoid ?? -1, out _);
@@ -310,7 +375,7 @@ public static class FoliagePlanner
         int s = PickWeighted(flora, pool, random, avoid);
         if (s < 0) return false;
         var sp = flora.species[s];
-        float scale = Range(random, sp.scale);
+        float scale = Range(random, sp.scale) * flora.GameScale(sp);
 
         // A big crown needs room from the walls, or it grows through the roof next door.
         bool big = sp.group == FoliageGroup.CanopyTree || sp.group == FoliageGroup.Bamboo;

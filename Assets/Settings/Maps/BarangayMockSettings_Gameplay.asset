@@ -22,7 +22,7 @@ MonoBehaviour:
     width: 300
     height: 300
   margin: 30
-  scale: 1
+  scale: 2
   groundHeight: -1
   ground: 1
   areas: 1

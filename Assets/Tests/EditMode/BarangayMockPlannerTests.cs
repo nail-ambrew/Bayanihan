@@ -21,10 +21,16 @@ public class BarangayMockPlannerTests
     static PlaceholderModel Model(string name, float width, float height, float depth) =>
         new PlaceholderModel { name = name, size = new Vector3(width, height, depth) };
 
-    /// <summary>The sizes of the real placeholder models, without the models: measured from the slum map, hall and school.</summary>
-    static PlaceholderLibrary Library()
+    /// <summary>
+    /// The sizes of the real placeholder models, without the models: measured from the slum map, hall and school. At
+    /// real size (game scale 1), so the fitting is checked on its own; <see cref="The_game_scale_makes_buildings_roomier"/>
+    /// checks the scale on top.
+    /// </summary>
+    static PlaceholderLibrary Library(float heightScale = 1f, float widthScale = 1f)
     {
         var lib = ScriptableObject.CreateInstance<PlaceholderLibrary>();
+        lib.buildingHeightScale = heightScale;
+        lib.buildingWidthScale = widthScale;
         lib.houses = new List<HouseVariant>
         {
             House("shop", HouseType.Shop, 1, 4.1f, 3.4f, 5.0f),
@@ -83,6 +89,29 @@ public class BarangayMockPlannerTests
     static IEnumerable<MockPlacement> Of(MockPlan plan, string id) => plan.placements.Where(p => p.sourceId == id);
 
     // ------------------------------------------------------------------ houses
+
+    [Test]
+    public void The_game_scale_makes_buildings_roomier()
+    {
+        var layout = Layout();
+        layout.buildings.Add(Plot("w1", 0f, 110f, 4f, 5.6f));                              // a two-storey house plot
+        layout.buildings.Add(Plot("big", 100f, 60f, 30f, 20f, BuildingKind.Industrial));    // a plain block
+        var real = Run(layout, Library());
+        var game = Run(layout, Library(1.5f, 1.15f));
+
+        var realHouse = Of(real, "w1").Single();
+        var gameHouse = Of(game, "w1").Single();
+        Assert.AreEqual(realHouse.modelName, gameHouse.modelName, "the same house is picked");
+        Assert.AreEqual(realHouse.scale.y * 1.5f, gameHouse.scale.y, 0.001f, "a house is 1.5 times as tall");
+        Assert.AreEqual(realHouse.scale.x * 1.15f, gameHouse.scale.x, 0.001f, "and a little wider");
+        Assert.AreEqual(realHouse.scale.z * 1.15f, gameHouse.scale.z, 0.001f, "and deeper");
+        Assert.AreEqual(realHouse.position, gameHouse.position, "still in the middle of its lot");
+
+        var realBlock = Of(real, "big").Single();
+        var gameBlock = Of(game, "big").Single();
+        Assert.AreEqual(realBlock.height * 1.5f, gameBlock.height, 0.001f, "a block is 1.5 times as tall");
+        CollectionAssert.AreEqual(realBlock.outline, gameBlock.outline, "on the same footprint");
+    }
 
     [Test]
     public void A_plot_that_suits_a_two_storey_house_gets_one_facing_the_street()
