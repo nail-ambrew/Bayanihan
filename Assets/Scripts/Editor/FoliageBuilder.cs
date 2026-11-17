@@ -41,7 +41,20 @@ public static class FoliageBuilder
         var clearOnLayout = keepClear.Select(k => new KeepClear(k.centre / scale, k.radius / scale)).ToList();
         // The whole ground out to the levee is planted; buildings are only drawn inside the region.
         var ground = MabuhayLevelBuilder.EdgeArea(settings, layout);
-        var plan = FoliagePlanner.Plan(layout, ground, mock, lib, flora, clearOnLayout, region);
+        // The infill buildings, as the footprints they stand on (layout metres: they are under the map's root).
+        var infillBoxes = new List<(Vector2, Vector2, float)>();
+        var infillGroup = root.transform.Find(InfillBuilder.GroupName);
+        if (infillGroup != null)
+            foreach (Transform b in infillGroup)
+            {
+                var mf = b.GetComponentInChildren<MeshFilter>();
+                if (mf == null || mf.sharedMesh == null) continue;
+                var mb = mf.sharedMesh.bounds;
+                var c = b.TransformPoint(mb.center);
+                var local = root.transform.InverseTransformPoint(c);
+                infillBoxes.Add((new Vector2(local.x, local.z), new Vector2(mb.extents.x, mb.extents.z) * b.localScale.x, b.localEulerAngles.y));
+            }
+        var plan = FoliagePlanner.Plan(layout, ground, mock, lib, flora, clearOnLayout, region, infillBoxes);
 
         var group = new GameObject(GroupName).transform;
         group.SetParent(root.transform, false);
