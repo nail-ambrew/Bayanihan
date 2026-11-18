@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,9 +31,9 @@ public class LoadoutScreen : MonoBehaviour
         public RescueItemDef def;
         public Image back;
         public Outline rim;
-        public Text name;
-        public Text sub;
-        public Text desc;
+        public TMP_Text name;
+        public TMP_Text sub;
+        public TMP_Text desc;
     }
 
     class Slot
@@ -46,7 +47,7 @@ public class LoadoutScreen : MonoBehaviour
         public PlayableMap map;
         public Image back;
         public Outline outline;
-        public Text label;
+        public TMP_Text label;
     }
 
     readonly List<RescueItemId> picked = new List<RescueItemId>();
@@ -54,8 +55,14 @@ public class LoadoutScreen : MonoBehaviour
     readonly List<MapButton> mapButtons = new List<MapButton>();
     readonly Slot[] slots = new Slot[RescueItems.Slots];
     MissionDefinition mission;
-    Text titleText, briefText, metaText, objectivesText, launchLabel;
+    TMP_Text titleText, briefText, metaText, objectivesText, launchLabel;
+    ScrollRect briefingScroll;
     RectTransform safe;
+    /// <summary>The 3D packing stage on the LOADOUT card (the bag, the rescuer, the pack meter).</summary>
+    public PackingStage Stage { get; private set; }
+    /// <summary>The READY sequence is playing (LAUNCH was pressed).</summary>
+    public bool Readying { get; private set; }
+    CutsceneSkipButton readySkip;
 
     // ------------------------------------------------------------------ lifecycle
     void Start()
@@ -70,10 +77,12 @@ public class LoadoutScreen : MonoBehaviour
         BuildUI();
         RefreshMissionText();
         Refresh();
+        if (Stage != null) Stage.Sync(picked);
     }
 
     void Update()
     {
+        if (Readying) return;                           // Esc skips READY (its SKIP button reads the keys)
         if (InputHelper.BackPressed() && !SceneFlow.IsLoading) Back();
     }
 
@@ -127,37 +136,67 @@ public class LoadoutScreen : MonoBehaviour
     // ------------------------------------------------------------------ actions
     void Toggle(RescueItemId id)
     {
-        if (picked.Contains(id)) picked.Remove(id);
-        else if (picked.Count < RescueItems.Slots) picked.Add(id);
+        if (Readying) return;
+        if (picked.Contains(id)) { picked.Remove(id); UiSound.Play(UiSoundKind.PackOut); if (Stage != null) Stage.Unpack(id); }
+        else if (picked.Count < RescueItems.Slots) { picked.Add(id); UiSound.Play(UiSoundKind.PackIn); if (Stage != null) Stage.Pack(id); }
+        else { UiSound.Play(UiSoundKind.Error); if (Stage != null) Stage.Deny(); }          // four slots, all full
         Refresh();
     }
 
     void RemoveAt(int slotIndex)
     {
-        if (slotIndex < picked.Count) picked.RemoveAt(slotIndex);
+        if (Readying) return;
+        if (slotIndex < picked.Count)
+        {
+            var id = picked[slotIndex];
+            picked.RemoveAt(slotIndex);
+            UiSound.Play(UiSoundKind.PackOut);
+            if (Stage != null) Stage.Unpack(id);
+        }
         Refresh();
     }
 
     void Recommended()
     {
+        if (Readying) return;
         picked.Clear();
         picked.AddRange(RescueItems.Suggested);
+        if (Stage != null) Stage.Sync(picked);
         Refresh();
     }
 
     void Clear()
     {
+        if (Readying) return;
         picked.Clear();
+        if (Stage != null) Stage.Sync(picked);
         Refresh();
     }
 
+    /// <summary>LAUNCH: the READY sequence on the packing stage (zip, buckle, the bag slung, READY; ~2 s, skippable),
+    /// then the mission loads.</summary>
     void Launch()
+    {
+        if (SceneFlow.IsLoading || Readying) return;
+        if (Stage == null) { Go(); return; }
+        Readying = true;
+        readySkip = CutsceneSkipButton.Create(safe, () => Stage.FinishReady());
+        Stage.Ready(() =>
+        {
+            if (readySkip != null) Destroy(readySkip.gameObject);
+            Go();
+        });
+    }
+
+    void Go()
     {
         if (SceneFlow.IsLoading) return;
         LoadoutState.Set(picked);
         MapChoice.Select(MapChoice.Selected.id);
         // Each map is the scene it names; the Manila sample map is whatever this screen's own field says, as it always was.
         string scene = MapChoice.Selected.id == MapChoice.ManilaId ? gameplaySceneName : MapChoice.Selected.sceneName;
+        // The flood intro plays over the mission once it has loaded (Settings > Play Intro; Mabuhay only).
+        if (IntroFlow.ShouldPlay(scene)) IntroFlow.Arm();
         SceneFlow.Load(scene);
     }
 
@@ -220,12 +259,17 @@ public class LoadoutScreen : MonoBehaviour
         if (briefText != null) briefText.text = missionBriefing;
         if (metaText != null) metaText.text = missionMeta;
         if (objectivesText != null) objectivesText.text = Objectives(mission);
+        if (briefingScroll != null) briefingScroll.verticalNormalizedPosition = 1f;     // a new map's briefing starts at the top
         RefreshMaps();
     }
 
     // ------------------------------------------------------------------ building
     // Figma positions (852 x 393 frame).
     const float LeftX = 61f, LeftW = 403f, RightX = 493f, RightW = 298f, HeaderY = 46f, HeaderH = 34f, PanelY = 92f;
+    /// <summary>An item card's height: room for three lines of description over its badge.</summary>
+    const float CardH = 114f;
+    /// <summary>The packing stage's window and the slots beside it, on the LOADOUT card.</summary>
+    const float StageW = 168f, StageH = 92f, SlotSize = 43f;
 
     void BuildUI()
     {
@@ -248,11 +292,11 @@ public class LoadoutScreen : MonoBehaviour
         UiKit.Place(bar.rectTransform, UiKit.TopLeft, new Vector2(x, -HeaderY), new Vector2(width, HeaderH));
         var label = UiKit.Label("Label", bar.transform, text, UiTheme.TitleSize - 4, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
         UiKit.Stretch(label.rectTransform);
-        label.gameObject.AddComponent<Shadow>().effectColor = UiTheme.TitleShadow;
+        label.TextShadow(UiTheme.TitleShadow);
         if (icon != null)
         {
             // icon to the left of the word, as in Figma
-            label.alignment = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignmentOptions.Center;
             label.rectTransform.offsetMin = new Vector2(26, 0);
             UiKit.OptionalIcon(bar.transform, icon, UiKit.Center, new Vector2(-label.preferredWidth * 0.5f - 6f, 0), new Vector2(22, 22));
         }
@@ -264,13 +308,13 @@ public class LoadoutScreen : MonoBehaviour
         Header(root, "EQUIPMENT", UiAssets.Current.equipmentIcon, LeftX, LeftW);
 
         var panel = UiKit.Panel("Equipment", root, UiTheme.Brown, UiTheme.RadiusPanel);
-        UiKit.Place(panel.rectTransform, UiKit.TopLeft, new Vector2(LeftX, -PanelY), new Vector2(LeftW, 252));
+        UiKit.Place(panel.rectTransform, UiKit.TopLeft, new Vector2(LeftX, -PanelY), new Vector2(LeftW, 264));    // down to the foot of the buttons on the right
         UiKit.Edge(panel);
 
         var grid = UiKit.Rect("Grid", panel.transform);
         UiKit.Inset(grid, 12, 12, 12, 12);
         var g = grid.gameObject.AddComponent<GridLayoutGroup>();
-        g.cellSize = new Vector2(117, 108);
+        g.cellSize = new Vector2(117, CardH);
         g.spacing = new Vector2(10, 12);
         g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         g.constraintCount = 3;
@@ -290,23 +334,23 @@ public class LoadoutScreen : MonoBehaviour
         button.onClick.AddListener(() => Toggle(id));
 
         var iconRoot = UiKit.Rect("IconArea", back.transform);
-        UiKit.Place(iconRoot, UiKit.Top, new Vector2(0, -6), new Vector2(64, 50));
+        UiKit.Place(iconRoot, UiKit.Top, new Vector2(0, -6), new Vector2(64, 38));
         var icon = UiKit.ItemIcon(iconRoot, def);
         UiKit.Stretch(icon.rectTransform);
 
         var name = UiKit.Label("Name", back.transform, def.name, UiTheme.BodySize + 1, UiTheme.Ink, TextAnchor.LowerLeft, heading: true);
-        UiKit.Place(name.rectTransform, UiKit.TopLeft, new Vector2(7, -58), new Vector2(103, 12));
+        UiKit.Place(name.rectTransform, UiKit.TopLeft, new Vector2(7, -46), new Vector2(103, 13));
         var sub = UiKit.Label("Filipino", back.transform, def.filipino != def.name ? def.filipino : "", UiTheme.SmallSize, UiTheme.InkSoft, TextAnchor.LowerRight);
-        UiKit.Place(sub.rectTransform, UiKit.TopRight, new Vector2(-7, -58), new Vector2(60, 12));
+        UiKit.Place(sub.rectTransform, UiKit.TopRight, new Vector2(-7, -46), new Vector2(60, 13));
         var desc = UiKit.Label("Description", back.transform, def.description, UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
-        UiKit.Place(desc.rectTransform, UiKit.TopLeft, new Vector2(7, -71), new Vector2(103, 26));
-        desc.Shrink(4);
+        UiKit.Place(desc.rectTransform, UiKit.TopLeft, new Vector2(7, -60), new Vector2(103, CardH - 60f - (def.use != ItemUse.Passive ? 15f : 6f)));
+        desc.Shrink(8);
 
         // How it is used, and the recommendation, in the corners.
         if (def.use != ItemUse.Passive)
         {
             var badge = UiKit.Label("Badge", back.transform, def.BadgeText, UiTheme.SmallSize - 1, UiTheme.OrangeDeep, TextAnchor.LowerLeft, heading: true);
-            UiKit.Place(badge.rectTransform, UiKit.BottomLeft, new Vector2(7, 3), new Vector2(103, 9));
+            UiKit.Place(badge.rectTransform, UiKit.BottomLeft, new Vector2(7, 3), new Vector2(103, 11));
         }
         if (def.recommended)
         {
@@ -328,14 +372,16 @@ public class LoadoutScreen : MonoBehaviour
         UiKit.Edge(paper);
         var p = paper.transform;
 
-        // Four numbered slots.
+        // The packing stage (the bag and the rescuer, in 3D), and the four numbered slots beside it, two by two.
+        Stage = PackingStage.Create(p, new Vector2(10, -8), new Vector2(StageW, StageH));
         for (int i = 0; i < slots.Length; i++)
         {
             int index = i;
+            float sx = 10 + StageW + 12 + (i % 2) * (SlotSize + 10), sy = -8 - (i / 2) * (SlotSize + 6);
             var num = UiKit.Label("Number" + (i + 1), p, (i + 1).ToString(), UiTheme.SmallSize + 1, UiTheme.Ink, TextAnchor.UpperLeft, heading: true);
-            UiKit.Place(num.rectTransform, UiKit.TopLeft, new Vector2(12 + i * 70, -8), new Vector2(12, 10));
+            UiKit.Place(num.rectTransform, UiKit.TopLeft, new Vector2(sx - 7, sy + 1), new Vector2(12, 10));
             var box = UiKit.Panel("Slot" + (i + 1), p, UiTheme.Cream, UiTheme.RadiusSmall);
-            UiKit.Place(box.rectTransform, UiKit.TopLeft, new Vector2(18 + i * 70, -14), new Vector2(56, 56));
+            UiKit.Place(box.rectTransform, UiKit.TopLeft, new Vector2(sx, sy), new Vector2(SlotSize, SlotSize));
             UiKit.Edge(box, UiTheme.White);
             var slotButton = box.gameObject.AddComponent<Button>();
             UiKit.PressFeedback(slotButton);
@@ -347,7 +393,7 @@ public class LoadoutScreen : MonoBehaviour
 
         // Dispatch: where, what, and the map.
         var dispatch = UiKit.Panel("Dispatch", p, UiTheme.Cream, UiTheme.RadiusPanel);
-        UiKit.Place(dispatch.rectTransform, UiKit.TopLeft, new Vector2(14, -80), new Vector2(RightW - 28, 124));
+        UiKit.Place(dispatch.rectTransform, UiKit.TopLeft, new Vector2(14, -(StageH + 16)), new Vector2(RightW - 28, 214 - StageH - 26));
         var d = dispatch.transform;
 
         var pinArt = UiAssets.Current.dispatchIcon;
@@ -365,22 +411,25 @@ public class LoadoutScreen : MonoBehaviour
         BuildMapSelector(d);
 
         titleText = UiKit.Label("Title", d, "", UiTheme.SmallSize + 1, UiTheme.OrangeBurnt, TextAnchor.UpperLeft, heading: true);
-        UiKit.Place(titleText.rectTransform, UiKit.TopLeft, new Vector2(25, -21), new Vector2(240, 10));
-        titleText.Shrink(5);
-        briefText = UiKit.Label("Text", d, "", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
-        UiKit.Place(briefText.rectTransform, UiKit.TopLeft, new Vector2(25, -31), new Vector2(240, 22));
-        briefText.Shrink(4);
-        metaText = UiKit.Label("Meta", d, "", UiTheme.SmallSize - 1, UiTheme.InkSoft, TextAnchor.UpperLeft);
-        UiKit.Place(metaText.rectTransform, UiKit.TopLeft, new Vector2(25, -53), new Vector2(240, 8));
-        metaText.Shrink(4);
+        UiKit.Place(titleText.rectTransform, UiKit.TopLeft, new Vector2(25, -22), new Vector2(RightW - 62, 14));
+        titleText.textWrappingMode = TextWrappingModes.NoWrap;
+        titleText.Shrink(8);
 
-        var line = UiKit.Image("Line", d, UiTheme.Rule);
-        UiKit.Place(line.rectTransform, UiKit.TopLeft, new Vector2(8, -63), new Vector2(RightW - 44, UiTheme.RuleThickness));
-        var objHead = UiKit.Label("ObjectivesHead", d, "OBJECTIVES", UiTheme.BodySize, UiTheme.Ink, TextAnchor.UpperLeft, heading: true);
-        UiKit.Place(objHead.rectTransform, UiKit.TopLeft, new Vector2(8, -66), new Vector2(120, 11));
-        objectivesText = UiKit.Label("Objectives", d, "", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.UpperLeft);
-        UiKit.Place(objectivesText.rectTransform, UiKit.TopLeft, new Vector2(8, -78), new Vector2(RightW - 44, 44));
-        objectivesText.Shrink(4);
+        // The briefing and objectives are longer than the box at a size a phone can read, so they scroll under the
+        // title instead of shrinking to fit.
+        var briefing = UiKit.Rect("Briefing", d);
+        UiKit.Inset(briefing, 6, 38, 4, 5);
+        var content = UiKit.Scroll(briefing, out briefingScroll, 3f, new RectOffset(2, 6, 0, 4));
+        briefText = UiKit.Paragraph(content, "", UiTheme.SmallSize, UiTheme.Ink);
+        briefText.name = "Text";
+        metaText = UiKit.Paragraph(content, "", UiTheme.SmallSize - 1, UiTheme.InkSoft);
+        metaText.name = "Meta";
+        var line = UiKit.Image("Line", content, UiTheme.Rule);
+        line.gameObject.AddComponent<LayoutElement>().preferredHeight = UiTheme.RuleThickness;
+        var objHead = UiKit.Paragraph(content, "OBJECTIVES", UiTheme.BodySize, UiTheme.Ink, heading: true);
+        objHead.name = "ObjectivesHead";
+        objectivesText = UiKit.Paragraph(content, "", UiTheme.SmallSize, UiTheme.Ink);
+        objectivesText.name = "Objectives";
 
         // RECOMMENDED PACK · CLEAR · LAUNCH
         float bw = 94f, by = -(PanelY + 214 + 14);
@@ -402,7 +451,8 @@ public class LoadoutScreen : MonoBehaviour
         {
             var map = MapChoice.All[i];
             string shortName = map.title.Split('·')[0].Trim();
-            var b = UiKit.Button(dispatch, shortName, ButtonStyle.Secondary, () => PickMap(map), out var label, UiTheme.SmallSize + 1);
+            var b = UiKit.Button(dispatch, shortName, ButtonStyle.Secondary, () => PickMap(map), out var label, UiTheme.SmallSize + 1,
+                                 UiSoundKind.Toggle);
             var rt = (RectTransform)b.transform;
             rt.gameObject.name = "Map_" + map.id;
             UiKit.Place(rt, UiKit.TopRight, new Vector2(-6 - (MapChoice.All.Count - 1 - i) * (w + 4), -5), new Vector2(w, 14));

@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8af0f675e276042178c9389eb97dd170, type: 3}
+  m_Name: CutsceneAssets
+  m_EditorClassIdentifier: Bayanihan::CutsceneAssets
+  mixer: {fileID: 24100000, guid: 14268b5df82c14642a9a4a8dfd839754, type: 2}
+  music: {fileID: 8369982033563061337, guid: 14268b5df82c14642a9a4a8dfd839754, type: 2}
+  sfx: {fileID: -3002433172663800344, guid: 14268b5df82c14642a9a4a8dfd839754, type: 2}
+  ambience: {fileID: -5032113248950852442, guid: 14268b5df82c14642a9a4a8dfd839754, type: 2}
+  vo: {fileID: 7706912681913457944, guid: 14268b5df82c14642a9a4a8dfd839754, type: 2}
+  rainLight: {fileID: 8300000, guid: f82257cc1eaf84d05951d632a09c0f6e, type: 3}
+  rainHeavy: {fileID: 8300000, guid: ce43fb5102ae240a0bec9c4e4d26ed88, type: 3}
+  tinDrips: {fileID: 8300000, guid: 1e5139adebbeb485ea673cdefa6b0499, type: 3}
+  waterRush: {fileID: 8300000, guid: 84b038d07fe20428d91558e5a3947f22, type: 3}
+  wind: {fileID: 8300000, guid: 0c2899aa30ae34bf3814d2ae8f3782ad, type: 3}
+  thunder:
+  - {fileID: 8300000, guid: 8d9401f59ff8547778462890fc9f05be, type: 3}
+  - {fileID: 8300000, guid: a6f76b058057847f19b33b89fc530d26, type: 3}
+  siren: {fileID: 8300000, guid: cf869829312294c4aa8704b43d3890ee, type: 3}
+  whoosh: {fileID: 8300000, guid: a9450ad5f50da4299bcae9b8905ea043, type: 3}
+  splash: {fileID: 8300000, guid: 4b5ad5c968cd94ef986dafcdb8b29ed4, type: 3}
+  packRustle: {fileID: 8300000, guid: f7f4fb20043bb434d999d194f83d907f, type: 3}
+  packZip: {fileID: 8300000, guid: 7970ec483c53a4577a092d4b81308174, type: 3}
+  packBuckle: {fileID: 8300000, guid: e028c887282ea4d6b90c8dae748fe23c, type: 3}
+  packDenied: {fileID: 8300000, guid: 3464622ebde22471eaef2669c3029627, type: 3}
+  readyStamp: {fileID: 8300000, guid: 2b65186698961434ca4755696b585818, type: 3}
+  backpack: {fileID: 8771091787928289351, guid: e64a83bf0321d403997717e231f1e4e2, type: 3}
+  itemModels:
+  - {fileID: 8771091787928289351, guid: 4d5c6de643edc4045a181d21ae0bd898, type: 3}
+  - {fileID: 8771091787928289351, guid: ea73ed33ef70a45ad98b4b7e1189be65, type: 3}
+  - {fileID: 8771091787928289351, guid: eba74afb717c147468dbe72e12296e27, type: 3}
+  - {fileID: 8771091787928289351, guid: dc514893acef64d0da5fca50d459e0f5, type: 3}
+  - {fileID: 8771091787928289351, guid: a322774b8f83f41f981c5696059fffb7, type: 3}
+  - {fileID: 8771091787928289351, guid: 2fc8d06683fde42db8b2b6d4db7768f6, type: 3}
+  radioBulletin: {fileID: 8300000, guid: 4fbbe80823e824c67943f93fd788a76f, type: 3}
+  radioBulletinText: Weather bulletin. Signal number three is raised over Cavite.
+    Residents near the river, prepare to evacuate now.
+  musicCue: {fileID: 8300000, guid: 3919ca6b9e3e96e41b2a4addfc021c86, type: 3}
+  musicCueStart: 0

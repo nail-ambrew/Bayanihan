@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
@@ -194,7 +195,7 @@ public class GameUiTests
 
         var heading = GameObject.Find("GameHud/MissionComplete/Safe/Board/Title");
         Assert.IsNotNull(heading, "the Mission Complete board");
-        Assert.AreEqual("TIME'S UP!", heading.GetComponent<Text>().text, "the clock ran out with nobody registered");
+        Assert.AreEqual("TIME'S UP!", heading.GetComponent<TMP_Text>().text, "the clock ran out with nobody registered");
         foreach (var row in new[] { "Time Taken:", "Survivors Saved:", "Areas Cleared:", "Supplies Used:" })
             Assert.IsNotNull(GameObject.Find("GameHud/MissionComplete/Safe/Board/Card/Body/Rows/Row_" + row), row);
 
@@ -202,5 +203,31 @@ public class GameUiTests
         Assert.AreEqual(RescueManager.Instance.TotalSurvivors, stats.total);
         Assert.AreEqual(RescueManager.Instance.Evacuated, stats.saved);
         Assert.Greater(stats.areas, 0);
+    }
+
+    [UnityTest]
+    public IEnumerator The_colour_setting_changes_the_picture_at_once()
+    {
+        int before = GameSettings.ColorGrade;
+        try
+        {
+            var volume = Object.FindFirstObjectByType<UnityEngine.Rendering.Volume>();
+            Assert.IsNotNull(volume, "the gameplay scene has a post-processing Volume");
+
+            GameSettings.ColorGrade = 1;    // VIBRANT
+            yield return null;
+            Assert.IsTrue(volume.profile.TryGet<UnityEngine.Rendering.Universal.ColorAdjustments>(out var colour));
+            float vibrant = colour.saturation.value;
+
+            GameSettings.ColorGrade = 2;    // STORMY
+            yield return null;
+            Assert.Less(colour.saturation.value, vibrant, "Stormy is greyer than Vibrant");
+            Assert.Less(colour.saturation.value, 0f, "Stormy takes colour out");
+            Assert.Greater(vibrant, 0f, "Vibrant adds colour");
+        }
+        finally
+        {
+            GameSettings.ColorGrade = before;
+        }
     }
 }

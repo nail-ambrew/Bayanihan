@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,6 +14,9 @@ using UnityEngine.UI;
 public class TouchControls : MonoBehaviour
 {
     static readonly List<TouchControls> all = new List<TouchControls>();
+
+    /// <summary>How far in from either side edge the joystick or the button cluster reaches, in HUD units.</summary>
+    public const float CornerWidth = 180f;
 
     CanvasGroup group;
     RectTransform root, joystickRoot, buttonsRoot;
@@ -60,9 +64,10 @@ public class TouchControls : MonoBehaviour
         buttonsRoot = UiKit.Rect("Buttons", rt);
         buttonsRoot.sizeDelta = new Vector2(200, 170);
         rescue = TouchButton.Create(buttonsRoot, "RESCUE", TouchAction.Interact, 62f, UiTheme.Orange);
-        throwButton = TouchButton.Create(buttonsRoot, "THROW", TouchAction.Throw, 44f, UiTheme.OrangeDeep);
-        light = TouchButton.Create(buttonsRoot, "LIGHT", TouchAction.Flashlight, 36f, UiTheme.BrownDark);
-        radio = TouchButton.Create(buttonsRoot, "RADIO", TouchAction.Radio, 36f, UiTheme.BrownDark);
+        // Sizes in HUD units; the HUD zoom makes the smallest of them over 44 pt, a thumb's width.
+        throwButton = TouchButton.Create(buttonsRoot, "THROW", TouchAction.Throw, 46f, UiTheme.OrangeDeep);
+        light = TouchButton.Create(buttonsRoot, "LIGHT", TouchAction.Flashlight, 38f, UiTheme.BrownDark);
+        radio = TouchButton.Create(buttonsRoot, "RADIO", TouchAction.Radio, 38f, UiTheme.BrownDark);
         powerCut = TouchButton.Create(buttonsRoot, "POWER\nCUT", TouchAction.PowerCut, 40f, UiTheme.Error);
 
         Layout();
@@ -85,8 +90,8 @@ public class TouchControls : MonoBehaviour
         Place(rescue, a, new Vector2(-8 * s, 8));
         Place(throwButton, a, new Vector2(-80 * s, 4));
         Place(powerCut, a, new Vector2(-132 * s, 6));
-        Place(light, a, new Vector2(-6 * s, 82));
-        Place(radio, a, new Vector2(-52 * s, 96));
+        Place(light, a, new Vector2(-6 * s, 80));
+        Place(radio, a, new Vector2(-54 * s, 96));
     }
 
     static void Place(TouchButton b, Vector2 anchor, Vector2 pos) =>
@@ -119,7 +124,7 @@ public class TouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     TouchAction action;
     Image disc, cooldown;
-    Text label;
+    TMP_Text label;
     Color colour;
     bool down, on;
     CanvasGroup group;
@@ -144,9 +149,12 @@ public class TouchButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         b.cooldown.fillMethod = Image.FillMethod.Radial360;
         b.cooldown.fillOrigin = (int)Image.Origin360.Top;
         b.cooldown.fillAmount = 0f;
-        b.label = UiKit.Label("Label", rt, text, Mathf.RoundToInt(size * 0.2f), UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+        b.label = UiKit.Label("Label", rt, text, Mathf.Max(UiTheme.HudSmall + 1, Mathf.RoundToInt(size * 0.22f)), UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+        b.label.textWrappingMode = TextWrappingModes.NoWrap;
+        b.label.Shrink(6);
         UiKit.Stretch(b.label.rectTransform);
-        b.label.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.4f);
+        UiKit.Inset(b.label.rectTransform, 3f);
+        b.label.TextShadow(new Color(0, 0, 0, 0.4f));
         return b;
     }
 

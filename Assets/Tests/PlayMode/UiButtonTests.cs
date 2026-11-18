@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
@@ -59,6 +60,22 @@ public class UiButtonTests
     /// What a real mouse or finger does, not what onClick.Invoke does: for every button showing under <paramref name="root"/>,
     /// a click at its centre must reach that button and not something on top of it, or behind it showing through.
     /// </summary>
+    /// <summary>A button in a scroll view that is out of sight is scrolled to the middle of the view, as a player would.</summary>
+    static void ScrollIntoView(RectTransform button)
+    {
+        var scroll = button.GetComponentInParent<ScrollRect>();
+        if (scroll == null || scroll.viewport == null || scroll.content == null) return;
+        Canvas.ForceUpdateCanvases();
+        var view = new Vector3[4];
+        var at = new Vector3[4];
+        scroll.viewport.GetWorldCorners(view);
+        button.GetWorldCorners(at);
+        if (at[0].y >= view[0].y && at[1].y <= view[1].y) return;                 // already in sight
+        float shift = (view[0].y + view[1].y) * 0.5f - (at[0].y + at[1].y) * 0.5f;
+        scroll.content.position += new Vector3(0f, shift, 0f);
+        Canvas.ForceUpdateCanvases();
+    }
+
     static void AssertEveryButtonTakesAClickAtItsCentre(Transform root, string screen)
     {
         var es = UnityEngine.EventSystems.EventSystem.current;
@@ -68,6 +85,7 @@ public class UiButtonTests
         {
             if (!b.IsInteractable()) continue;
             var rt = (RectTransform)b.transform;
+            ScrollIntoView(rt);                 // as a player would scroll down to it on a long page
             var corners = new Vector3[4];
             rt.GetWorldCorners(corners);
             var centre = (corners[0] + corners[2]) * 0.5f;      // screen-space overlay: world units are screen pixels
@@ -140,7 +158,7 @@ public class UiButtonTests
             yield return null;
             var board = Find("Board", safe);
             Assert.IsNotNull(board, item + " opens a page");
-            Assert.AreEqual(title, board.Find("Title").GetComponent<Text>().text);
+            Assert.AreEqual(title, board.Find("Title").GetComponent<TMP_Text>().text);
             Assert.IsNotNull(board.Find("Close"), title + " has a back arrow, so it can be closed without a Back key");
 
             Tap("Close", board);
@@ -162,7 +180,7 @@ public class UiButtonTests
         yield return null;
         var boards = safe.GetComponentsInChildren<Transform>().Where(t => t.name == "Board").ToList();
         Assert.AreEqual(1, boards.Count, "one page at a time");
-        Assert.AreEqual("CREDITS", boards[0].Find("Title").GetComponent<Text>().text);
+        Assert.AreEqual("CREDITS", boards[0].Find("Title").GetComponent<TMP_Text>().text);
     }
 
     [UnityTest]
@@ -178,6 +196,34 @@ public class UiButtonTests
         Assert.AreEqual(0, GameSettings.Quality, "LOW");
         Tap("Button_HIGH", graphics);
         Assert.AreEqual(2, GameSettings.Quality, "HIGH");
+
+        int colourBefore = GameSettings.ColorGrade;
+        var colour = Find("Choice_COLOR", safe);
+        Assert.IsNotNull(colour, "Settings offers the colour grade");
+        Tap("Button_VIBRANT", colour);
+        Assert.AreEqual(1, GameSettings.ColorGrade, "VIBRANT");
+        Tap("Button_STORMY", colour);
+        Assert.AreEqual(2, GameSettings.ColorGrade, "STORMY");
+        GameSettings.ColorGrade = colourBefore;
+
+        // The music and the sound effects have their own volume, under the master one.
+        float musicBefore = GameSettings.MusicVolume, sfxBefore = GameSettings.SfxVolume;
+        try
+        {
+            var music = Find("Slider_MUSIC", safe)?.GetComponentInChildren<Slider>();
+            var sfx = Find("Slider_SOUND EFFECTS", safe)?.GetComponentInChildren<Slider>();
+            Assert.IsNotNull(music, "Settings has a Music volume");
+            Assert.IsNotNull(sfx, "Settings has a Sound Effects volume");
+            music.value = 0.3f;
+            sfx.value = 0.6f;
+            Assert.AreEqual(0.3f, GameSettings.MusicVolume, 1e-4f, "the Music slider sets the music volume");
+            Assert.AreEqual(0.6f, GameSettings.SfxVolume, 1e-4f, "the Sound Effects slider sets the sound effects volume");
+        }
+        finally
+        {
+            GameSettings.MusicVolume = musicBefore;
+            GameSettings.SfxVolume = sfxBefore;
+        }
     }
 
     [UnityTest]
@@ -273,7 +319,7 @@ public class UiButtonTests
         yield return WaitUntil(() => RescueManager.Instance.ReportVisible, 15f, "the end screen");
         yield return null;
         var root = GameObject.Find("GameHud/MissionComplete/Safe").transform;
-        Text ReportLabel() => Find("Menu_FULL REPORT", root).Find("Label").GetComponent<Text>();
+        TMP_Text ReportLabel() => Find("Menu_FULL REPORT", root).Find("Label").GetComponent<TMP_Text>();
 
         Tap("Menu_FULL REPORT", root);
         yield return null;

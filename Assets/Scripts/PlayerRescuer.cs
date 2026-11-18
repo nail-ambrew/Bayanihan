@@ -100,6 +100,20 @@ public class PlayerRescuer : MonoBehaviour
     [Tooltip("How long that swing back takes.")]
     public float boatLookRecenterTime = 1f;
 
+    [Header("Start")]
+    [Tooltip("Start the mission at the helm, with the boat's chase camera, rather than in the water beside the boat in the " +
+             "swimmer's view. E (RESCUE) steps off as usual.")]
+    public bool startAboard = true;
+
+    /// <summary>
+    /// Overrides <see cref="startAboard"/> for every rescuer that starts from now on (null = use the field). Tests of
+    /// swimming set it to false so they still begin in the water.
+    /// </summary>
+    public static bool? StartAboardOverride;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStartOverride() => StartAboardOverride = null;
+
     public bool IsMounted { get; private set; }
 
     /// <summary>Stunned by a shock: no swimming and no climbing aboard until it passes.</summary>
@@ -207,6 +221,16 @@ public class PlayerRescuer : MonoBehaviour
         SetUpBoatCamera();
         SnapToWater();
         ApplyCursorLock(true);
+
+        // The mission begins at the helm: seated, hand on the tiller, the boat's camera live. A frame from now, once the
+        // boat and its crew have set themselves up, so the crew member steps forward from the helm as when boarding.
+        if (StartAboardOverride ?? startAboard) StartCoroutine(BoardAtStart());
+    }
+
+    System.Collections.IEnumerator BoardAtStart()
+    {
+        yield return null;
+        if (!IsMounted && boat != null && boat.Hull != null) Mount();
     }
 
     /// <summary>
@@ -753,7 +777,14 @@ public class PlayerRescuer : MonoBehaviour
         int n = Physics.OverlapCapsuleNonAlloc(bottom, top, bodyRadius, overlaps, ~0, QueryTriggerInteraction.Ignore);
 
         for (int i = 0; i < n; i++)
-            if (overlaps[i] != boat.Hull && overlaps[i] != body) return false;
+        {
+            var c = overlaps[i];
+            if (c == boat.Hull || c == body) continue;
+            // The street under shallow flood water is not in the way: the legs just reach the bottom. Anything that
+            // stands up out of it (a wall, a post, a parked jeepney) still is.
+            if (c.bounds.max.y < feet.y - 0.5f) continue;
+            return false;
+        }
         return true;
     }
 

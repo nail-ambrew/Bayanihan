@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
@@ -45,17 +46,25 @@ public class MapChoiceFlowTests
     {
         var go = GameObject.Find(path);
         Assert.IsNotNull(go, "the loadout screen has no '" + path + "'");
-        return go.GetComponent<Text>().text;
+        return go.GetComponent<TMP_Text>().text;
     }
 
-    static string Briefing(string part) => Label(DispatchPath + "/" + part);
+    /// <summary>A part of the Dispatch box by name, wherever it sits inside (the briefing scrolls in its own view).</summary>
+    static string Briefing(string part)
+    {
+        var dispatch = GameObject.Find(DispatchPath);
+        Assert.IsNotNull(dispatch, "the loadout screen has no '" + DispatchPath + "'");
+        var found = dispatch.GetComponentsInChildren<TMP_Text>(true).FirstOrDefault(t => t.name == part);
+        Assert.IsNotNull(found, "Dispatch has no '" + part + "'");
+        return found.text;
+    }
 
     const string DispatchPath = "LoadoutCanvas/SafeArea/Loadout/Dispatch";
 
     static void PressLaunch()
     {
         var launch = Object.FindObjectsByType<Button>(FindObjectsSortMode.None)
-                           .FirstOrDefault(b => b.GetComponentInChildren<Text>() != null && b.GetComponentInChildren<Text>().text.Contains("LAUNCH"));
+                           .FirstOrDefault(b => b.GetComponentInChildren<TMP_Text>() != null && b.GetComponentInChildren<TMP_Text>().text.Contains("LAUNCH"));
         Assert.IsNotNull(launch, "the loadout screen has no launch button");
         launch.onClick.Invoke();
     }

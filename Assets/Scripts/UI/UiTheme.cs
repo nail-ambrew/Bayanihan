@@ -42,13 +42,27 @@ public static class UiTheme
     public static readonly Color Warning     = Hex(0xFF, 0x9A, 0x5C);
     public static readonly Color Notice      = Hex(0xFF, 0xE0, 0x6E);
 
-    // ------------------------------------------------------------------ type sizes (Figma px)
+    // ------------------------------------------------------------------ type sizes
+    // The frame is a phone's screen in points, so these are points on the phone. The Figma file set body text at 8
+    // and captions at 6, well under the 11 pt a phone can comfortably be read at; they are raised here.
     public const int LogoSize = 26;
-    public const int TitleSize = 22;      // MISSION COMPLETE!, EQUIPMENT, LOADOUT
-    public const int MenuSize = 13;       // HOW TO PLAY, PLAY ...
-    public const int ButtonSize = 11;
-    public const int BodySize = 8;
-    public const int SmallSize = 6;
+    public const int TitleSize = 22;      // MISSION COMPLETE!, EQUIPMENT, LOADOUT (already big enough)
+    public const int MenuSize = 16;       // HOW TO PLAY, PLAY ...
+    public const int ButtonSize = 14;
+    public const int BodySize = 12;
+    public const int SmallSize = 10;
+
+    // ------------------------------------------------------------------ the HUD
+    /// <summary>
+    /// The HUD and touch controls are drawn this much bigger than the Figma frame (see <see cref="UiZoom"/>), so its
+    /// chips read and its buttons take a thumb. The HUD sizes below are in HUD units, before this zoom.
+    /// </summary>
+    public const float HudZoom = 1.3f;
+    public const int HudValue = 12;       // the numbers in the clock, safe, boat and score chips
+    public const int HudPrompt = 10;      // what to do next, bottom centre
+    public const int HudText = 9;         // card names, marker chips, the roster header
+    public const int HudSmall = 8;        // chip captions, roster rows, card details
+    public const int HudTiny = 7;         // an item's state under its icon
 
     // ------------------------------------------------------------------ shapes: one radius per kind of thing
     /// <summary>Boards, the sign-in card, notices: the big outer shapes.</summary>

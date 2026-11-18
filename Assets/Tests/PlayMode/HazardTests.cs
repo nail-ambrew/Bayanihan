@@ -20,10 +20,15 @@ public class HazardTests
 
     static readonly Vector3 West = Vector3.left;
     static readonly Vector3 StreetSpot = new Vector3(-30f, 0f, -6.5f);
+    TouchMode touchBefore;
 
     [UnitySetUp]
     public IEnumerator Load()
     {
+        // The prompts are checked in their keyboard wording. On Auto, a PC with a touchscreen gets the phone wording
+        // ("tap POWER CUT"), so keyboard prompts are asked for outright and the player's setting put back afterwards.
+        touchBefore = GameSettings.Touch;
+        GameSettings.Touch = TouchMode.Off;
         LoadoutState.Clear();
         yield return LoadGameplay();
         ClearTheStage();
@@ -41,6 +46,7 @@ public class HazardTests
     [UnityTearDown]
     public IEnumerator Restore()
     {
+        GameSettings.Touch = touchBefore;
         LoadoutState.Clear();
         Time.timeScale = 1f;
         yield return null;

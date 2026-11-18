@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -29,14 +30,79 @@ public enum ButtonStyle
 public static class UiKit
 {
     // ------------------------------------------------------------------ fonts
-    static Font builtin;
+    // Every label is a TextMesh Pro label: signed-distance-field glyphs stay sharp at any size and scale, where the
+    // legacy uGUI Text baked a bitmap per size and went soft and jagged on a phone.
 
-    static Font Builtin => builtin != null ? builtin : (builtin = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+    public static TMP_FontAsset HeadingFont => UiAssets.Current.headingFont != null ? UiAssets.Current.headingFont : TMP_Settings.defaultFontAsset;
+    public static TMP_FontAsset BodyFont => UiAssets.Current.bodyFont != null ? UiAssets.Current.bodyFont : TMP_Settings.defaultFontAsset;
+    /// <summary>The default font has no chunky weight of its own, so headings set in it are made bold.</summary>
+    static FontStyles HeadingStyle => UiAssets.Current.headingFont != null ? FontStyles.Normal : FontStyles.Bold;
 
-    public static Font HeadingFont => UiAssets.Current.headingFont != null ? UiAssets.Current.headingFont : Builtin;
-    public static Font BodyFont => UiAssets.Current.bodyFont != null ? UiAssets.Current.bodyFont : Builtin;
-    /// <summary>The built-in font has no chunky weight of its own, so headings set in it are made bold.</summary>
-    static FontStyle HeadingStyle => UiAssets.Current.headingFont != null ? FontStyle.Normal : FontStyle.Bold;
+    /// <summary>The uGUI anchor the screens are written in, as TMP's alignment.</summary>
+    public static TextAlignmentOptions Align(TextAnchor anchor)
+    {
+        switch (anchor)
+        {
+            case TextAnchor.UpperLeft:    return TextAlignmentOptions.TopLeft;
+            case TextAnchor.UpperCenter:  return TextAlignmentOptions.Top;
+            case TextAnchor.UpperRight:   return TextAlignmentOptions.TopRight;
+            case TextAnchor.MiddleLeft:   return TextAlignmentOptions.Left;
+            case TextAnchor.MiddleRight:  return TextAlignmentOptions.Right;
+            case TextAnchor.LowerLeft:    return TextAlignmentOptions.BottomLeft;
+            case TextAnchor.LowerCenter:  return TextAlignmentOptions.Bottom;
+            case TextAnchor.LowerRight:   return TextAlignmentOptions.BottomRight;
+            default:                      return TextAlignmentOptions.Center;
+        }
+    }
+
+    // ------------------------------------------------------------------ text effects
+    // uGUI's Shadow and Outline components do nothing to a TMP label, so the drop shadow is the font material's
+    // underlay and the logo's edge its outline. Each look is one shared material, made once from the preset in
+    // UiAssets (whose keyword keeps the shader variant in the build), so labels that look alike still batch.
+    static readonly Dictionary<string, Material> textEffects = new Dictionary<string, Material>();
+
+    /// <summary>A drop shadow under the label, down and to the right; <paramref name="offset"/> is in SDF units (about a tenth of an em at 1).</summary>
+    public static TMP_Text TextShadow(this TMP_Text t, Color colour, float offset = 0.6f)
+    {
+        t.fontSharedMaterial = TextEffect(t.font, false, colour, offset);
+        return t;
+    }
+
+    /// <summary>An edge round each letter; <paramref name="width"/> is TMP's outline width (0..1).</summary>
+    public static TMP_Text TextOutline(this TMP_Text t, Color colour, float width = 0.25f)
+    {
+        t.fontSharedMaterial = TextEffect(t.font, true, colour, width);
+        return t;
+    }
+
+    static Material TextEffect(TMP_FontAsset font, bool outline, Color colour, float amount)
+    {
+        string key = $"{font.GetInstanceID()}/{(outline ? "o" : "s")}/{colour}/{amount}";
+        if (textEffects.TryGetValue(key, out var cached) && cached != null) return cached;
+
+        var a = UiAssets.Current;
+        var preset = outline ? a.headingOutline : (font == a.bodyFont ? a.bodyShadow : a.headingShadow);
+        // A preset made for another font would draw this font's glyphs from the wrong atlas.
+        if (preset == null || preset.mainTexture != font.material.mainTexture) preset = font.material;
+
+        var mat = new Material(preset) { name = font.name + (outline ? " Outline " : " Shadow ") + colour };
+        if (outline)
+        {
+            mat.EnableKeyword(ShaderUtilities.Keyword_Outline);
+            mat.SetColor(ShaderUtilities.ID_OutlineColor, colour);
+            mat.SetFloat(ShaderUtilities.ID_OutlineWidth, amount);
+        }
+        else
+        {
+            mat.EnableKeyword(ShaderUtilities.Keyword_Underlay);
+            mat.SetColor(ShaderUtilities.ID_UnderlayColor, colour);
+            mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, amount);
+            mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -amount);
+            mat.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.15f);
+        }
+        textEffects[key] = mat;
+        return mat;
+    }
 
     // ------------------------------------------------------------------ canvas
     public static void EnsureEventSystem()
@@ -113,21 +179,17 @@ public static class UiKit
         Place(root, anchor, pos, new Vector2(width, width * 0.36f));
         var name = Label("Name", root, "BAYANIHAN!", Mathf.RoundToInt(width * 0.175f), UiTheme.Orange, TextAnchor.UpperLeft, heading: true);
         Place(name.rectTransform, new Vector2(0, 1), Vector2.zero, new Vector2(width, width * 0.24f));
-        name.verticalOverflow = VerticalWrapMode.Overflow;
-        name.horizontalOverflow = HorizontalWrapMode.Overflow;
-        var outline = name.gameObject.AddComponent<Outline>();
-        outline.effectColor = UiTheme.OrangeBurnt;
-        outline.effectDistance = new Vector2(0.8f, -0.8f);
+        name.textWrappingMode = TextWrappingModes.NoWrap;
+        name.TextOutline(UiTheme.OrangeBurnt, 0.2f);
         var tag = Label("Tagline", root, "DISASTER RESCUE GAME", Mathf.RoundToInt(width * 0.062f), UiTheme.Orange, TextAnchor.UpperLeft, heading: true);
         Place(tag.rectTransform, new Vector2(0, 1), new Vector2(1f, -width * 0.235f), new Vector2(width, width * 0.1f));
-        tag.verticalOverflow = VerticalWrapMode.Overflow;
-        tag.horizontalOverflow = HorizontalWrapMode.Overflow;
-        tag.gameObject.AddComponent<Outline>().effectColor = UiTheme.OrangeBurnt;
+        tag.textWrappingMode = TextWrappingModes.NoWrap;
+        tag.TextOutline(UiTheme.OrangeBurnt, 0.3f);
         return root;
     }
 
     /// <summary>The build number, bottom right of every menu frame.</summary>
-    public static Text Version(Transform parent)
+    public static TMP_Text Version(Transform parent)
     {
         var t = Label("Version", parent, Application.version, UiTheme.SmallSize + 1, UiTheme.White, TextAnchor.LowerRight, heading: true);
         Place(t.rectTransform, new Vector2(1, 0), new Vector2(-14, 8), new Vector2(80, 14));
@@ -161,30 +223,35 @@ public static class UiKit
         return Image(name, parent, color, Rounded(radius));
     }
 
-    public static Text Label(string name, Transform parent, string text, int size, Color color,
-                             TextAnchor align = TextAnchor.UpperLeft, bool heading = false)
+    /// <summary>
+    /// A TextMesh Pro label in one of the two faces. It wraps, and a line that does not fit its rect still shows
+    /// (TMP's lines are a little taller than the legacy Text's, so cutting them off would hide labels in tight rows).
+    /// </summary>
+    public static TextMeshProUGUI Label(string name, Transform parent, string text, int size, Color color,
+                                        TextAnchor align = TextAnchor.UpperLeft, bool heading = false)
     {
-        var t = Rect(name, parent).gameObject.AddComponent<Text>();
-        t.font = heading ? HeadingFont : BodyFont;
-        t.fontStyle = heading ? HeadingStyle : FontStyle.Normal;
+        var t = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
+        var font = heading ? HeadingFont : BodyFont;
+        if (font != null) t.font = font;
+        t.fontStyle = heading ? HeadingStyle : FontStyles.Normal;
         t.text = text;
         t.fontSize = size;
         t.color = color;
-        t.alignment = align;
-        t.horizontalOverflow = HorizontalWrapMode.Wrap;
-        t.verticalOverflow = VerticalWrapMode.Truncate;
-        t.resizeTextForBestFit = false;
+        t.alignment = Align(align);
+        t.textWrappingMode = TextWrappingModes.Normal;
+        t.overflowMode = TextOverflowModes.Overflow;
+        t.enableAutoSizing = false;
         t.raycastTarget = false;
-        t.supportRichText = true;
+        t.richText = true;
         return t;
     }
 
-    /// <summary>Lets long text shrink to fit instead of being cut off (descriptions on small cards).</summary>
-    public static Text Shrink(this Text t, int min)
+    /// <summary>Lets long text shrink to fit instead of running out of its rect (descriptions on small cards).</summary>
+    public static TMP_Text Shrink(this TMP_Text t, int min)
     {
-        t.resizeTextForBestFit = true;
-        t.resizeTextMinSize = min;
-        t.resizeTextMaxSize = t.fontSize;
+        t.enableAutoSizing = true;
+        t.fontSizeMin = min;
+        t.fontSizeMax = t.fontSize;
         return t;
     }
 
@@ -220,10 +287,14 @@ public static class UiKit
         Bottom = new Vector2(0.5f, 0), BottomLeft = Vector2.zero, BottomRight = new Vector2(1, 0);
 
     // ------------------------------------------------------------------ buttons
-    /// <summary>A button in one of the Figma styles. Its label is returned too, so it can be changed later.</summary>
-    public static Button Button(Transform parent, string text, ButtonStyle style, UnityAction onClick, out Text label,
-                                int fontSize = UiTheme.ButtonSize)
+    /// <summary>
+    /// A button in one of the Figma styles. Its label is returned too, so it can be changed later. It clicks when pressed (a
+    /// Go button sounds a go-ahead); <paramref name="sound"/> gives it another sound, or <see cref="UiSoundKind.None"/> for none.
+    /// </summary>
+    public static Button Button(Transform parent, string text, ButtonStyle style, UnityAction onClick, out TMP_Text label,
+                                int fontSize = UiTheme.ButtonSize, UiSoundKind? sound = null)
     {
+        var press = sound ?? (style == ButtonStyle.Go ? UiSoundKind.Confirm : UiSoundKind.Click);
         Color fill, ink;
         switch (style)
         {
@@ -244,10 +315,14 @@ public static class UiKit
         c.disabledColor = new Color(1f, 1f, 1f, 0.45f);
         c.fadeDuration = 0.06f;
         b.colors = c;
+        b.onClick.AddListener(() => UiSound.Play(press));
         if (onClick != null) b.onClick.AddListener(onClick);
 
         label = Label("Label", img.transform, text, fontSize, ink, style == ButtonStyle.Link ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter,
                       heading: style != ButtonStyle.Link);
+        // One line, shrinking a little rather than spilling out of a narrow button.
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.Shrink(Mathf.Max(6, fontSize * 2 / 3));
         Inset(label.rectTransform, 4, 0, 4, 0);
         if (style == ButtonStyle.Link)
         {
@@ -259,8 +334,9 @@ public static class UiKit
         return b;
     }
 
-    public static Button Button(Transform parent, string text, ButtonStyle style, UnityAction onClick, int fontSize = UiTheme.ButtonSize) =>
-        Button(parent, text, style, onClick, out _, fontSize);
+    public static Button Button(Transform parent, string text, ButtonStyle style, UnityAction onClick, int fontSize = UiTheme.ButtonSize,
+                                UiSoundKind? sound = null) =>
+        Button(parent, text, style, onClick, out _, fontSize, sound);
 
     /// <summary>
     /// One line of a Figma menu: the orange tab and a white word. The highlighted line (hovered, or the last one
@@ -302,7 +378,7 @@ public static class UiKit
     /// card under it. The pages that have no frame of their own (How to Play, Settings, Credits, the full report)
     /// use it too. Returns the paper card; its heading goes in <paramref name="cardTitle"/>.
     /// </summary>
-    public static RectTransform Board(Transform parent, string title, string cardTitle, Sprite cardIcon, out Text titleText, out Text cardHeading,
+    public static RectTransform Board(Transform parent, string title, string cardTitle, Sprite cardIcon, out TMP_Text titleText, out TMP_Text cardHeading,
                                       float left = 201f, UnityAction close = null, string name = "Board")
     {
         // From `left` to 43 units in from the right edge, 30 down from the top, 335 tall (the Figma board).
@@ -318,7 +394,7 @@ public static class UiKit
         titleText = Label("Title", board.transform, title, UiTheme.TitleSize + 4, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
         float titleSide = close != null ? 40f : 12f;     // clear of the back arrow, and centred all the same
         Inset(titleText.rectTransform, titleSide, 10, titleSide, 335 - 44);
-        titleText.gameObject.AddComponent<Shadow>().effectColor = UiTheme.TitleShadow;
+        titleText.TextShadow(UiTheme.TitleShadow);
         // A board can always be closed by tapping, not only with Esc or Android's back key: iOS has neither.
         if (close != null) BackButton(board.transform, TopLeft, new Vector2(6, -8), close, 18f, UiTheme.White).name = "Close";
 
@@ -371,6 +447,7 @@ public static class UiKit
         }
         var b = hit.gameObject.AddComponent<Button>();
         PressFeedback(b);
+        b.onClick.AddListener(() => UiSound.Play(UiSoundKind.Back));
         if (onClick != null) b.onClick.AddListener(onClick);
         return b;
     }
@@ -387,28 +464,42 @@ public static class UiKit
 
     // ------------------------------------------------------------------ fields
     /// <summary>A text field with the orange rim of the sign-in card.</summary>
-    public static InputField Field(Transform parent, string placeholder, InputField.ContentType type, int limit)
+    public static TMP_InputField Field(Transform parent, string placeholder, TMP_InputField.ContentType type, int limit)
     {
         // The fill is the rim's shape one unit in, so both curves share a centre.
         var rim = Panel("Field_" + placeholder, parent, UiTheme.Orange, UiTheme.RadiusSmall);
         var fill = Panel("Fill", rim.transform, UiTheme.White, UiTheme.RadiusSmall - 1f);
         Inset(fill.rectTransform, 1f);
 
-        var text = Label("Text", rim.transform, "", UiTheme.BodySize, UiTheme.Ink, TextAnchor.MiddleLeft);
-        text.supportRichText = false;
-        Inset(text.rectTransform, 7, 0, 7, 0);
-        var hint = Label("Placeholder", rim.transform, placeholder, UiTheme.BodySize, UiTheme.Placeholder, TextAnchor.MiddleLeft);
-        Inset(hint.rectTransform, 7, 0, 7, 0);
+        // TMP's field scrolls its text inside a masked viewport rather than cutting it at the rim.
+        var area = Rect("Text Area", rim.transform);
+        Inset(area, 7, 0, 7, 0);
+        area.gameObject.AddComponent<RectMask2D>();
+        var text = Label("Text", area, "", UiTheme.BodySize, UiTheme.Ink, TextAnchor.MiddleLeft);
+        text.richText = false;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
+        Stretch(text.rectTransform);
+        var hint = Label("Placeholder", area, placeholder, UiTheme.BodySize, UiTheme.Placeholder, TextAnchor.MiddleLeft);
+        hint.textWrappingMode = TextWrappingModes.NoWrap;
+        Stretch(hint.rectTransform);
 
-        var field = rim.gameObject.AddComponent<InputField>();
+        // Wired up while inactive, so the field's OnEnable sees its text and makes its caret.
+        bool wasActive = rim.gameObject.activeSelf;
+        rim.gameObject.SetActive(false);
+        var field = rim.gameObject.AddComponent<TMP_InputField>();
         field.targetGraphic = fill;
+        field.textViewport = area;
         field.textComponent = text;
         field.placeholder = hint;
+        field.fontAsset = text.font;
+        field.richText = false;
         field.characterLimit = limit;
         field.contentType = type;
         field.selectionColor = UiTheme.Fade(UiTheme.Orange, 0.35f);
+        field.customCaretColor = true;
         field.caretColor = UiTheme.Ink;
         field.caretWidth = 1;
+        rim.gameObject.SetActive(wasActive);
         return field;
     }
 
@@ -446,6 +537,7 @@ public static class UiKit
         s.minValue = min;
         s.maxValue = max;
         s.SetValueWithoutNotify(value);
+        s.onValueChanged.AddListener(_ => UiSound.Play(UiSoundKind.Tick));          // a soft tick as it is dragged (rate-limited)
         if (onChange != null) s.onValueChanged.AddListener(onChange);
         return s;
     }
@@ -497,11 +589,9 @@ public static class UiKit
     }
 
     /// <summary>A paragraph that sizes itself in a layout (for scroll views).</summary>
-    public static Text Paragraph(Transform parent, string text, int size, Color color, bool heading = false, TextAnchor align = TextAnchor.UpperLeft)
+    public static TMP_Text Paragraph(Transform parent, string text, int size, Color color, bool heading = false, TextAnchor align = TextAnchor.UpperLeft)
     {
-        var t = Label(heading ? "Heading" : "Text", parent, text, size, color, align, heading);
-        t.verticalOverflow = VerticalWrapMode.Overflow;
-        return t;
+        return Label(heading ? "Heading" : "Text", parent, text, size, color, align, heading);
     }
 
     // ------------------------------------------------------------------ dialogs
@@ -511,6 +601,7 @@ public static class UiKit
     /// </summary>
     public static GameObject Confirm(Transform root, string question, params (string text, UnityAction action)[] answers)
     {
+        UiSound.Play(UiSoundKind.Question);
         var scrim = Image("Dialog", root, UiTheme.Scrim);
         Stretch(scrim.rectTransform);
         scrim.raycastTarget = true;
@@ -546,6 +637,7 @@ public static class UiKit
     /// <summary>A stack of wide buttons over a dimmed screen: the Figma quit dialog (Return to Login / Exit Game / CANCEL).</summary>
     public static GameObject Choices(Transform root, params (string text, ButtonStyle style, UnityAction action)[] choices)
     {
+        UiSound.Play(UiSoundKind.Question);
         var scrim = Image("Choices", root, UiTheme.Scrim);
         Stretch(scrim.rectTransform);
         scrim.raycastTarget = true;
@@ -574,6 +666,7 @@ public static class UiKit
     /// <summary>A paper card with a heading, text and one button: notices such as "Forgot password?".</summary>
     public static GameObject Notice(Transform root, string title, string body, string button = "OK", UnityAction onClose = null)
     {
+        UiSound.Play(UiSoundKind.Question);
         var scrim = Image("Notice", root, UiTheme.Scrim);
         Stretch(scrim.rectTransform);
         scrim.raycastTarget = true;
@@ -584,7 +677,7 @@ public static class UiKit
         Place(t.rectTransform, Top, new Vector2(0, -10), new Vector2(230, 24));
         var b = Label("Body", card.transform, body, UiTheme.BodySize, UiTheme.InkSoft, TextAnchor.UpperCenter);
         Place(b.rectTransform, Top, new Vector2(0, -38), new Vector2(222, 70));
-        b.Shrink(6);
+        b.Shrink(8);
         var go = scrim.gameObject;
         var ok = Button(card.transform, button, ButtonStyle.Primary, () => { UnityEngine.Object.Destroy(go); onClose?.Invoke(); });
         Place((RectTransform)ok.transform, Bottom, new Vector2(0, 10), new Vector2(150, 22));
@@ -597,7 +690,7 @@ public static class UiKit
     static readonly Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetStatics() { sprites.Clear(); builtin = null; }
+    static void ResetStatics() { sprites.Clear(); textEffects.Clear(); }
 
     /// <summary>A white rounded rectangle, 9-sliced. The radius is in Figma units.</summary>
     public static Sprite Rounded(float radius) => Rounded(radius, radius, radius, radius);
@@ -677,27 +770,18 @@ public static class UiKit
         return o;
     }
 
-    /// <summary>A white disc (joystick, slider handle, pips).</summary>
+    /// <summary>
+    /// Round sprites are drawn this many texels across. The joystick ring is over 500 px wide on a phone, and a small
+    /// texture stretched that far shows a soft, stepped edge; mipmaps keep the same texture clean on a 6-unit pip.
+    /// </summary>
+    const int RoundSize = 256;
+
+    /// <summary>A white disc (joystick, touch buttons, slider handle, pips).</summary>
     public static Sprite Circle()
     {
         const string key = "circle";
         if (sprites.TryGetValue(key, out var cached) && cached != null) return cached;
-        const int size = 64;
-        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
-        var px = new Color32[size * size];
-        float r = size * 0.5f;
-        for (int y = 0; y < size; y++)
-        for (int x = 0; x < size; x++)
-        {
-            float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(r, r));
-            px[y * size + x] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(r - d) * 255));
-        }
-        tex.SetPixels32(px);
-        tex.Apply();
-        var sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
-        sprite.name = key;
-        sprites[key] = sprite;
-        return sprite;
+        return RoundSprite(key, 0f);
     }
 
     /// <summary>A ring (the joystick's base, the throw target).</summary>
@@ -705,19 +789,32 @@ public static class UiKit
     {
         string key = "ring" + thickness01;
         if (sprites.TryGetValue(key, out var cached) && cached != null) return cached;
-        const int size = 96;
-        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+        return RoundSprite(key, thickness01);
+    }
+
+    /// <summary>A disc, or a ring when <paramref name="thickness01"/> is above 0, with a one-texel smooth edge inside and out.</summary>
+    static Sprite RoundSprite(string key, float thickness01)
+    {
+        const int size = RoundSize;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, true)
+        {
+            wrapMode = TextureWrapMode.Clamp,
+            filterMode = FilterMode.Trilinear,
+            name = key
+        };
         var px = new Color32[size * size];
-        float r = size * 0.5f, inner = r * (1f - thickness01 * 2f);
+        // a texel of clear margin all round, so no edge texel is cut off by the sprite's bounds
+        float c = size * 0.5f, r = c - 1f, inner = thickness01 > 0f ? r * (1f - thickness01 * 2f) : -1f;
         for (int y = 0; y < size; y++)
         for (int x = 0; x < size; x++)
         {
-            float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(r, r));
-            float a = Mathf.Clamp01(r - d) * Mathf.Clamp01(d - inner);
+            float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(c, c));
+            float a = Mathf.Clamp01(r - d + 0.5f);
+            if (inner >= 0f) a *= Mathf.Clamp01(d - inner + 0.5f);
             px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255));
         }
         tex.SetPixels32(px);
-        tex.Apply();
+        tex.Apply(true, true);     // build the mipmaps, then free the CPU copy
         var sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         sprite.name = key;
         sprites[key] = sprite;
@@ -777,9 +874,9 @@ public static class UiKit
         disc.preserveAspect = true;
         var g = Label("Glyph", disc.transform, def.glyph, 14, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
         Stretch(g.rectTransform);
-        g.resizeTextForBestFit = true;
-        g.resizeTextMinSize = 4;
-        g.resizeTextMaxSize = 40;
+        g.enableAutoSizing = true;
+        g.fontSizeMin = 4;
+        g.fontSizeMax = 40;
         return disc;
     }
 
@@ -878,7 +975,7 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 {
     public static UiMenuItem Highlighted;
     Image tab, pill;
-    Text label;
+    TMP_Text label;
     Button button;
     bool hovered;
 
@@ -905,12 +1002,12 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         pillLeft = r;
         label = UiKit.Label("Label", rt, text, Mathf.RoundToInt(height * 0.45f), UiTheme.White, TextAnchor.MiddleLeft, heading: true);
         UiKit.Inset(label.rectTransform, textLeft, 0, 6, 0);
-        label.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.35f);
+        label.TextShadow(new Color(0, 0, 0, 0.35f));
 
         button = gameObject.AddComponent<Button>();
         button.targetGraphic = pill;
         button.transition = Selectable.Transition.None;
-        button.onClick.AddListener(() => { Highlighted = this; Refresh(); });
+        button.onClick.AddListener(() => { UiSound.Play(UiSoundKind.Open); Highlighted = this; Refresh(); });
         if (onClick != null) button.onClick.AddListener(onClick);
         Refresh();
     }
@@ -925,7 +1022,14 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics() => Highlighted = null;
 
-    public void OnPointerEnter(PointerEventData e) { hovered = true; Highlighted = this; RefreshAll(); }
+    public void OnPointerEnter(PointerEventData e)
+    {
+        // A soft tick as the pointer reaches a new line (a mouse: a tap goes straight to the click).
+        if (Highlighted != this && e.pointerId < 0) UiSound.Play(UiSoundKind.Hover);
+        hovered = true;
+        Highlighted = this;
+        RefreshAll();
+    }
     public void OnPointerExit(PointerEventData e) { hovered = false; Refresh(); }
 
     void RefreshAll()
@@ -940,7 +1044,7 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         tab.enabled = !on;
         label.color = on ? UiTheme.CreamLight : UiTheme.White;
         label.rectTransform.offsetMin = new Vector2(on ? pillLeft : textLeft, 0);
-        label.alignment = TextAnchor.MiddleLeft;
+        label.alignment = TextAlignmentOptions.Left;
     }
 }
 
@@ -948,7 +1052,7 @@ public class UiMenuItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 public class ChoiceRow : MonoBehaviour
 {
     readonly List<Image> backs = new List<Image>();
-    readonly List<Text> labels = new List<Text>();
+    readonly List<TMP_Text> labels = new List<TMP_Text>();
     int selected;
 
     public int Selected => selected;
@@ -970,7 +1074,8 @@ public class ChoiceRow : MonoBehaviour
         for (int i = 0; i < options.Length; i++)
         {
             int index = i;
-            var b = UiKit.Button(area, options[i], ButtonStyle.Secondary, () => { Select(index); onPick?.Invoke(index); }, out var label, UiTheme.BodySize + 1);
+            var b = UiKit.Button(area, options[i], ButtonStyle.Secondary, () => { Select(index); onPick?.Invoke(index); }, out var label, UiTheme.BodySize + 1,
+                                 UiSoundKind.Toggle);
             backs.Add((Image)b.targetGraphic);
             labels.Add(label);
         }

@@ -2,7 +2,11 @@
     "name": "Bayanihan.Editor",
     "rootNamespace": "",
     "references": [
-        "Bayanihan"
+        "Bayanihan",
+        "Unity.Cinemachine",
+        "Unity.Timeline",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [
         "Editor"

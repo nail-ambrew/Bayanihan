@@ -46,7 +46,7 @@ public class SurvivorCondition : MonoBehaviour
 
     void Update()
     {
-        if (survivor.IsRescued || Condition01 <= 0f) return;
+        if (survivor.IsRescued || Condition01 <= 0f || CutsceneHold.Active) return;   // nobody weakens during the intro
 
         float rise = FloodRise.Instance != null ? FloodRise.Instance.Rise : 0f;
         float storm = weather != null ? weather.intensity : 0f;

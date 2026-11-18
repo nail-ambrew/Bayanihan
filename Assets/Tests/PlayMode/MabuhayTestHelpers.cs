@@ -22,6 +22,9 @@ public static class MabuhayTestHelpers
         Time.timeScale = 1f;
         LoadoutState.Clear();
         MapChoice.Select(MapChoice.MabuhayId);
+        // These tests begin with the rescuer in the water beside the boat (the game starts them at the helm; see
+        // StartsAboardTests). Board() puts them aboard when a test needs it.
+        PlayerRescuer.StartAboardOverride = false;
         yield return SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Single);
         yield return null;                      // a frame for every Start()
     }

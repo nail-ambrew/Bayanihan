@@ -12,6 +12,7 @@ Obsidian vault; this is the game's part of it. For the folder layout see [[READM
 - [[Swim and Boat Cameras]] — first and third person, the head, the boat's chase camera.
 - [[Flood Debris]] — wreckage, plant and household scraps, the jam, the Debris layer.
 - [[UI and Settings]] — menus built in code, the settings page, touch controls.
+- [[Cinematics]] — the menu loop, the loadout packing stage, the flood intro, SKIP.
 
 ## Workflows
 - [[Rebuilding Mabuhay]] — the builders and the order they run in.

@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -77,7 +78,7 @@ public static class SceneFlow
 public class LoadingScreen : MonoBehaviour
 {
     Image fill;
-    Text percent;
+    TMP_Text percent;
 
     public static LoadingScreen Create()
     {
@@ -97,7 +98,7 @@ public class LoadingScreen : MonoBehaviour
 
         var tipText = UiKit.Label("Tip", safe, tip, UiTheme.BodySize + 1, UiTheme.White, TextAnchor.LowerCenter, heading: true);
         UiKit.Place(tipText.rectTransform, UiKit.Bottom, new Vector2(0, 62), new Vector2(620, 28));
-        tipText.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.6f);
+        tipText.TextShadow(new Color(0, 0, 0, 0.6f));
 
         // a 4-high bar, rounded at half its height
         var track = UiKit.Panel("Bar", safe, UiTheme.Fade(UiTheme.White, 0.25f), UiKit.Fit(UiTheme.RadiusSmall, new Vector2(660, 4)));

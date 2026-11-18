@@ -17,3 +17,11 @@ Two views, chosen with **V** or **SWIM VIEW** in settings (`GameSettings.SwimVie
   ignores anything with a rigidbody and the Debris layer, and kept 0.6 m above the water.
 
 Tests: `SwimViewTests`, `RescuerViewTests`/`MabuhayRescuerViewTests` (shared `RescuerViewChecks`), `CameraDebrisTests`.
+
+## Starting at the helm
+- A mission starts with the rescuer seated at the helm and the boat's chase camera live (`PlayerRescuer.startAboard`,
+  on by default); they board a frame after `Start`, once the boat and crew are set up. E steps off as before.
+- Tests of swimming begin in the water: `GameplayTestHelpers.LoadGameplay` and `MabuhayTestHelpers.LoadMabuhay` set
+  `PlayerRescuer.StartAboardOverride = false`. `StartsAboardTests` checks the game's own default.
+- Stepping off checks the swimmer fits beside the boat; ground well under the water (Mabuhay's flood is only 1 m deep)
+  is ignored, anything standing up out of it still blocks.

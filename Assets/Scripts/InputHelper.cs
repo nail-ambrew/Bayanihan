@@ -11,10 +11,11 @@ public static class InputHelper
 {
     /// <summary>
     /// The crew's controls do nothing: the mission is over (the report is on its way, and a press of E must not take
-    /// somebody aboard behind it) or the game is paused. Looking round, and R and Esc on the report, still work.
+    /// somebody aboard behind it), the game is paused, or the intro cutscene is still playing. Looking round, and R and
+    /// Esc on the report, still work.
     /// </summary>
     public static bool GameplayLocked =>
-        GamePause.IsPaused || (RescueManager.Instance != null && RescueManager.Instance.GameOver);
+        GamePause.IsPaused || CutsceneHold.Active || (RescueManager.Instance != null && RescueManager.Instance.GameOver);
 
     /// <summary>The on-screen controls are showing, so prompts name the buttons rather than keys.</summary>
     public static bool TouchActive => GameSettings.ShowTouchControls;
