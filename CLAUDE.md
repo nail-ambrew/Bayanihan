@@ -1,35 +1,83 @@
 # Bayanihan — notes for Claude
 
-A flood-rescue game for the ELEV8 GAMES capstone: Unity 6000.3.9f1, URP, uGUI built in code, Input System. Two maps:
-**Barangay Mabuhay** (the default, `Assets/Scenes/Maps/MabuhayGameplay.unity`) and **Manila** (a sample,
-`Assets/Scenes/Gameplay.unity`). Start scene: `Assets/Scenes/MainMenu.unity`.
+**Bayanihan: Disaster Rescue Game**, the ELEV8 GAMES capstone. The player drives a rescue boat through a flooded Filipino
+barangay, finds and triages residents, treats and tows them, and registers them at the evacuation hall before time runs
+out. Unity 6000.3.9f1, URP, uGUI built in code, Input System, Cinemachine 3 and Timeline.
 
-This folder is `Game/` inside `~/Documents/Bayanihan` (see the README there). The project's notes are an Obsidian vault:
-read `Docs/Home.md` and open only the notes the task needs.
+This folder is `Game/` inside `~/Documents/Bayanihan` (see the README there). The notes are an Obsidian vault: read
+`Docs/Home.md` and open only the notes the task needs.
+
+## What the game is aiming for
+
+- **Real place, real people.** Barangay Mabuhay, Carmona, Cavite is built from OpenStreetMap with its real landmarks;
+  the residents and crew are Filipino characters. Keep Filipino terms and context where the game already uses them.
+- **Bayanihan.** Triage, families, the community response. Rescue decisions should matter more than reflexes.
+- **Phone first, landscape**, with touch controls; keyboard and mouse work too (a gamepad only skips cutscenes).
+- **Accessible.** Settings for Reduce Motion and Subtitles; lightning never flashes more than 3 times a second; SKIP on
+  every cutscene. Honour these in anything new.
+- **Assessed with ISO 25010** (`Docs/Evaluation/`): functional fit, performance, usability and reliability count, so
+  test what you build and keep the player from ever getting stuck.
+
+## The game today
+
+- **Flow:** `Account` → `MainMenu` (start scene, looping storm behind the menu) → `Loadout` (pick the map and 4 of 6
+  items on a 3D packing stage; LAUNCH plays READY) → the mission. On Mabuhay with *Play Intro* on, a 24 s flood intro
+  plays over the held mission first.
+- **Maps:** **Barangay Mabuhay** (the default, `Assets/Scenes/Maps/MabuhayGameplay.unity`) and **Manila** (a sample,
+  `Assets/Scenes/Gameplay.unity`). Ten residents, hazards (live wire, debris jam, rising water), a scored report.
+- **The rescuer starts at the helm** with the boat's chase camera (`PlayerRescuer.startAboard`); E / RESCUE steps off
+  into the water, where the swimmer's own first- or third-person view takes over.
+- **Code:** game code is the `Bayanihan` assembly (`Assets/Scripts`), editor code `Bayanihan.Editor`
+  (`Assets/Scripts/Editor`), tests in `Assets/Tests/EditMode` and `Assets/Tests/PlayMode`. Cinematics are in
+  `Assets/Scripts/Cutscenes` and `Assets/Cutscenes` (guide: `Assets/Cutscenes/README.md`).
 
 ## Rules
 
-- **Two version controls.** Git (`origin` = github.com/nail-ambrew/Bayanihan, work branch `account-login-and-figma-ui`)
-  and Unity Version Control (`Capstone/Bayanihan`). **Never check in to Unity Version Control**; `cm status` is safe.
-- **Teammates leave uncommitted work** (UI, settings, TextMesh Pro). Commit only your own changes, file by file; for a
-  file with someone else's edits, stage only your hunks. Never commit or push unless asked.
-- **Scenes are built, not hand-edited.** Mabuhay comes from its builders (`Bayanihan > Build Mabuhay Gameplay Scene`);
-  change the builder and rebuild. Don't edit the 20 MB scene files as text.
-- **No passwords or sign-in** on Unity Authentication or any account.
-- Game code is the `Bayanihan` assembly (`Assets/Scripts`), editor code `Bayanihan.Editor` (`Assets/Scripts/Editor`),
-  tests in `Assets/Tests/EditMode` and `Assets/Tests/PlayMode`.
+- **Two version controls.** Git (`origin` = github.com/nail-ambrew/Bayanihan): work on `account-login-and-figma-ui`,
+  finished work reaches `main` by pull request with a merge commit. Unity Version Control (`Capstone/Bayanihan`):
+  **never check in**; `cm status` is safe.
+- **Commit, push, open or merge a PR only when asked.** Commit file by file; never sweep in unrelated changes.
+- **Teammates leave uncommitted work** (UI, audio, settings, TextMesh Pro). Leave it alone unless the owner says to
+  include it; for a file you share with them, stage only your hunks. Say what you left out.
+- **Scenes and cutscenes are built, not hand-edited.** Change the builder and rerun it from the `Bayanihan` menu:
+  *Build Mabuhay Gameplay Scene*; *Cutscenes > Build Audio / Build Intro / Build Menu Cinematic*. Don't edit the scene
+  files as text; if one shows as modified and you didn't rebuild it, find out why before committing.
+- **Add, don't break.** New features sit beside gameplay, saves and sign-in; existing tests must keep passing. When a
+  test encodes old behaviour you were asked to change, update the test and say so.
+- **Every placeholder is listed.** Generated stand-in art or sound goes in the relevant README or REPORT with how to
+  replace it (scripts for them live in `../Source Assets`).
+- **No passwords or sign-in** on Unity Authentication or any other account.
+- **Docs follow the code.** When behaviour changes, update the note in `Docs/` (and `Docs/Home.md` for a new one).
+- **Code comments** are plain sentences explaining why, as in the existing scripts; public members get `<summary>` docs.
 
 ## Facts that are easy to get wrong
 
 - The ground is at y = -1 and the flood at y = 0 (it rises up to +0.6). Anything under 1 m on the ground is hidden.
-- Layer 8 is **Debris**: floating debris and the jam. The chase camera ignores it.
+  `FloodLevel.Offset` moves the flood for cutscenes (0 = mission level).
+- Layer 8 is **Debris** (floating debris and the jam; the chase camera ignores it). Layer 30 is the loadout's packing
+  stage.
 - Mission streets: Bagumbayan (`w668009058`) and A. Mapalad (`w145889435`). Nothing is placed on them.
 - Every solid part of the map must be the shape drawn there (mesh colliders per drawn part); a test checks it.
-- The swimmer's head is always on; first person keeps the eye outside the head (see `Docs/Systems/Swim and Boat Cameras.md`).
+- The swimmer's head is always on; first person keeps the eye outside the head (`Docs/Systems/Swim and Boat Cameras.md`).
+- There are two gameplay cameras: the boat's chase camera and the swimmer's, which is live (priority 20) only in the
+  water. Anything that hands over to gameplay must land on whichever is live.
+- `CutsceneHold.Active` freezes the mission clock, residents' condition, the flood's climb, the controls and the HUD.
+- The menu cinematic must not become the active scene: `SceneFlow.Reload` reloads the active scene.
+- Performance: gameplay draws about 3.5M triangles and 2,800 batches, mostly the map and its instanced foliage. New
+  work should not add to that; see `Assets/Cutscenes/README.md` for the measured figures.
 
 ## Working with the Editor
 
-See `Docs/Workflows/Running Tests.md` and `Docs/Workflows/Rebuilding Mabuhay.md`. In short: PlayMode tests can't run while
-the Editor is in Play mode; run them with `TestRunnerApi` and read
-`~/Library/Application Support/DefaultCompany/Bayanihan/TestResults.xml`. The Unity MCP connection drops on every
-recompile; wait for port 7800.
+Drive the open Editor with the `unity` CLI (`unity cmd <command>`): `eval`, `eval_file`, `menu --path`, `recompile`,
+`editor_play` / `editor_stop`, `capture_game_view`, `get_performance_stats`, `console`. In short (details in
+`Docs/Workflows/Running Tests.md`):
+- PlayMode tests run only asynchronously: `run_tests --mode playmode --filter X --async_tests true`, then poll
+  `test_status`. Wait until it reports *running* before polling, or you read the previous run's results; if it sticks
+  on *running* with the Editor stopped, `cancel_tests`.
+- `eval` has a 5 s limit and `EditorApplication.delayCall` may never fire while the Editor is in the background: run
+  long jobs as menu items.
+- In the background the Game view doesn't redraw: capture with `capture_game_view` (camera only, no UI) or read a
+  RenderTexture, not `ScreenCapture`. Frame timings are unreliable then too.
+- The connection drops on every recompile and Play-mode change; wait for port 7800.
+- PlayMode tests that pause time or leave a mission loaded affect later tests: reset `Time.timeScale` and start from a
+  clean scene.
