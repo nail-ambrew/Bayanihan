@@ -17,17 +17,38 @@ public class MainMenuScreen : MonoBehaviour
         GamePause.Clear();
         UiKit.EnsureEventSystem();
         safe = UiKit.NewCanvas("MainMenuCanvas", 0, out var canvas);
-        UiKit.Background(canvas.transform);
+        // The moving storm behind the menu (Scene_MenuCinematic), with a vignette so the words read; the still
+        // flooded street if the cinematic is not in this build or never starts.
+        if (MenuBackdrop.Load())
+        {
+            MenuParallax.Vignette(canvas.transform);
+            StartCoroutine(FallBackIfNoCinematic(canvas.transform));
+        }
+        else UiKit.Background(canvas.transform);
 
-        UiKit.Logo(safe, UiKit.TopLeft, new Vector2(92, -28), 164f);
+        LogoFx.Add(UiKit.Logo(safe, UiKit.TopLeft, new Vector2(92, -28), 164f));
         UiKit.Version(safe);
 
         var menu = UiKit.MenuColumn(safe, new Vector2(92, -110), 38f, 15f, 174f);
+        MenuParallax.Add(menu);
         UiKit.MenuItem(menu, "HOW TO PLAY", () => Open(MenuPages.HowToPlay(safe, ClosePage)), 38f, 174f);
         UiKit.MenuItem(menu, "PLAY", Play, 38f, 174f);
         UiKit.MenuItem(menu, "SETTINGS", () => Open(MenuPages.Settings(safe, ClosePage, SignOut)), 38f, 174f);
         UiKit.MenuItem(menu, "CREDITS", () => Open(MenuPages.Credits(safe, ClosePage)), 38f, 174f);
         UiKit.MenuItem(menu, "QUIT", AskQuit, 38f, 174f);
+    }
+
+    /// <summary>The still background after all, if the cinematic has not started within a few seconds.</summary>
+    System.Collections.IEnumerator FallBackIfNoCinematic(Transform canvasRoot)
+    {
+        float until = Time.unscaledTime + 5f;
+        while (Time.unscaledTime < until)
+        {
+            if (MenuCinematic.Current != null && MenuCinematic.Current.Started) yield break;
+            yield return null;
+        }
+        Debug.LogWarning("MainMenuScreen: the menu cinematic did not start; showing the still background.");
+        UiKit.Background(canvasRoot);
     }
 
     void Update()

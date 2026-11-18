@@ -17,15 +17,35 @@ public static class GameSettings
     const string SensitivityKey = "settings.lookSensitivity";
     const string SideKey = "settings.controlSide";
     const string TouchKey = "settings.touchMode";
+    const string ColorKey = "settings.colorGrade";
     const string ViewKey = "settings.swimView";
+    const string MusicKey = "settings.musicVolume";
+    const string SfxKey = "settings.sfxVolume";
+    const string IntroKey = "settings.playIntro";
+    const string MotionKey = "settings.reduceMotion";
+    const string SubtitlesKey = "settings.subtitles";
 
     public const float MinSensitivity = 0.25f, MaxSensitivity = 2.5f;
 
-    /// <summary>Master volume, 0..1.</summary>
+    /// <summary>Master volume, 0..1: everything, on top of the music and sound effects volumes.</summary>
     public static float Volume
     {
         get => PlayerPrefs.GetFloat(VolumeKey, 1f);
         set { PlayerPrefs.SetFloat(VolumeKey, Mathf.Clamp01(value)); Apply(); }
+    }
+
+    /// <summary>The background music (MusicPlayer), 0..1, under the master volume. Heard at once.</summary>
+    public static float MusicVolume
+    {
+        get => PlayerPrefs.GetFloat(MusicKey, 1f);
+        set => PlayerPrefs.SetFloat(MusicKey, Mathf.Clamp01(value));
+    }
+
+    /// <summary>Every sound effect, 0..1, under the master volume: the interface, the boat's engine, the rain and thunder.</summary>
+    public static float SfxVolume
+    {
+        get => PlayerPrefs.GetFloat(SfxKey, 1f);
+        set => PlayerPrefs.SetFloat(SfxKey, Mathf.Clamp01(value));
     }
 
     /// <summary>0 Low, 1 Medium, 2 High: picked from the project's quality levels, lowest to highest.</summary>
@@ -54,12 +74,47 @@ public static class GameSettings
         set => PlayerPrefs.SetInt(TouchKey, (int)value);
     }
 
+    /// <summary>The look of the mission, an index into <see cref="ColorGrade.Names"/>: Default, Vibrant or Stormy.</summary>
+    public static int ColorGrade
+    {
+        get => Mathf.Clamp(PlayerPrefs.GetInt(ColorKey, 0), 0, global::ColorGrade.Names.Length - 1);
+        set
+        {
+            PlayerPrefs.SetInt(ColorKey, Mathf.Clamp(value, 0, global::ColorGrade.Names.Length - 1));
+            global::ColorGrade.ApplyToScene();
+        }
+    }
+
     /// <summary>How the swimmer is seen: from their own eyes, or from behind and above with the whole body in view. V switches it in play.</summary>
     public static PlayerRescuer.PovMode SwimView
     {
         get => PlayerPrefs.GetInt(ViewKey, (int)PlayerRescuer.PovMode.FirstPerson) == (int)PlayerRescuer.PovMode.ThirdPerson
             ? PlayerRescuer.PovMode.ThirdPerson : PlayerRescuer.PovMode.FirstPerson;
         set => PlayerPrefs.SetInt(ViewKey, (int)value);
+    }
+
+    /// <summary>Play the flood intro cutscene before a Mabuhay mission. On by default; it can always be skipped.</summary>
+    public static bool PlayIntro
+    {
+        get => PlayerPrefs.GetInt(IntroKey, 1) == 1;
+        set => PlayerPrefs.SetInt(IntroKey, value ? 1 : 0);
+    }
+
+    /// <summary>
+    /// Calmer cinematics: the menu background holds on a still frame, and cutscenes drop camera shake, lightning flashes
+    /// and chromatic aberration. Off by default.
+    /// </summary>
+    public static bool ReduceMotion
+    {
+        get => PlayerPrefs.GetInt(MotionKey, 0) == 1;
+        set => PlayerPrefs.SetInt(MotionKey, value ? 1 : 0);
+    }
+
+    /// <summary>Subtitles for spoken lines in cutscenes (the radio bulletin). On by default.</summary>
+    public static bool Subtitles
+    {
+        get => PlayerPrefs.GetInt(SubtitlesKey, 1) == 1;
+        set => PlayerPrefs.SetInt(SubtitlesKey, value ? 1 : 0);
     }
 
     /// <summary>Phones and tablets start on Medium, everything else on High.</summary>
@@ -113,6 +168,12 @@ public static class GameSettings
         PlayerPrefs.DeleteKey(SensitivityKey);
         PlayerPrefs.DeleteKey(SideKey);
         PlayerPrefs.DeleteKey(TouchKey);
+        PlayerPrefs.DeleteKey(ColorKey);
+        PlayerPrefs.DeleteKey(MusicKey);
+        PlayerPrefs.DeleteKey(SfxKey);
         PlayerPrefs.DeleteKey(ViewKey);
+        PlayerPrefs.DeleteKey(IntroKey);
+        PlayerPrefs.DeleteKey(MotionKey);
+        PlayerPrefs.DeleteKey(SubtitlesKey);
     }
 }

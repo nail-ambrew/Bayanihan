@@ -55,10 +55,15 @@ public class TyphoonWeather : MonoBehaviour
     public AudioClip rainLoop;
     [Range(0f, 1f)] public float rainVolume = 0.6f;
     public AudioClip[] thunderClips;
+    [Tooltip("Wind that roars with the storm; it gets louder as the storm grows.")]
+    public AudioClip windLoop;
+    [Range(0f, 1f)] public float windVolume = 0.5f;
 
     [Header("Loadout")]
     [Tooltip("With the Kapote (raincoat) packed, fog and rain are scaled by this (0.45 = 55% less visibility penalty).")]
     [Range(0.1f, 1f)] public float raincoatVisibilityFactor = 0.45f;
+
+    static readonly int RainId = Shader.PropertyToID("_BayanihanRain");
 
     // --- internals ---
     float current;
@@ -69,7 +74,7 @@ public class TyphoonWeather : MonoBehaviour
     Transform rainTf;
     Material builtRainMaterial;
     Camera cam;
-    AudioSource loopSource, oneShotSource;
+    AudioSource loopSource, windSource, oneShotSource;
 
     float baseSunIntensity, baseAmbient;
     Color baseSunColor, baseFogColor;
@@ -216,7 +221,8 @@ public class TyphoonWeather : MonoBehaviour
         if (rain == null) return;
 
         var em = rain.emission;
-        em.rateOverTime = current < 0.02f ? 0f : rainMaxRate * current;
+        em.rateOverTime = current < 0.02f ? 0f : rainMaxRate * current * rainRateScale;
+        Shader.SetGlobalFloat(RainId, current);     // the flood shader's rain rings
 
         // follow the viewer, lean with the wind
         rainTf.position = RainAnchor().position + Vector3.up * rainHeight;
@@ -274,25 +280,59 @@ public class TyphoonWeather : MonoBehaviour
             float scale = Mathf.Lerp(1.6f, 0.7f, current);
             yield return new WaitForSeconds(Random.Range(lightningInterval.x, lightningInterval.y) * scale);
 
-            if (current < lightningThreshold) continue;
-
-            int flickers = Random.Range(1, 4);
-            for (int i = 0; i < flickers; i++)
-            {
-                flash = 1f;
-                yield return new WaitForSeconds(Random.Range(0.05f, 0.1f));
-                flash = 0.2f;
-                yield return new WaitForSeconds(Random.Range(0.05f, 0.12f));
-            }
-
-            // thunder arrives a moment after the light
-            if (thunderClips != null && thunderClips.Length > 0 && oneShotSource != null)
-            {
-                yield return new WaitForSeconds(Random.Range(0.4f, 2.5f));
-                oneShotSource.PlayOneShot(thunderClips[Random.Range(0, thunderClips.Length)], Random.Range(0.6f, 1f));
-            }
+            if (current < lightningThreshold || !autoLightning) continue;
+            yield return Strike(Random.Range(0.4f, 2.5f));
         }
     }
+
+    /// <summary>
+    /// One lightning strike: a few flickers, then thunder after <paramref name="thunderDelay"/> seconds. The flickers go
+    /// through <see cref="FlashLimiter"/>: never more than three a second, and none with Reduce Motion on (the thunder
+    /// is still heard).
+    /// </summary>
+    IEnumerator Strike(float thunderDelay)
+    {
+        int flickers = Random.Range(1, 4);
+        for (int i = 0; i < flickers; i++)
+        {
+            if (FlashLimiter.Allow()) flash = 1f;
+            yield return new WaitForSeconds(Random.Range(0.05f, 0.1f));
+            flash = Mathf.Min(flash, 0.2f);
+            yield return new WaitForSeconds(Random.Range(0.05f, 0.12f));
+        }
+
+        // thunder arrives a moment after the light
+        if (thunderClips != null && thunderClips.Length > 0 && oneShotSource != null && thunderDelay >= 0f)
+        {
+            yield return new WaitForSeconds(thunderDelay);
+            oneShotSource.PlayOneShot(thunderClips[Random.Range(0, thunderClips.Length)], Random.Range(0.6f, 1f) * GameSettings.SfxVolume);
+        }
+    }
+
+    // ------------------------------------------------------------------ cutscene control
+    [Tooltip("Random lightning while the storm is strong. A cutscene turns it off and strikes on its own beats.")]
+    public bool autoLightning = true;
+    [Tooltip("Rain particles per second are multiplied by this (cutscenes raise it for a denser downpour).")]
+    public float rainRateScale = 1f;
+
+    /// <summary>The storm's strength right now (it eases towards <see cref="intensity"/>).</summary>
+    public float CurrentIntensity => current;
+
+    /// <summary>Sets the storm at once, with no easing (a cutscene drives it frame by frame).</summary>
+    public void SnapIntensity(float value)
+    {
+        intensity = current = Mathf.Clamp01(value);
+        buildUpSeconds = 0f;
+    }
+
+    /// <summary>A scripted lightning strike, with thunder after <paramref name="thunderDelay"/> seconds (negative: none).</summary>
+    public void StrikeNow(float thunderDelay = 0.6f)
+    {
+        if (isActiveAndEnabled) StartCoroutine(Strike(thunderDelay));
+    }
+
+    /// <summary>The lightning flash now, 0..1.</summary>
+    public float Flash => flash;
 
     // ------------------------------------------------------------------ audio
     void BuildAudio()
@@ -310,11 +350,22 @@ public class TyphoonWeather : MonoBehaviour
             loopSource.volume = 0f;
             loopSource.Play();
         }
+
+        if (windLoop != null)
+        {
+            windSource = gameObject.AddComponent<AudioSource>();
+            windSource.clip = windLoop;
+            windSource.loop = true;
+            windSource.spatialBlend = 0f;
+            windSource.volume = 0f;
+            windSource.Play();
+        }
     }
 
     void UpdateAudio()
     {
-        if (loopSource != null) loopSource.volume = rainVolume * current;
+        if (loopSource != null) loopSource.volume = rainVolume * current * GameSettings.SfxVolume;     // the Sound Effects setting
+        if (windSource != null) windSource.volume = windVolume * current * GameSettings.SfxVolume;     // heavier wind as the storm grows
     }
 
     /// <summary>Change the storm at runtime (e.g. from a mission event).</summary>

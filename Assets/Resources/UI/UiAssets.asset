@@ -12,8 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98b561cf9ac9f4299b953fabe8100a08, type: 3}
   m_Name: UiAssets
   m_EditorClassIdentifier: Bayanihan::UiAssets
-  headingFont: {fileID: 12800000, guid: 55d41e29b7905344fb10a8e7c0978182, type: 3}
-  bodyFont: {fileID: 0}
+  headingFont: {fileID: 11400000, guid: 626bb901e1b30f04385c2760f67682d4, type: 2}
+  bodyFont: {fileID: 11400000, guid: 7aec0028010592148828fc1785983068, type: 2}
+  headingShadow: {fileID: 2100000, guid: 305311eae13bce1449d91deb0ef73be3, type: 2}
+  headingOutline: {fileID: 2100000, guid: 1040bf700c731204c8dc03ff91ed0634, type: 2}
+  bodyShadow: {fileID: 2100000, guid: e23c715db9904da458367394bf587a75, type: 2}
+  menuMusic: {fileID: 8300000, guid: 3919ca6b9e3e96e41b2a4addfc021c86, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: 94497f595bc92014bb18af2b163dff6f, type: 3}
+  boatEngine: {fileID: 8300000, guid: 1daf949729001e04dbdc95e702bc093d, type: 3}
+  clickSound: {fileID: 8300000, guid: b88be7db50a132d4eb88246458857955, type: 3}
+  hoverSound: {fileID: 8300000, guid: 63204114fd77af54384d05b251ff871b, type: 3}
+  openSound: {fileID: 8300000, guid: 32820472594910843b5551467007024d, type: 3}
+  backSound: {fileID: 8300000, guid: ce6f77f78dd55ea4c9c08341755be846, type: 3}
+  toggleSound: {fileID: 8300000, guid: ae8ae5e104f17f0448cd39e14e931b12, type: 3}
+  tickSound: {fileID: 8300000, guid: a80dd76a5666ff744840da25b45e9815, type: 3}
+  questionSound: {fileID: 8300000, guid: 81eedfa032751f143bfec34c06019a44, type: 3}
+  errorSound: {fileID: 8300000, guid: c3eca0180af6f214283ddcae1fc30387, type: 3}
+  confirmSound: {fileID: 8300000, guid: 713b3fad76193564c989b2944f483555, type: 3}
+  packInSound: {fileID: 8300000, guid: ff31f4fe67fdf1a43b30dc9d94bb6516, type: 3}
+  packOutSound: {fileID: 8300000, guid: 2282274a542767a4fa948bf9befc269e, type: 3}
+  pauseOpenSound: {fileID: 8300000, guid: b1522a7313fb6de4bbb239b34dd5a0dc, type: 3}
+  pauseCloseSound: {fileID: 8300000, guid: 2282274a542767a4fa948bf9befc269e, type: 3}
   logo: {fileID: 21300000, guid: 33ed2ee0523584572860149272b3d921, type: 3}
   background: {fileID: 21300000, guid: b5af7e5dc52364c6096ffef67610e1f1, type: 3}
   backArrow: {fileID: 0}

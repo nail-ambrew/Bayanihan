@@ -1,3 +1,4 @@
+using TMPro;
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -36,9 +37,9 @@ public class AccountScreen : MonoBehaviour
     RectTransform safe, card;
     GameObject connecting, landing, quickPanel, loginPanel, registerPanel, cardObject;
     LoadingScreen loadingBar;
-    Text landingPrompt, cardHeading;
-    InputField loginUser, loginPass, regUser, regEmail, regPass, regConfirm;
-    Text loginStatus, registerStatus, quickStatus, quickName, quickWhen;
+    TMP_Text landingPrompt, cardHeading;
+    TMP_InputField loginUser, loginPass, regUser, regEmail, regPass, regConfirm;
+    TMP_Text loginStatus, registerStatus, quickStatus, quickName, quickWhen;
     Button loginButton, createButton, quickButton;
     View view;
     bool resumed, working;
@@ -149,17 +150,18 @@ public class AccountScreen : MonoBehaviour
     }
 
     /// <summary>Locks the form while a request is out, then either moves on or shows why it failed.</summary>
-    async Task Run(Text status, string busyText, Func<Task<AccountRecord>> call, Action onSuccess)
+    async Task Run(TMP_Text status, string busyText, Func<Task<AccountRecord>> call, Action onSuccess)
     {
         working = true;
         SetInteractable(false);
         SetStatus(status, busyText, UiTheme.InkSoft);
+        bool succeeded = false;
         try
         {
             await call();
             if (this == null) return;
             SetStatus(status, "", UiTheme.InkSoft);
-            onSuccess();
+            succeeded = true;
         }
         catch (AccountException e)
         {
@@ -174,9 +176,13 @@ public class AccountScreen : MonoBehaviour
         }
         finally
         {
+            // Cleared before onSuccess runs: Continue() ignores calls while `working` is set, which is why
+            // a successful login used to log "Signed in" and then never leave the screen.
             working = false;
             if (this != null) SetInteractable(true);
         }
+
+        if (succeeded && this != null) onSuccess();
     }
 
     // ------------------------------------------------------------------ views
@@ -223,9 +229,10 @@ public class AccountScreen : MonoBehaviour
         SetStatus(quickStatus, "", UiTheme.InkSoft);
     }
 
-    static void SetStatus(Text status, string text, Color color)
+    static void SetStatus(TMP_Text status, string text, Color color)
     {
         if (status == null) return;
+        if (color == UiTheme.Error && !string.IsNullOrEmpty(text)) UiSound.Play(UiSoundKind.Error);
         status.color = color;
         status.text = text;
     }
@@ -238,7 +245,7 @@ public class AccountScreen : MonoBehaviour
         quickButton.interactable = on;
     }
 
-    static void Focus(InputField field)
+    static void Focus(TMP_InputField field)
     {
         // On a phone, selecting a field opens the keyboard over the card before the player has read it.
         if (InputHelper.TouchActive) return;
@@ -265,12 +272,13 @@ public class AccountScreen : MonoBehaviour
         landingRoot.raycastTarget = true;
         var tap = landingRoot.gameObject.AddComponent<Button>();
         tap.transition = Selectable.Transition.None;
+        tap.onClick.AddListener(() => UiSound.Play(UiSoundKind.Open));
         tap.onClick.AddListener(LeaveLanding);
         UiKit.Logo(landingRoot.transform, UiKit.TopLeft, new Vector2(14, -10));
         UiKit.Version(landingRoot.transform);
         landingPrompt = UiKit.Label("Prompt", landingRoot.transform, "", UiTheme.BodySize + 2, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
         UiKit.Place(landingPrompt.rectTransform, UiKit.Bottom, new Vector2(0, 92), new Vector2(400, 20));
-        landingPrompt.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.6f);
+        landingPrompt.TextShadow(new Color(0, 0, 0, 0.6f));
         landingPrompt.gameObject.AddComponent<Pulse>();
         landing = landingRoot.gameObject;
 
@@ -302,7 +310,7 @@ public class AccountScreen : MonoBehaviour
         return rt;
     }
 
-    InputField Field(Transform panel, string placeholder, float y, InputField.ContentType type, int limit)
+    TMP_InputField Field(Transform panel, string placeholder, float y, TMP_InputField.ContentType type, int limit)
     {
         var f = UiKit.Field(panel, placeholder, type, limit);
         UiKit.Place((RectTransform)f.transform, UiKit.Top, new Vector2(0, y), new Vector2(FieldWidth, FieldHeight));
@@ -316,11 +324,11 @@ public class AccountScreen : MonoBehaviour
         return b;
     }
 
-    Text Status(Transform panel, float y)
+    TMP_Text Status(Transform panel, float y)
     {
         var t = UiKit.Label("Status", panel, "", UiTheme.SmallSize + 1, UiTheme.Error, TextAnchor.UpperCenter);
         UiKit.Place(t.rectTransform, UiKit.Top, new Vector2(0, y), new Vector2(FieldWidth + 20, 18));
-        t.Shrink(5);
+        t.Shrink(8);
         return t;
     }
 
@@ -328,7 +336,7 @@ public class AccountScreen : MonoBehaviour
     {
         var b = UiKit.Button(panel, text, ButtonStyle.Link, onClick, out var label, UiTheme.BodySize + 1);
         label.color = color;
-        label.alignment = align;
+        label.alignment = UiKit.Align(align);
         UiKit.Place((RectTransform)b.transform, UiKit.Top, new Vector2(0, y), new Vector2(FieldWidth, 16));
     }
 
@@ -357,8 +365,8 @@ public class AccountScreen : MonoBehaviour
     {
         var panel = NewPanel("Login");
         loginPanel = panel.gameObject;
-        loginUser = Field(panel, "Enter username", -46, InputField.ContentType.Standard, AccountRules.UsernameMax);
-        loginPass = Field(panel, "Enter password", -84, InputField.ContentType.Password, AccountRules.PasswordMax);
+        loginUser = Field(panel, "Enter username", -46, TMP_InputField.ContentType.Standard, AccountRules.UsernameMax);
+        loginPass = Field(panel, "Enter password", -84, TMP_InputField.ContentType.Password, AccountRules.PasswordMax);
         loginButton = WideButton(panel, "Login", -122, LogIn);
         loginStatus = Status(panel, -155);
         Link(panel, "Forgot password?", -174, UiTheme.Ink, ForgotPassword, TextAnchor.MiddleLeft);
@@ -366,7 +374,7 @@ public class AccountScreen : MonoBehaviour
         var line = UiKit.Image("Divider", panel, UiTheme.Rule);
         UiKit.Place(line.rectTransform, UiKit.Top, new Vector2(0, -199), new Vector2(FieldWidth, UiTheme.RuleThickness));
         var orBack = UiKit.Image("OrBack", panel, UiTheme.White);
-        UiKit.Place(orBack.rectTransform, UiKit.Top, new Vector2(0, -194), new Vector2(16, 10));
+        UiKit.Place(orBack.rectTransform, UiKit.Top, new Vector2(0, -193), new Vector2(22, 12));
         var or = UiKit.Label("Or", orBack.transform, "or", UiTheme.SmallSize, UiTheme.Ink, TextAnchor.MiddleCenter);
         UiKit.Stretch(or.rectTransform);
 
@@ -378,10 +386,10 @@ public class AccountScreen : MonoBehaviour
     {
         var panel = NewPanel("Registration");
         registerPanel = panel.gameObject;
-        regUser = Field(panel, "Username", -44, InputField.ContentType.Standard, AccountRules.UsernameMax);
-        regEmail = Field(panel, "Email address", -80, InputField.ContentType.EmailAddress, AccountRules.EmailMax);
-        regPass = Field(panel, "Password", -116, InputField.ContentType.Password, AccountRules.PasswordMax);
-        regConfirm = Field(panel, "Confirm Password", -152, InputField.ContentType.Password, AccountRules.PasswordMax);
+        regUser = Field(panel, "Username", -44, TMP_InputField.ContentType.Standard, AccountRules.UsernameMax);
+        regEmail = Field(panel, "Email address", -80, TMP_InputField.ContentType.EmailAddress, AccountRules.EmailMax);
+        regPass = Field(panel, "Password", -116, TMP_InputField.ContentType.Password, AccountRules.PasswordMax);
+        regConfirm = Field(panel, "Confirm Password", -152, TMP_InputField.ContentType.Password, AccountRules.PasswordMax);
         createButton = WideButton(panel, "Create", -192, CreateAccount);
         registerStatus = Status(panel, -225);
         Link(panel, "Already have an account?", -252, UiTheme.OrangeDeep, () => { if (!working) Show(View.Login); }, TextAnchor.MiddleLeft);

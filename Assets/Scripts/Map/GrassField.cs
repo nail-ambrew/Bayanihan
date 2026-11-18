@@ -63,7 +63,7 @@ public class GrassField : MonoBehaviour
         if (cam == null) return;
         GeometryUtility.CalculateFrustumPlanes(cam, planes);
         Vector3 eye = cam.transform.position;
-        float reach = drawDistance + Tile;
+        float reach = drawDistance * InstancedFoliage.DistanceScale + Tile;
 
         int mats = materials.Length;
         foreach (var t in tiles.Values)

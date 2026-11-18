@@ -134,18 +134,31 @@ public static class MabuhayGameplayBuilder
             mat = from != null ? new Material(from) : new Material(Shader.Find("Universal Render Pipeline/Lit"));
             AssetDatabase.CreateAsset(mat, MurkyWaterPath);
         }
-        mat.SetColor("_BaseColor", new Color(0.42f, 0.40f, 0.30f, 0.62f));
-        mat.SetFloat("_Surface", 1f);                              // transparent
-        mat.SetFloat("_Blend", 0f);                                // alpha
-        mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
-        mat.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.SetFloat("_ZWrite", 0f);
-        mat.SetFloat("_Smoothness", 0.78f);
-        mat.SetOverrideTag("RenderType", "Transparent");
-        mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-        mat.DisableKeyword("_ALPHATEST_ON");
+        // The stylised muddy flood (Assets/Cutscenes/Shared/Shaders/FloodWater.shader): the same water in play and in
+        // the intro cutscene, so the hand-over has no pop. The Lit settings below are kept for when it is missing.
+        var flood = Shader.Find("Bayanihan/FloodWater");
+        if (flood != null)
+        {
+            mat.shader = flood;
+            mat.SetColor("_BaseColor", new Color(0.48f, 0.42f, 0.30f, 0.6f));
+            mat.SetColor("_DeepColor", new Color(0.27f, 0.22f, 0.14f, 0.88f));
+            mat.SetFloat("_Surface", 1f);
+        }
+        else
+        {
+            mat.SetColor("_BaseColor", new Color(0.42f, 0.40f, 0.30f, 0.62f));
+            mat.SetFloat("_Surface", 1f);                              // transparent
+            mat.SetFloat("_Blend", 0f);                                // alpha
+            mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
+            mat.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.SetFloat("_Smoothness", 0.78f);
+            mat.SetOverrideTag("RenderType", "Transparent");
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.DisableKeyword("_ALPHATEST_ON");
+        }
         mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
         EditorUtility.SetDirty(mat);
         if (water != null)

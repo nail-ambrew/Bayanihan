@@ -53,6 +53,15 @@ public class InstancedFoliage : MonoBehaviour
 
     public int Count => plants.Count;
 
+    /// <summary>
+    /// Multiplies every plant and grass draw distance (here and in <see cref="GrassField"/>). 1 in play; the cinematics
+    /// lower it (they show less of the map at once) and bring it back to 1 before handing over.
+    /// </summary>
+    public static float DistanceScale = 1f;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetScale() => DistanceScale = 1f;
+
     void OnEnable() => built = -1;
 
     void Build()
@@ -115,7 +124,7 @@ public class InstancedFoliage : MonoBehaviour
         foreach (var t in tiles.Values)
         {
             Vector3 c = t.bounds.center;
-            float reach = t.reach + Tile;
+            float reach = t.reach * DistanceScale + Tile;
             if (new Vector2(c.x - eye.x, c.z - eye.z).sqrMagnitude > reach * reach) continue;
             if (!GeometryUtility.TestPlanesAABB(planes, t.bounds)) continue;
             foreach (var kv in t.byPart)

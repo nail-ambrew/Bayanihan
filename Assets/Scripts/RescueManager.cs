@@ -101,6 +101,13 @@ public class RescueManager : MonoBehaviour
             return;
         }
 
+        // The intro cutscene is playing over the mission: the clock has not started yet.
+        if (CutsceneHold.Active)
+        {
+            StartedAt += Time.deltaTime;
+            return;
+        }
+
         timeLeft -= Time.deltaTime;
         if (timeLeft <= 0f)
         {

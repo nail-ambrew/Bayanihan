@@ -1,3 +1,4 @@
+using TMPro;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,10 +30,10 @@ public class GameHud : MonoBehaviour
 
     Canvas canvas;
     RectTransform safe, markers, hud;
-    Text timeValue, savedValue, boatValue, scoreValue;
+    TMP_Text timeValue, savedValue, boatValue, scoreValue;
     Image timeChip;
     RectTransform rosterCard, rosterRows;
-    Text rosterHead;
+    TMP_Text rosterHead;
     bool rosterFolded;
     readonly List<RosterRow> rows = new List<RosterRow>();
     RectTransform promptStack;
@@ -63,12 +64,18 @@ public class GameHud : MonoBehaviour
     {
         UiKit.EnsureEventSystem();
         safe = UiKit.NewCanvas("GameHud", 10, out canvas, centred: false);
+        // Hidden while the intro cutscene plays over the mission, then faded in (see FadeWithCutscene).
+        fade = canvas.gameObject.AddComponent<CanvasGroup>();
+        fade.alpha = CutsceneHold.Active ? 0f : 1f;
 
+        // The HUD layers are drawn bigger than the Figma frame so they read and tap like a phone game's; the pause
+        // menu and Mission Complete, built on the same canvas below, keep the frame.
         markers = UiKit.Rect("Markers", safe);
-        UiKit.Stretch(markers);
+        UiZoom.Apply(markers, UiTheme.HudZoom);
         touch = TouchControls.Create(safe);
+        UiZoom.Apply((RectTransform)touch.transform, UiTheme.HudZoom);
         hud = UiKit.Rect("Hud", safe);
-        UiKit.Stretch(hud);
+        UiZoom.Apply(hud, UiTheme.HudZoom);
 
         BuildTopLeft();
         BuildRoster();
@@ -86,9 +93,27 @@ public class GameHud : MonoBehaviour
         if (canvas != null) Destroy(canvas.gameObject);
     }
 
+    /// <summary>How long the HUD takes to appear once the intro cutscene hands over.</summary>
+    public const float FadeInSeconds = 0.5f;
+    CanvasGroup fade;
+
+    /// <summary>How visible the HUD is: 0 while the intro plays, rising to 1 after it.</summary>
+    public float Alpha => fade != null ? fade.alpha : 1f;
+
+    void FadeWithCutscene()
+    {
+        if (fade == null) return;
+        bool held = CutsceneHold.Active;
+        fade.alpha = held ? 0f : Mathf.MoveTowards(fade.alpha, 1f, Time.unscaledDeltaTime / FadeInSeconds);
+        fade.blocksRaycasts = !held;
+        fade.interactable = !held;
+    }
+
     void Update()
     {
+        FadeWithCutscene();
         if (manager == null || manager.Roster == null || hud == null) return;
+        if (CutsceneHold.Active) return;           // Esc skips the cutscene; it must not also open the pause menu
         if (cam == null) cam = Camera.main;
         if (tools == null) tools = FindFirstObjectByType<BoatTools>();
         if (throwing == null) throwing = FindFirstObjectByType<BoatRescue>();
@@ -127,17 +152,17 @@ public class GameHud : MonoBehaviour
         StatChip(row, "SCORE", 84, out scoreValue);
     }
 
-    static Image StatChip(Transform row, string caption, float width, out Text value)
+    static Image StatChip(Transform row, string caption, float width, out TMP_Text value)
     {
         var chip = UiKit.Panel("Chip_" + caption, row, UiTheme.Orange, UiTheme.RadiusCard);
         chip.raycastTarget = false;     // a look-drag that starts on a chip still turns the camera
         var le = chip.gameObject.AddComponent<LayoutElement>();
         le.preferredWidth = width;
         chip.gameObject.AddComponent<Shadow>().effectColor = new Color(0, 0, 0, 0.3f);
-        var cap = UiKit.Label("Caption", chip.transform, caption, UiTheme.SmallSize, UiTheme.Fade(UiTheme.White, 0.85f), TextAnchor.UpperLeft, heading: true);
+        var cap = UiKit.Label("Caption", chip.transform, caption, UiTheme.HudSmall, UiTheme.Fade(UiTheme.White, 0.85f), TextAnchor.UpperLeft, heading: true);
         UiKit.Inset(cap.rectTransform, 7, 2, 4, 14);
-        value = UiKit.Label("Value", chip.transform, "", UiTheme.BodySize + 4, UiTheme.White, TextAnchor.LowerLeft, heading: true);
-        UiKit.Inset(value.rectTransform, 7, 9, 4, 2);
+        value = UiKit.Label("Value", chip.transform, "", UiTheme.HudValue, UiTheme.White, TextAnchor.LowerLeft, heading: true);
+        UiKit.Inset(value.rectTransform, 7, 9, 4, 1);
         return chip;
     }
 
@@ -160,7 +185,7 @@ public class GameHud : MonoBehaviour
     class RosterRow
     {
         public Image pip;
-        public Text name, status;
+        public TMP_Text name, status;
         public ResidentRecord record;
     }
 
@@ -179,7 +204,7 @@ public class GameHud : MonoBehaviour
         head.rectTransform.offsetMax = Vector2.zero;
         var fold = head.gameObject.AddComponent<Button>();
         fold.onClick.AddListener(() => rosterFolded = !rosterFolded);
-        rosterHead = UiKit.Label("Label", head.transform, "ROSTER", UiTheme.BodySize, UiTheme.White, TextAnchor.MiddleLeft, heading: true);
+        rosterHead = UiKit.Label("Label", head.transform, "ROSTER", UiTheme.HudText, UiTheme.White, TextAnchor.MiddleLeft, heading: true);
         UiKit.Inset(rosterHead.rectTransform, 7, 0, 7, 0);
 
         rosterRows = UiKit.Rect("Rows", rosterCard);
@@ -196,9 +221,12 @@ public class GameHud : MonoBehaviour
             row.gameObject.AddComponent<LayoutElement>().preferredHeight = 11;
             var pip = UiKit.Image("Pip", row, UiTheme.Placeholder, UiKit.Circle());
             UiKit.Place(pip.rectTransform, UiKit.Left, new Vector2(1, 0), new Vector2(6, 6));
-            var name = UiKit.Label("Name", row, r.name, UiTheme.SmallSize + 1, UiTheme.Ink, TextAnchor.MiddleLeft);
-            UiKit.Inset(name.rectTransform, 11, 0, 50, 0);
-            var status = UiKit.Label("Status", row, "", UiTheme.SmallSize, UiTheme.InkSoft, TextAnchor.MiddleRight, heading: true);
+            var name = UiKit.Label("Name", row, r.name, UiTheme.HudSmall, UiTheme.Ink, TextAnchor.MiddleLeft);
+            name.textWrappingMode = TextWrappingModes.NoWrap;
+            name.overflowMode = TextOverflowModes.Ellipsis;
+            UiKit.Inset(name.rectTransform, 11, 0, 58, 0);
+            var status = UiKit.Label("Status", row, "", UiTheme.HudSmall, UiTheme.InkSoft, TextAnchor.MiddleRight, heading: true);
+            status.textWrappingMode = TextWrappingModes.NoWrap;
             UiKit.Inset(status.rectTransform, 100, 0, 0, 0);
             rows.Add(new RosterRow { pip = pip, name = name, status = status, record = r });
         }
@@ -253,7 +281,7 @@ public class GameHud : MonoBehaviour
     class ItemChip
     {
         public RescueItemId id;
-        public Text state;
+        public TMP_Text state;
         public Image back;
     }
 
@@ -283,12 +311,14 @@ public class GameHud : MonoBehaviour
             var def = RescueItems.Get(id);
             var back = UiKit.Panel("Item_" + id, itemBar, UiTheme.Fade(UiTheme.CreamLight, 0.92f), UiTheme.RadiusCard);
             back.raycastTarget = false;
-            back.rectTransform.sizeDelta = new Vector2(44, 30);
+            back.rectTransform.sizeDelta = new Vector2(48, 30);
             var iconHolder = UiKit.Rect("IconArea", back.transform);
             UiKit.Place(iconHolder, UiKit.Top, new Vector2(0, -2), new Vector2(18, 16));
             var icon = UiKit.ItemIcon(iconHolder, def);
             UiKit.Stretch(icon.rectTransform);
-            var state = UiKit.Label("State", back.transform, "", UiTheme.SmallSize - 1, UiTheme.Ink, TextAnchor.LowerCenter, heading: true);
+            var state = UiKit.Label("State", back.transform, "", UiTheme.HudTiny, UiTheme.Ink, TextAnchor.LowerCenter, heading: true);
+            state.textWrappingMode = TextWrappingModes.NoWrap;
+            state.Shrink(5);
             UiKit.Inset(state.rectTransform, 1, 18, 1, 1);
             items.Add(new ItemChip { id = id, state = state, back = back });
         }
@@ -320,7 +350,7 @@ public class GameHud : MonoBehaviour
     class Pill
     {
         public Image back;
-        public Text text;
+        public TMP_Text text;
     }
 
     void BuildPrompts()
@@ -333,7 +363,7 @@ public class GameHud : MonoBehaviour
             var back = UiKit.Panel("Prompt" + i, promptStack, UiTheme.HudPanel, UiTheme.RadiusPanel);
             back.raycastTarget = false;
             back.rectTransform.anchorMin = back.rectTransform.anchorMax = back.rectTransform.pivot = UiKit.Bottom;
-            var text = UiKit.Label("Text", back.transform, "", UiTheme.BodySize + 2, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+            var text = UiKit.Label("Text", back.transform, "", UiTheme.HudPrompt, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
             UiKit.Inset(text.rectTransform, 10, 3, 10, 3);
             prompts[i] = new Pill { back = back, text = text };
             back.gameObject.SetActive(false);
@@ -373,11 +403,16 @@ public class GameHud : MonoBehaviour
         holdTrack.gameObject.SetActive(hold > 0f);
         holdFill.rectTransform.anchorMax = new Vector2(hold, 1);
         float y = hold > 0f ? 12f : 0f;
+        // Between the joystick and the buttons when they are on screen, so a long line never covers a thumb's spot.
+        float room = ((RectTransform)hud).rect.width - (GameSettings.ShowTouchControls ? 2f * TouchControls.CornerWidth : 40f);
+        float maxW = Mathf.Clamp(room, 160f, 400f);
+        promptStack.sizeDelta = new Vector2(maxW, promptStack.sizeDelta.y);
         for (int i = 0; i < used; i++)
         {
             var p = prompts[i];
-            float w = Mathf.Clamp(p.text.preferredWidth + 22f, 90f, 400f);
-            float h = w >= 400f ? 32f : 20f;            // a long line wraps onto two
+            float w = Mathf.Clamp(p.text.preferredWidth + 22f, 90f, maxW);
+            // a long line wraps; the pill grows to the lines it needs
+            float h = Mathf.Max(20f, p.text.GetPreferredValues(p.text.text, w - 20f, 0f).y + 7f);
             p.back.rectTransform.sizeDelta = new Vector2(w, h);
             p.back.rectTransform.anchoredPosition = new Vector2(0, y);
             y += h + 4f;
@@ -526,6 +561,9 @@ public class GameHud : MonoBehaviour
     }
 
     // ------------------------------------------------------------------ marker widgets
+    /// <summary>The highest a marker may reach in its layer: just under the clock, safe, boat and score chips.</summary>
+    static float BelowStats(RectTransform marker) => ((RectTransform)marker.parent).rect.yMax - 42f;
+
     /// <summary>Reuses marker objects frame to frame instead of making new ones.</summary>
     class Pool<T> where T : Component
     {
@@ -549,7 +587,7 @@ public class GameHud : MonoBehaviour
     class ResidentCard : MonoBehaviour
     {
         Image strip, bar, barBack;
-        Text title, where;
+        TMP_Text title, where;
         RectTransform needs;
         readonly List<Image> needIcons = new List<Image>();
 
@@ -568,7 +606,8 @@ public class GameHud : MonoBehaviour
             c.strip.rectTransform.pivot = new Vector2(0, 0.5f);
             c.strip.rectTransform.sizeDelta = new Vector2(UiTheme.RadiusCard, 0);
             c.strip.rectTransform.anchoredPosition = Vector2.zero;
-            c.title = UiKit.Label("Name", back.transform, "", UiTheme.BodySize, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
+            c.title = UiKit.Label("Name", back.transform, "", UiTheme.HudText, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
+            c.title.textWrappingMode = TextWrappingModes.NoWrap;
             UiKit.Inset(c.title.rectTransform, 10, 2, 3, 26);
             c.needs = UiKit.Rect("Needs", back.transform);
             UiKit.Inset(c.needs, 10, 15, 50, 13);
@@ -578,14 +617,17 @@ public class GameHud : MonoBehaviour
             c.bar.rectTransform.anchorMin = Vector2.zero;
             c.bar.rectTransform.anchorMax = new Vector2(1, 1);
             c.bar.rectTransform.offsetMin = c.bar.rectTransform.offsetMax = Vector2.zero;
-            c.where = UiKit.Label("Where", back.transform, "", UiTheme.SmallSize, UiTheme.InkSoft, TextAnchor.MiddleLeft);
+            c.where = UiKit.Label("Where", back.transform, "", UiTheme.HudSmall, UiTheme.InkSoft, TextAnchor.MiddleLeft);
+            c.where.textWrappingMode = TextWrappingModes.NoWrap;
+            c.where.Shrink(6);
             UiKit.Inset(c.where.rectTransform, 9, 28, 3, 2);
             return c;
         }
 
         public void Show(Survivor s, Vector2 at, float distance)
         {
-            ((RectTransform)transform).anchoredPosition = at + new Vector2(0, 4);
+            var rt = (RectTransform)transform;
+            rt.anchoredPosition = new Vector2(at.x, Mathf.Min(at.y + 4f, BelowStats(rt) - rt.sizeDelta.y));
             var tag = TriageStyle.Colour(s.Triage);
             strip.color = tag;
             title.text = FirstName(s) + " · " + distance.ToString("0") + " m";
@@ -647,7 +689,7 @@ public class GameHud : MonoBehaviour
     class Chip : MonoBehaviour
     {
         Image back, edge, bar;
-        Text text;
+        TMP_Text text;
 
         public static Chip Create(RectTransform parent)
         {
@@ -661,7 +703,8 @@ public class GameHud : MonoBehaviour
             c.edge.rectTransform.anchorMax = new Vector2(0, 1);
             c.edge.rectTransform.pivot = new Vector2(0, 0.5f);
             c.edge.rectTransform.sizeDelta = new Vector2(UiTheme.RadiusCard, 0);
-            c.text = UiKit.Label("Text", b.transform, "", UiTheme.BodySize, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+            c.text = UiKit.Label("Text", b.transform, "", UiTheme.HudText, UiTheme.White, TextAnchor.MiddleCenter, heading: true);
+            c.text.textWrappingMode = TextWrappingModes.NoWrap;
             UiKit.Inset(c.text.rectTransform, 9, 0, 5, 0);
             c.bar = UiKit.Image("Bar", b.transform, UiTheme.Notice);
             c.bar.rectTransform.anchorMin = new Vector2(0, 0);
@@ -680,6 +723,7 @@ public class GameHud : MonoBehaviour
             edge.color = edgeColour;
             float w = Mathf.Clamp(text.preferredWidth + 16f, 40f, 220f);
             rt.sizeDelta = new Vector2(w, progress >= 0f ? 18f : 15f);
+            rt.anchoredPosition = new Vector2(at.x, Mathf.Min(at.y, BelowStats(rt) - rt.sizeDelta.y * 0.5f));
             bar.gameObject.SetActive(progress >= 0f);
             if (progress >= 0f)
             {

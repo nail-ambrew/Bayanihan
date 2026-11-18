@@ -4,7 +4,11 @@
     "references": [
         "Bayanihan",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Bayanihan.Editor",
+        "Unity.Timeline",
+        "Unity.Cinemachine",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [
         "Editor"

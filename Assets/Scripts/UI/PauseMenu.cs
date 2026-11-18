@@ -41,11 +41,11 @@ public class PauseMenu : MonoBehaviour
         safe.gameObject.AddComponent<SafeArea>().FitDesign = SafeArea.MenuFit;
 
         UiKit.Logo(safe, UiKit.TopLeft, new Vector2(70, -30), 140f);
-        var col = UiKit.MenuColumn(safe, new Vector2(70, -102), 32f, 12f, 150f);
-        UiKit.MenuItem(col, "CONTINUE", Close, 32f, 150f);
-        UiKit.MenuItem(col, "RESTART", AskRestart, 32f, 150f);
-        UiKit.MenuItem(col, "SETTINGS", OpenSettings, 32f, 150f);
-        UiKit.MenuItem(col, "ABORT", AskAbort, 32f, 150f);
+        var col = UiKit.MenuColumn(safe, new Vector2(70, -102), 38f, 12f, 170f);
+        UiKit.MenuItem(col, "CONTINUE", Close, 38f, 170f);
+        UiKit.MenuItem(col, "RESTART", AskRestart, 38f, 170f);
+        UiKit.MenuItem(col, "SETTINGS", OpenSettings, 38f, 170f);
+        UiKit.MenuItem(col, "ABORT", AskAbort, 38f, 170f);
     }
 
     static Sprite fade;
@@ -67,6 +67,7 @@ public class PauseMenu : MonoBehaviour
     public void Open()
     {
         if (manager != null && manager.GameOver) return;
+        UiSound.Play(UiSoundKind.PauseOpen);
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
         GamePause.Pause();
@@ -86,6 +87,7 @@ public class PauseMenu : MonoBehaviour
         if (!IsOpen) { Open(); return; }
         if (dialog != null) { Destroy(dialog); dialog = null; return; }
         if (page != null) { ClosePage(); return; }
+        UiSound.Play(UiSoundKind.PauseClose);
         Close();
     }
 

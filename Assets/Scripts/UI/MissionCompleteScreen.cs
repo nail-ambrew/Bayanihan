@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -45,12 +46,12 @@ public class MissionCompleteScreen : MonoBehaviour
 
         UiKit.Logo(safe, UiKit.TopLeft, new Vector2(16, -12), 140f);
         UiKit.Version(safe);
-        var col = UiKit.MenuColumn(safe, new Vector2(16, -140), 32f, 14f, 160f);
+        var col = UiKit.MenuColumn(safe, new Vector2(16, -132), 36f, 12f, 170f);
         // CONTINUE: pack again for the next run (the loadout). QUIT: the main menu.
-        UiKit.MenuItem(col, "CONTINUE", manager.Repack, 32f, 160f);
-        UiKit.MenuItem(col, "RESTART", manager.Restart, 32f, 160f);
-        reportItem = UiKit.MenuItem(col, "FULL REPORT", ToggleReport, 32f, 160f);
-        UiKit.MenuItem(col, "QUIT", manager.ExitToMenu, 32f, 160f);
+        UiKit.MenuItem(col, "CONTINUE", manager.Repack, 36f, 170f);
+        UiKit.MenuItem(col, "RESTART", manager.Restart, 36f, 170f);
+        reportItem = UiKit.MenuItem(col, "FULL REPORT", ToggleReport, 36f, 170f);
+        UiKit.MenuItem(col, "QUIT", manager.ExitToMenu, 36f, 170f);
 
         board = BuildStats();
     }
@@ -81,7 +82,7 @@ public class MissionCompleteScreen : MonoBehaviour
             cardHeading.rectTransform.anchoredPosition = new Vector2(70, -8);
         }
 
-        var score = UiKit.Label("Score", cardHeading.transform.parent, manager.Score.ToString("N0") + " PTS", UiTheme.BodySize + 6, UiTheme.OrangeBurnt, TextAnchor.MiddleRight, heading: true);
+        var score = UiKit.Label("Score", cardHeading.transform.parent, manager.Score.ToString("N0") + " PTS", UiTheme.BodySize + 2, UiTheme.OrangeBurnt, TextAnchor.MiddleRight, heading: true);
         UiKit.Place(score.rectTransform, UiKit.TopRight, new Vector2(-18, -10), new Vector2(120, 30));
 
         var rows = UiKit.Rect("Rows", body);
@@ -112,9 +113,9 @@ public class MissionCompleteScreen : MonoBehaviour
         }
         else DrawGlyph(art, glyph);
 
-        var cap = UiKit.Label("Caption", row, caption, UiTheme.BodySize + 7, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
+        var cap = UiKit.Label("Caption", row, caption, UiTheme.BodySize + 3, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
         UiKit.Inset(cap.rectTransform, 68, 0, 150, 0);
-        var val = UiKit.Label("Value", row, value, UiTheme.BodySize + 6, UiTheme.OrangeBurnt, TextAnchor.MiddleRight, heading: true);
+        var val = UiKit.Label("Value", row, value, UiTheme.BodySize + 2, UiTheme.OrangeBurnt, TextAnchor.MiddleRight, heading: true);
         UiKit.Inset(val.rectTransform, 210, 0, 12, 0);
         if (rule)
         {
@@ -201,7 +202,7 @@ public class MissionCompleteScreen : MonoBehaviour
     void SetReportLabel(string text)
     {
         if (reportItem == null) return;
-        var label = reportItem.transform.Find("Label")?.GetComponent<Text>();
+        var label = reportItem.transform.Find("Label")?.GetComponent<TMP_Text>();
         if (label != null) label.text = text;
     }
 
@@ -226,7 +227,7 @@ public class MissionCompleteScreen : MonoBehaviour
                     {
                         string text = line.hasTag ? "<color=#" + ColorUtility.ToHtmlStringRGB(TriageStyle.Colour(line.tag)) + ">■</color>  " + line.text : line.text;
                         var t = UiKit.Paragraph(content, text, UiTheme.BodySize + 1, Tone(line.tone));
-                        t.supportRichText = true;
+                        t.richText = true;
                     }
                 }
         }

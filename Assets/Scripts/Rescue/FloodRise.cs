@@ -37,15 +37,16 @@ public class FloodRise : MonoBehaviour
         // Remember where the water started the first time we can see it, not when this object was made.
         if (!started)
         {
-            baseY = water.transform.position.y;
+            baseY = water.transform.position.y - FloodLevel.TakeOver();
             started = true;
         }
 
-        if (risePerMinute > 0f && Rise < maxRise)
+        // The mission's climb waits for the intro cutscene; the cutscene moves the water itself through FloodLevel.
+        if (risePerMinute > 0f && Rise < maxRise && !CutsceneHold.Active)
             Rise = Mathf.Min(maxRise, Rise + risePerMinute / 60f * Time.deltaTime);
 
         Vector3 p = water.transform.position;
-        p.y = baseY + Rise;
+        p.y = baseY + Rise + FloodLevel.Offset;
         water.transform.position = p;
     }
 

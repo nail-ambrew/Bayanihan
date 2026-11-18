@@ -71,16 +71,29 @@ public static class MenuPages
     {
         var body = UiKit.Board(root, "SETTINGS", "OPTIONS", null, out _, out _, left, close);
         var board = body.parent.parent.gameObject;
-        var content = UiKit.Scroll(body, out _, 4f, new RectOffset(6, 6, 2, 4));   // tight enough that SIGN OUT fits without scrolling
+        // Tightly packed; the last settings (and SIGN OUT, on the main menu) scroll into view.
+        var content = UiKit.Scroll(body, out _, 2f, new RectOffset(6, 6, 2, 4));
 
-        Row(UiKit.Slider(content, "VOLUME", GameSettings.Volume, v => GameSettings.Volume = v).transform.parent);
+        // Sound: everything, then the music and the sound effects under it. Each is heard at once as its slider moves.
+        Row(UiKit.Slider(content, "MASTER VOLUME", GameSettings.Volume, v => GameSettings.Volume = v).transform.parent);
+        Row(UiKit.Slider(content, "MUSIC", GameSettings.MusicVolume, v => GameSettings.MusicVolume = v).transform.parent);
+        Row(UiKit.Slider(content, "SOUND EFFECTS", GameSettings.SfxVolume, v => GameSettings.SfxVolume = v).transform.parent);
         Row(UiKit.Choice(content, "GRAPHICS", new[] { "LOW", "MEDIUM", "HIGH" }, GameSettings.Quality, i => GameSettings.Quality = i).transform);
+        // The mission's colour grade: changes the picture at once when opened from the pause menu.
+        Row(UiKit.Choice(content, "COLOR", ColorGrade.Names, GameSettings.ColorGrade, i => GameSettings.ColorGrade = i).transform);
         Row(UiKit.Slider(content, "LOOK SPEED", GameSettings.LookSensitivity, v => GameSettings.LookSensitivity = v,
                          GameSettings.MinSensitivity, GameSettings.MaxSensitivity).transform.parent);
         // How the swimmer is seen (V switches it in play): from their own eyes, or from behind with the whole body in view.
         Row(UiKit.Choice(content, "SWIM VIEW", new[] { "1ST PERSON", "3RD PERSON" },
                          GameSettings.SwimView == PlayerRescuer.PovMode.FirstPerson ? 0 : 1,
                          i => GameSettings.SwimView = i == 0 ? PlayerRescuer.PovMode.FirstPerson : PlayerRescuer.PovMode.ThirdPerson).transform);
+        // Cinematics: the flood intro before a Mabuhay mission, calmer motion, and subtitles for the radio.
+        Row(UiKit.Choice(content, "PLAY INTRO", new[] { "ON", "OFF" }, GameSettings.PlayIntro ? 0 : 1,
+                         i => GameSettings.PlayIntro = i == 0).transform);
+        Row(UiKit.Choice(content, "REDUCE MOTION", new[] { "OFF", "ON" }, GameSettings.ReduceMotion ? 1 : 0,
+                         i => { GameSettings.ReduceMotion = i == 1; CinematicMotion.Changed(); }).transform);
+        Row(UiKit.Choice(content, "SUBTITLES", new[] { "ON", "OFF" }, GameSettings.Subtitles ? 0 : 1,
+                         i => GameSettings.Subtitles = i == 0).transform);
         Row(UiKit.Choice(content, "TOUCH CONTROLS", new[] { "AUTO", "ON", "OFF" }, (int)GameSettings.Touch, i =>
         {
             GameSettings.Touch = (TouchMode)i;
@@ -97,7 +110,7 @@ public static class MenuPages
         if (a != null)
         {
             var row = UiKit.Rect("Account", content);
-            Row(row, 22);
+            Row(row, 30);
             var cap = UiKit.Label("Caption", row, "ACCOUNT", UiTheme.BodySize + 1, UiTheme.Ink, TextAnchor.MiddleLeft, heading: true);
             UiKit.Place(cap.rectTransform, UiKit.Left, Vector2.zero, new Vector2(110, 22));
             var value = UiKit.Label("Value", row, a.username + "    UID " + a.uid, UiTheme.BodySize + 2, UiTheme.OrangeBurnt, TextAnchor.MiddleLeft, heading: true);
@@ -109,9 +122,9 @@ public static class MenuPages
         if (onSignOut != null && a != null)
         {
             var holder = UiKit.Rect("SignOutRow", content);
-            Row(holder, 24);
+            Row(holder, 32);
             var b = UiKit.Button(holder, "SIGN OUT", ButtonStyle.Secondary, () => onSignOut());
-            UiKit.Place((RectTransform)b.transform, UiKit.Left, Vector2.zero, new Vector2(110, 22));
+            UiKit.Place((RectTransform)b.transform, UiKit.Left, Vector2.zero, new Vector2(110, 28));
         }
         return board;
     }
@@ -133,6 +146,12 @@ public static class MenuPages
         Section(content, "THE PLACE",
             "Barangay Mabuhay, City of Carmona, Cavite. Map data © OpenStreetMap contributors, available under the Open " +
             "Database License (ODbL).");
+        Section(content, "MUSIC",
+            "\"To the Ends\" and \"Stay the Course\" by Kevin MacLeod (incompetech.com). Licensed under Creative Commons: " +
+            "By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/");
+        Section(content, "SOUND",
+            "Interface sounds: \"Interface Sounds\" by Kenney (kenney.nl), CC0. Outboard engine: \"River boat with outboard " +
+            "engine (bow breaking through water)\" by nomadas, freesound.org, CC0.");
         Section(content, "MADE WITH", "Unity, Unity Gaming Services, Blender.");
         Section(content, "THANK YOU",
             "To the rescuers, barangay officials and volunteers whose work during typhoons inspired this game. " +
@@ -147,7 +166,7 @@ public static class MenuPages
         UiKit.Paragraph(content, text, UiTheme.BodySize + 1, UiTheme.Ink);
     }
 
-    static void Row(Transform row, float height = 22f)
+    static void Row(Transform row, float height = 26f)     // choice buttons this tall still take a fingertip
     {
         var le = row.gameObject.GetComponent<LayoutElement>() ?? row.gameObject.AddComponent<LayoutElement>();
         le.minHeight = height;

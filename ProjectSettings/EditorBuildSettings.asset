@@ -20,6 +20,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Maps/MabuhayGameplay.unity
     guid: 7df6265ee4798447ca77e0cb49168666
+  - enabled: 1
+    path: Assets/Cutscenes/Intro/Scene_IntroCutscene.unity
+    guid: 310f93a1116014f598b7ec0642ab739f
+  - enabled: 1
+    path: Assets/Cutscenes/MainMenu/Scene_MenuCinematic.unity
+    guid: 04dab87f7801045009dd70b74cea96f5
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

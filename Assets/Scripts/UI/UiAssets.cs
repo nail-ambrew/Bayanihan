@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -10,11 +11,44 @@ public class UiAssets : ScriptableObject
 {
     public const string ResourcePath = "UI/UiAssets";
 
-    [Header("Type")]
-    [Tooltip("The chunky display face of the logo, headings and buttons. Empty = Unity's built-in font in bold.")]
-    public Font headingFont;
-    [Tooltip("Body text: descriptions, fields, the report. Empty = Unity's built-in font.")]
-    public Font bodyFont;
+    [Header("Type (TextMesh Pro SDF font assets)")]
+    [Tooltip("The chunky display face of the logo, headings and buttons (Lilita One). Empty = TMP's default font in bold.")]
+    public TMP_FontAsset headingFont;
+    [Tooltip("Body text and the small type: descriptions, fields, the roster, the report (Merge One). Empty = TMP's default font.")]
+    public TMP_FontAsset bodyFont;
+
+    [Header("Text effects (material presets, so their shader variants ship in builds)")]
+    [Tooltip("The heading font's material with its underlay on: the drop shadow under titles and buttons.")]
+    public Material headingShadow;
+    [Tooltip("The heading font's material with its outline on: the logo's burnt-orange edge.")]
+    public Material headingOutline;
+    [Tooltip("The body font's material with its underlay on.")]
+    public Material bodyShadow;
+
+    [Header("Music (MusicPlayer)")]
+    [Tooltip("The sign-in, main menu and loadout screens.")]
+    public AudioClip menuMusic;
+    [Tooltip("A mission: any scene with a RescueManager.")]
+    public AudioClip gameplayMusic;
+
+    [Header("Game sounds")]
+    [Tooltip("The outboard, looped (BoatEngineSound). From \"River boat with outboard engine\" by nomadas, Freesound, CC0.")]
+    public AudioClip boatEngine;
+
+    [Header("Interface sounds (UiSound; Kenney Interface Sounds, CC0). Empty = silent.")]
+    public AudioClip clickSound;
+    public AudioClip hoverSound;
+    public AudioClip openSound;
+    public AudioClip backSound;
+    public AudioClip toggleSound;
+    public AudioClip tickSound;
+    public AudioClip questionSound;
+    public AudioClip errorSound;
+    public AudioClip confirmSound;
+    public AudioClip packInSound;
+    public AudioClip packOutSound;
+    public AudioClip pauseOpenSound;
+    public AudioClip pauseCloseSound;
 
     [Header("Brand")]
     [Tooltip("BAYANIHAN! DISASTER RESCUE GAME. Empty = the logo is set in the heading font.")]
