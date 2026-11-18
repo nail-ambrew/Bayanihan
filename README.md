@@ -3,7 +3,7 @@
 A flood-rescue game by **ELEV8 GAMES** (capstone project). A typhoon has flooded the barangay: take the rescue boat out,
 find the residents who are stranded, treat and tow them, and bring them to the evacuation hall to be registered before
 time runs out. The main map is the real **Barangay Mabuhay, Carmona, Cavite**, built from OpenStreetMap with its
-landmarks. Phone first and landscape, with touch controls; keyboard, mouse and gamepad are supported.
+landmarks. Phone first and landscape, with touch controls; keyboard and mouse are supported.
 
 *Bayanihan*: when a community lifts together, no one is left behind.
 

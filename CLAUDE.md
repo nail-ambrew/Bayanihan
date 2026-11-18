@@ -12,7 +12,7 @@ This folder is `Game/` inside `~/Documents/Bayanihan` (see the README there). Th
 - **Real place, real people.** Barangay Mabuhay, Carmona, Cavite is built from OpenStreetMap with its real landmarks;
   the residents and crew are Filipino characters. Keep Filipino terms and context where the game already uses them.
 - **Bayanihan.** Triage, families, the community response. Rescue decisions should matter more than reflexes.
-- **Phone first, landscape**, with touch controls; keyboard, mouse and gamepad work too.
+- **Phone first, landscape**, with touch controls; keyboard and mouse work too (a gamepad only skips cutscenes).
 - **Accessible.** Settings for Reduce Motion and Subtitles; lightning never flashes more than 3 times a second; SKIP on
   every cutscene. Honour these in anything new.
 - **Assessed with ISO 25010** (`Docs/Evaluation/`): functional fit, performance, usability and reliability count, so
