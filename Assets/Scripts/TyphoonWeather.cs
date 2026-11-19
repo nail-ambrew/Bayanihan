@@ -246,7 +246,8 @@ public class TyphoonWeather : MonoBehaviour
 
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
-        RenderSettings.fogDensity = Mathf.Lerp(baseFog ? baseFogDensity : 0f, fogDensityAtMax, current);
+        // Never thinner than the GRAPHICS setting's floor, which hides where a shortened view ends (GameplayQuality).
+        RenderSettings.fogDensity = Mathf.Max(Mathf.Lerp(baseFog ? baseFogDensity : 0f, fogDensityAtMax, current), GameplayQuality.FogFloor);
         RenderSettings.fogColor = Color.Lerp(Color.Lerp(baseFogColor, stormFogColor, current), Color.white, f * 0.6f);
 
         if (skyMat != null && skyMat.HasProperty("_Exposure"))

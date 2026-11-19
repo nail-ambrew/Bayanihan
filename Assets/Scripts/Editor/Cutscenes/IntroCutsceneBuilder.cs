@@ -53,6 +53,13 @@ public static class IntroCutsceneBuilder
         public Vector3 dog;
     }
 
+    /// <summary>
+    /// A point placed by hand on the map when it was drawn at twice real size, moved to where it is on the map now
+    /// (MabuhayGameplayBuilder.MapScale). Heights are world heights and stay.
+    /// </summary>
+    static Vector3 OnMap(Vector3 atTwice) =>
+        new Vector3(atTwice.x * MabuhayGameplayBuilder.MapScale / 2f, atTwice.y, atTwice.z * MabuhayGameplayBuilder.MapScale / 2f);
+
     [MenuItem("Bayanihan/Cutscenes/Build Intro", false, 61)]
     public static void BuildFromMenu() => Debug.Log("IntroCutsceneBuilder: " + Build());
 
@@ -128,8 +135,8 @@ public static class IntroCutsceneBuilder
         {
             CutsceneKit.Particles("FX_DrainBubbles", fx, map.drain, soft, new Color(0.55f, 0.47f, 0.34f, 0.8f), 40,
                                   new Vector2(0.4f, 0.9f), new Vector2(0.4f, 1.2f), new Vector2(0.08f, 0.22f), new Vector3(0.8f, 0.05f, 0.5f), 0.3f, 120),
-            CutsceneKit.Particles("FX_RiverFoam", fx, new Vector3(70f, -0.6f, -400f), soft, new Color(0.7f, 0.62f, 0.48f, 0.9f), 160,
-                                  new Vector2(2f, 4f), new Vector2(0.5f, 2f), new Vector2(1.5f, 4f), new Vector3(140f, 0.2f, 12f), 0f, 500),
+            CutsceneKit.Particles("FX_RiverFoam", fx, OnMap(new Vector3(70f, -0.6f, -400f)), soft, new Color(0.7f, 0.62f, 0.48f, 0.9f), 160,
+                                  new Vector2(2f, 4f), new Vector2(0.5f, 2f), new Vector2(1.5f, 4f), OnMap(new Vector3(140f, 0.2f, 12f)), 0f, 500),
             CutsceneKit.Particles("FX_Mist_Hall", fx, map.hall + new Vector3(0, 1.5f - map.hall.y, -20f), soft, new Color(0.75f, 0.78f, 0.8f, 0.18f), 6,
                                   new Vector2(6f, 9f), new Vector2(0.2f, 0.6f), new Vector2(8f, 14f), new Vector3(60f, 2f, 40f), 0f, 60),
             CutsceneKit.Particles("FX_Mist_Start", fx, map.boat + new Vector3(0, 1.5f, 0), soft, new Color(0.75f, 0.78f, 0.8f, 0.16f), 6,
@@ -324,8 +331,8 @@ public static class IntroCutsceneBuilder
         Add("Shot_02b_Puddle", 3.6, 5.0, m.puddle + new Vector3(-3f, 0.9f, -2f), m.puddle + new Vector3(-2.4f, 0.8f, -1.6f),
             CutsceneKit.Focus(focus, "F_Puddle", m.puddle + new Vector3(2f, 0f, 1.5f)), 35f);
         // 3 River overflows: high and moving, out towards the river south of the barangay.
-        Add("Shot_03_RiverAerial", 5.0, 9.0, new Vector3(-30f, 60f, -170f), new Vector3(15f, 52f, -235f),
-            CutsceneKit.Focus(focus, "F_River", new Vector3(70f, -1f, -410f)), 55f, false);
+        Add("Shot_03_RiverAerial", 5.0, 9.0, OnMap(new Vector3(-30f, 60f, -170f)), OnMap(new Vector3(15f, 52f, -235f)),
+            CutsceneKit.Focus(focus, "F_River", OnMap(new Vector3(70f, -1f, -410f))), 55f, false);
         // 4 Drains clog: down at the grate.
         Add("Shot_04_DrainClose", 9.0, 12.0, m.drain + new Vector3(-2.0f, 1.5f, -1.8f), m.drain + new Vector3(-1.4f, 1.1f, -1.2f),
             CutsceneKit.Focus(focus, "F_Drain", m.drain + new Vector3(0f, 0.05f, 0f)), 40f);

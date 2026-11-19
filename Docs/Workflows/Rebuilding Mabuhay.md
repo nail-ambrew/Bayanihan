@@ -10,7 +10,8 @@ Change the builder, then rebuild — never edit `MabuhayGameplay.unity` by hand.
 | Props > Import Packs | a prop pack in `Assets/3D Models` changed |
 | Buildings > Import Building Kit | the building models changed (rerun `make_buildings.py`, copy the GLBs to `Assets/3D Models/Buildings`) |
 | Roads > Import RoadKit | the RoadKit changed (`Source Assets/RoadKit.zip` → `Assets/3D Models/RoadKit`) |
-| **Build Mabuhay Gameplay Scene** | everything else: map and streets, level, murky water, street furniture, walls, infill buildings, foliage, props, in that order, then saves |
+| **Build Mabuhay Gameplay Scene** | everything else: map and streets, the rows of houses and shops, level, murky water, street furniture, walls, foliage, props, then the terrain (everything is draped over the real elevation), in that order, then saves |
+| (outside Unity) `python3 -I Docs/Maps/fetch_mabuhay_elevation.py` | to refresh the elevation (`--offline` rebuilds from `Docs/Maps/raw`) |
 | Props > Place On Open Map | only the props, on the open scene |
 
 From the Unity MCP or the `unity` CLI: `MabuhayGameplayBuilder.BuildAndSave(false)` in an eval does the same as the menu. The

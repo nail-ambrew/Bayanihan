@@ -18,6 +18,8 @@ project, is in `Assets/Scenes/Maps/MabuhayMock.unity` (see "The placeholder map"
 | `fetch_mabuhay_osm.py` | Refreshes the GeoJSON from OpenStreetMap. Standard-library Python only. |
 | `raw/overpass-mabuhay.json` | The raw OpenStreetMap answer the GeoJSON was built from, so `--offline` can rebuild it exactly. |
 | `mabuhay-layout.svg` | A printable map exported from Unity, with names, a legend and a scale bar. |
+| `mabuhay-elevation.json` | Ground height above sea level every 30 m around the map (SRTM 30 m via OpenTopoData). Read by `TerrainBuilder`. |
+| `fetch_mabuhay_elevation.py` | Refreshes it. Only the grid's coordinates are sent. `--offline` rebuilds it from `raw/opentopodata-mabuhay.json`. |
 
 In Unity, the layout is `Assets/Resources/Layouts/MabuhayCarmona.asset` (`BarangayLayout`). It is built from the GeoJSON with **Bayanihan > Rebuild Barangay Layout**.
 
@@ -56,6 +58,12 @@ Each landmark has a category (`LandmarkCategory`), so a level can swap in a pref
 | **Pawnshop** | M Lhuillier pawnshop | **Unknown**: not in OpenStreetMap |
 | **Barangay outpost** | The tanod outpost | **Unknown**: not in OpenStreetMap |
 
+**Positions given by hand.** A landmark's entry under `landmarks` in `mabuhay-overrides.json` can carry `lat` and `lon`. That position wins over OpenStreetMap's, for a place OSM has in the wrong spot. The Feast Carmona is one: OSM had it about 300 m from Hebron Street, and the project owner gave its real spot by Mabuhay Elementary School (19 Nov 2026).
+
+**Facing the road.** Each landmark model stands square to its road, its front parallel to it (`BarangayMockPlanner.AlignToRoad`). By default that is the nearest street. `BarangayMockPlanner.FrontRoads` names the road instead for:
+- **The Feast Carmona:** Hebron Street, 1.5 m back from its edge.
+- **The Iglesia ni Cristo:** Purificacion Street, moved to its lot's edge on that side, with a paved forecourt kept clear of houses out to the street.
+
 The four bold categories are new. A place with an unknown position is listed in the layout but not drawn. The printable map lists it under "Not yet located". To place one, give its `lat` and `lon` in `mabuhay-overrides.json` (ask the barangay hall for the outpost), run the script with `--offline`, then rebuild the layout in Unity.
 
 ## Evacuation sites: not yet confirmed
@@ -74,7 +82,7 @@ No official list of Mabuhay's evacuation centres is published online. Every site
 To confirm the sites, ask the barangay hall or **Carmona CDRRMO** (0917-112-0291, (046) 889-2773):
 1. Which sites are designated for Mabuhay, and how many people each holds.
 2. Where the DPWH Carmona Evacuation Center in Lantic is. Add its `lat` and `lon` in `mabuhay-overrides.json`.
-3. Which streets and riverbanks flood first. The layout has no elevation or flood-depth data yet; Project NOAH hazard maps are a possible source.
+3. Which streets and riverbanks flood first. The game's terrain comes from a 30 m elevation model (`mabuhay-elevation.json`), which shows the lie of the land but not drains or kerbs. Project NOAH hazard maps would be a better source for flood depth.
 
 For each confirmed site, set `"evacuation": "designated"` and `"verified": true` in `mabuhay-overrides.json`, and record who confirmed it and when in `"source"`. Then run the script with `--offline`, followed by **Rebuild Barangay Layout**. A test fails if a site is designated without being verified.
 
@@ -151,10 +159,10 @@ The flood-rescue mission can be played on this map, in `Assets/Scenes/Maps/Mabuh
 
 | Step | Menu item or file | What it does |
 |---|---|---|
-| 1 | **Bayanihan > Build Mabuhay Gameplay Scene** | Builds the map from `Assets/Settings/Maps/BarangayMockSettings_Gameplay.asset` (colliders on, ground a metre below the water, scale 1), then places the mission on it. Copies the boat, swimmer, camera, water and storm from Gameplay, read only. Adds the scene to Build Settings. |
+| 1 | **Bayanihan > Build Mabuhay Gameplay Scene** | Builds the map from `Assets/Settings/Maps/BarangayMockSettings_Gameplay.asset` (colliders on, a ground level a metre below the water, real size), places the mission on it, then drapes everything over the real terrain. Copies the boat, swimmer, camera, water and storm from Gameplay, read only. Adds the scene to Build Settings. |
 | 2 | **Bayanihan > Rebuild Mabuhay Mission Asset** | Writes `Assets/Resources/Maps/MabuhayMission.asset`: the same ten residents as Manila, with the Mabuhay briefing. It lives outside `Resources/Missions`, so Manila's mission stays the one that ships. |
 
-**Where things are.** Everything is placed from the layout's streets and the map's own colliders, never from how the models look, so swapping the final models in and rebuilding puts the posts, roofs and hazards back. The hall (0, 0) faces Bagumbayan Street, the evacuation drop-off is on the street in front of it, and the boat starts 46 m along the street. The live wire crosses the street at about 86 m, and the debris jam is in the A. Mapalad Street lane, 47 m west of the hall. J. M. Loyola Street is more than 240 m from the hall by water, so the mission stays on Bagumbayan Street and the lane.
+**Where things are.** Everything is placed from the layout's streets and the map's own colliders, never from how the models look, so swapping the final models in and rebuilding puts the posts, roofs and hazards back. The hall (0, 0) faces Bagumbayan Street, the evacuation drop-off is on the street in front of it, and the boat starts 46 m along the street. The live wire crosses the street at about 86 m, and the debris jam is in the A. Mapalad Street lane, 47 m west of the hall. J. M. Loyola Street is a long way from the hall by water, so the mission stays on Bagumbayan Street and the lane.
 
 **Checks.** `MabuhaySmokeTests`, `MabuhayLevelTests`, `MabuhayFlowTests` and `MapChoiceFlowTests` run in PlayMode. `MapChoiceTests`, `MabuhayMissionTests` and `BoatReachTests` run in EditMode. The level tests ask the physics engine where a boat can go (`BoatReach`), so they hold whatever the map is built from.
 

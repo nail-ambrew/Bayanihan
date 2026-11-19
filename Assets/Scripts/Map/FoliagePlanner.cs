@@ -90,13 +90,14 @@ public static class FoliagePlanner
     /// <param name="drawn">Where buildings are drawn (null = everywhere). Past it the layout's buildings are not on the map,
     /// so their ground is open and planted like any other.</param>
     public static FoliagePlan Plan(BarangayLayout layout, Rect region, MockPlan mock, PlaceholderLibrary lib, FoliageLibrary flora,
-                                   IList<KeepClear> keepClear, Rect? drawn = null, IList<(Vector2 centre, Vector2 half, float yaw)> extraBuildings = null)
+                                   IList<KeepClear> keepClear, Rect? drawn = null, IList<(Vector2 centre, Vector2 half, float yaw)> extraBuildings = null,
+                                   bool outlineHouses = true)
     {
         var plan = new FoliagePlan();
         if (layout == null || flora == null || flora.species.Count == 0) return plan;
 
         var g = new Grid(region);
-        MarkBuildings(g, layout, mock, drawn);
+        MarkBuildings(g, layout, mock, drawn, outlineHouses);
         if (extraBuildings != null)
             foreach (var b in extraBuildings) FillRotatedBox(g, b.centre, b.half, b.yaw, i => g.kind[i] = CellKind.Building);
         MarkRoads(g, layout, lib);
@@ -122,13 +123,31 @@ public static class FoliagePlanner
 
     // ------------------------------------------------------------------ what each cell is
 
-    static void MarkBuildings(Grid g, BarangayLayout layout, MockPlan mock, Rect? drawn)
+    /// <param name="outlineHouses">False when the houses are the continuous rows (RowBuilder), not one per outline: the
+    /// layout's outlines and the planner's houses are then not drawn, and the rows come in as extra buildings.</param>
+    static void MarkBuildings(Grid g, BarangayLayout layout, MockPlan mock, Rect? drawn, bool outlineHouses = true)
     {
+        // A cell only counts as building when its centre is inside the outline, so a sliver along a wall can stay open
+        // and a tree planted in it grows inside the house. Grow each footprint by one cell into the open ground beside it.
+        var footprint = new List<int>();
         foreach (var b in layout.buildings)
         {
+            if (!outlineHouses) break;
             if (b.outline == null || b.outline.Count < 3) continue;
             if (drawn.HasValue && !drawn.Value.Contains(MapGeometry.Centroid(b.outline))) continue;
-            FillPolygon(g, b.outline, i => g.kind[i] = CellKind.Building);
+            FillPolygon(g, b.outline, i => { g.kind[i] = CellKind.Building; footprint.Add(i); });
+        }
+        foreach (int i in footprint)
+        {
+            int x = i % g.w, y = i / g.w;
+            for (int dy = -1; dy <= 1; dy++)
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                int nx = x + dx, ny = y + dy;
+                if (nx < 0 || ny < 0 || nx >= g.w || ny >= g.h) continue;
+                int j = ny * g.w + nx;
+                if (g.kind[j] == CellKind.Free) g.kind[j] = CellKind.Building;
+            }
         }
         if (mock == null) return;
         foreach (var p in mock.placements)
@@ -137,6 +156,7 @@ public static class FoliagePlanner
             {
                 case PlacementKind.House:
                 case PlacementKind.Model:
+                    if (p.kind == PlacementKind.House && !outlineHouses) break;
                     // A model may be bigger than the outline it stands on (a landmark scaled to its lot).
                     var half = new Vector2(p.modelSize.x * p.scale.x, p.modelSize.z * p.scale.z) * 0.5f;
                     FillRotatedBox(g, p.position, half, p.yaw, i => g.kind[i] = CellKind.Building);

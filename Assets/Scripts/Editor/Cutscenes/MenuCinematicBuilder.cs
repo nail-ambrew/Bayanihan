@@ -38,10 +38,20 @@ public static class MenuCinematicBuilder
         ("Cut_Menu_05_TeamCloudBreak", 16.0, 20.0),
     };
 
-    static readonly Vector3 Centre = new Vector3(-140f, 0f, -40f);
-    const float Radius = 85f;
-    static readonly string[] CopyGroups = { "Buildings", "Infill Buildings", "Compound Walls", "Foliage", "Props", "Landmarks", "Street Furniture" };      // not the map's floating name signs
-    static readonly string[] CopyWhole = { "Ground", "Roads", "Areas" };
+    // Chosen on the map when it was drawn at twice real size; moved with it (MabuhayGameplayBuilder.MapScale).
+    static readonly Vector3 Centre = new Vector3(-140f * MabuhayGameplayBuilder.MapScale / 2f, 0f, -40f * MabuhayGameplayBuilder.MapScale / 2f);
+    // How far round the centre houses, trees and props are copied, and how far the flat layers (ground, roads, lot
+    // tints) are cut out to: the storm's fog hides what lies past them. At real size a slice holds four times the
+    // houses it did at twice real size, so it is smaller than the 85 m it was then.
+    const float Radius = 45f;
+    const float FlatRadius = 130f;
+    const string SliceMeshes = Folder + "/Models/MapSlice_Meshes.asset";
+    // Paths under the map's root (MapGroups). The landmarks without their floating name signs; the roads' surfaces
+    // without their street furniture, which is copied near the centre like the houses.
+    static readonly string[] CopyGroups = { MapGroups.Residential, MapGroups.Commercial, MapGroups.Landmarks, MapGroups.CompoundWalls,
+                                            MapGroups.StreetFurniture, "Foliage", "Props" };
+    static readonly string[] CopyWhole = { MapGroups.Ground, MapGroups.Terrain + "/Areas", MapGroups.Roads };
+    static readonly string[] SkipInGroups = { "Signs", "Compound Walls", "Street Furniture" };
 
     [MenuItem("Bayanihan/Cutscenes/Build Menu Cinematic", false, 62)]
     public static void BuildFromMenu() => Debug.Log("MenuCinematicBuilder: " + Build());
@@ -66,20 +76,26 @@ public static class MenuCinematicBuilder
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
         var root = new GameObject("MenuCinematic").transform;
         SceneManager.MoveGameObjectToScene(root.gameObject, scene);
+        sliceBundle = null;
         var world = new GameObject("MapSlice").transform;
         world.SetParent(root, false);
 
         // ---------------- the slice of the map
         int copied = 0, tris = 0;
         var mock = GameObject.Find("BarangayMock").transform;
-        foreach (Transform group in mock)
+        foreach (var path in CopyWhole.Concat(CopyGroups))
         {
-            bool whole = CopyWhole.Contains(group.name);
-            if (!whole && !CopyGroups.Contains(group.name)) continue;
-            var holder = new GameObject(group.name).transform;
+            var group = mock.Find(path);
+            if (group == null) continue;
+            bool whole = CopyWhole.Contains(path);
+            var holder = new GameObject(path.Replace('/', ' ')).transform;
             holder.SetParent(world, false);
-            if (whole) foreach (Transform piece in group) Copy(piece, holder, ref copied, ref tris);
-            else CopyNear(group, holder, ref copied, ref tris);
+            foreach (Transform piece in group)
+            {
+                if (SkipInGroups.Contains(piece.name)) continue;
+                if (whole) CopyCropped(piece, holder, ref copied, ref tris);
+                else CopyNear(piece, holder, ref copied, ref tris, single: true);
+            }
         }
         // the live wire and its posts (the hazard's own art)
         if (wireZone != null)
@@ -338,9 +354,9 @@ public static class MenuCinematicBuilder
 
     /// <summary>Copies the pieces of <paramref name="node"/> that stand in the slice, walking down until a piece is small
     /// enough to be one thing (a house, a tree, a pole), so a group that spans the map is not copied whole.</summary>
-    static void CopyNear(Transform node, Transform into, ref int copied, ref int tris)
+    static void CopyNear(Transform node, Transform into, ref int copied, ref int tris, bool single = false)
     {
-        foreach (Transform piece in node)
+        foreach (Transform piece in single ? new[] { node } : node.Cast<Transform>().ToArray())
         {
             if (!Bounds(piece, out var b)) continue;
             float reach = new Vector2(b.center.x - Centre.x, b.center.z - Centre.z).magnitude;
@@ -349,6 +365,61 @@ public static class MenuCinematicBuilder
             if (reach > Radius) continue;
             Copy(piece, into, ref copied, ref tris);
         }
+    }
+
+    /// <summary>
+    /// Copies a flat layer that spans the whole map (the ground's chunks, the roads, the lot tints), cut down to the
+    /// triangles within <see cref="FlatRadius"/> of the centre. The cut meshes are kept in one asset beside the scene.
+    /// </summary>
+    static void CopyCropped(Transform piece, Transform into, ref int copied, ref int tris)
+    {
+        if (!Bounds(piece, out var b)) return;
+        if (new Vector2(b.center.x - Centre.x, b.center.z - Centre.z).magnitude > FlatRadius + b.extents.magnitude) return;
+        Copy(piece, into, ref copied, ref tris);
+        var copy = into.GetChild(into.childCount - 1);
+        foreach (var mf in copy.GetComponentsInChildren<MeshFilter>())
+        {
+            var src = mf.sharedMesh;
+            if (src == null) continue;
+            tris -= src.triangles.Length / 3;
+            var m = mf.transform.localToWorldMatrix;
+            var verts = src.vertices;
+            var cut = Object.Instantiate(src);
+            cut.name = "Slice " + piece.name + " " + mf.name;
+            for (int sub = 0; sub < src.subMeshCount; sub++)
+            {
+                var t = src.GetTriangles(sub);
+                var keep = new List<int>(t.Length);
+                for (int i = 0; i < t.Length; i += 3)
+                {
+                    var c = m.MultiplyPoint3x4((verts[t[i]] + verts[t[i + 1]] + verts[t[i + 2]]) / 3f);
+                    if (new Vector2(c.x - Centre.x, c.z - Centre.z).sqrMagnitude <= FlatRadius * FlatRadius) { keep.Add(t[i]); keep.Add(t[i + 1]); keep.Add(t[i + 2]); }
+                }
+                cut.SetTriangles(keep, sub);
+            }
+            cut.RecalculateBounds();
+            if (cut.triangles.Length == 0) { Object.DestroyImmediate(cut); Object.DestroyImmediate(mf.gameObject); continue; }
+            AssetDatabase.AddObjectToAsset(cut, SliceBundle());
+            mf.sharedMesh = cut;
+            tris += cut.triangles.Length / 3;
+        }
+    }
+
+    static MockMeshBundle sliceBundle;
+    static MockMeshBundle SliceBundle()
+    {
+        if (sliceBundle != null) return sliceBundle;
+        CutsceneKit.EnsureFolder(Folder + "/Models");
+        sliceBundle = AssetDatabase.LoadAssetAtPath<MockMeshBundle>(SliceMeshes);
+        if (sliceBundle != null)
+            foreach (var o in AssetDatabase.LoadAllAssetRepresentationsAtPath(SliceMeshes)) Object.DestroyImmediate(o, true);
+        else
+        {
+            sliceBundle = ScriptableObject.CreateInstance<MockMeshBundle>();
+            sliceBundle.note = "Generated by Bayanihan > Cutscenes > Build Menu Cinematic: the map's flat layers cut down to the menu's slice.";
+            AssetDatabase.CreateAsset(sliceBundle, SliceMeshes);
+        }
+        return sliceBundle;
     }
 
     static void Copy(Transform piece, Transform into, ref int copied, ref int tris)

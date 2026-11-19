@@ -147,19 +147,20 @@ public class MabuhaySmokeTests
 
         var map = GameObject.Find("BarangayMock");
         Assert.IsNotNull(map, "the scene has no map");
-        Assert.AreEqual(-1f, map.transform.position.y, 1e-4f, "the ground is a metre under the water, as in the Manila scene");
-        // MabuhayGameplayBuilder.MapScale: houses, lots, streets and trees at twice real size beside the real-sized crew.
-        Assert.AreEqual(2f, map.transform.localScale.x, 1e-4f, "the map is drawn at twice real size");
+        Assert.AreEqual(-1f, map.transform.position.y, 1e-4f, "the ground level is a metre under the water, as in the Manila scene (the terrain rises and falls from it)");
+        // MabuhayGameplayBuilder.MapScale: houses, lots, streets and trees at real size, in proportion to the crew.
+        Assert.AreEqual(1f, map.transform.localScale.x, 1e-4f, "the map is drawn at real size");
 
         // Houses are solid where they are drawn: a mesh collider on each drawn part, not a box round the whole model.
-        var buildings = map.transform.Find("Buildings");
-        int solidHouses = buildings.Cast<Transform>().Count(h => h.name.StartsWith("House ") && h.GetComponentInChildren<MeshCollider>() != null);
+        // The houses are sorted into Residential and Commercial (MapGroups).
+        var houses = MapGroups.Houses(map.transform);
+        int solidHouses = houses.Count(h => h.GetComponentInChildren<MeshCollider>() != null);
         Assert.Greater(solidHouses, 500, "the houses have colliders");
-        Assert.AreEqual(0, buildings.GetComponentsInChildren<BoxCollider>().Length, "no house is a box: only what is drawn is solid");
+        Assert.AreEqual(0, houses.Sum(h => h.GetComponentsInChildren<BoxCollider>().Length), "no house is a box: only what is drawn is solid");
         Assert.Greater(map.GetComponentsInChildren<MeshCollider>().Length, 5, "the ground, the roads and the plain blocks have colliders");
 
         // Nothing built on the map has friction: a hull that runs into a wall glances off it instead of being held there.
-        var built = buildings.GetComponentsInChildren<Collider>().Take(300).ToList();
+        var built = houses.SelectMany(h => h.GetComponentsInChildren<Collider>()).Take(300).ToList();
         foreach (var c in built)
             Assert.IsNotNull(c.sharedMaterial, c.name + " has no surface");
         Assert.AreEqual(0f, built[0].sharedMaterial.dynamicFriction, 1e-4f);

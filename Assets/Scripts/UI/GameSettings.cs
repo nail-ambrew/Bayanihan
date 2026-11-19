@@ -157,6 +157,7 @@ public static class GameSettings
         AudioListener.volume = Volume;
         int target = QualityLevelFor(Quality, QualitySettings.names.Length);
         if (QualitySettings.GetQualityLevel() != target) QualitySettings.SetQualityLevel(target, true);
+        GameplayQuality.Apply();
         PlayerPrefs.Save();
     }
 

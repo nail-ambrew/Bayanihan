@@ -228,13 +228,15 @@ public static class PropBuilder
         candidates = candidates.OrderByDescending(r => Length(r.road.points)).ThenBy(_ => c.random.Next()).ToList();
         int model = 0;
 
-        for (int pass = 0; pass < 3 && placed.Count < c.lib.jeepneyCount; pass++)
+        // Several passes, the stops closer each time: the poles and lamps now stand on the streets' edges, and a jeepney
+        // parks in the gaps between them.
+        for (int pass = 0; pass < 6 && placed.Count < c.lib.jeepneyCount; pass++)
             foreach (var (road, half) in candidates)
             {
                 if (placed.Count >= c.lib.jeepneyCount) break;
                 var pts = road.points;
                 float total = Length(pts);
-                for (float s = 10f + c.R() * 20f; s < total - 10f && placed.Count < c.lib.jeepneyCount; s += 18f + c.R() * 22f)
+                for (float s = 10f + c.R() * 20f; s < total - 10f && placed.Count < c.lib.jeepneyCount; s += (pass < 3 ? 18f : 7f) + c.R() * (pass < 3 ? 22f : 8f))
                 {
                     PointAt(pts, s, out Vector2 at, out Vector2 along);
                     float side = c.random.Next(2) == 0 ? 1f : -1f;
