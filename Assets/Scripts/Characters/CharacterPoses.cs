@@ -10,7 +10,10 @@ public enum PoseOverlay
     HoldTiller = 4,     // right hand on the outboard's tiller (CharacterAnimator.HandTarget)
     Limp = 8,           // head and shoulders slumped: hurt or exhausted
     HeadLook = 16,      // head turns towards CharacterAnimator.LookTarget
-    HoldOn = 32         // both hands on a pole, a ring or a line (CharacterAnimator.LeftHandPoint / RightHandPoint)
+    HoldOn = 32,        // both hands on a pole, a ring or a line (CharacterAnimator.LeftHandPoint / RightHandPoint)
+    Clutch = 64,        // both hands held in at the chest, holding something small (a photo): the arms fold in
+    Hug = 128,          // both arms around somebody, at CharacterAnimator.LookTarget's height, head bowed
+    ShoutCall = 256     // an arm up and the chin lifted: calling out across the water
 }
 
 /// <summary>
@@ -35,7 +38,65 @@ public static class CharacterPoses
         if ((overlays & PoseOverlay.WaveForHelp) != 0) Wave(a);
         if ((overlays & PoseOverlay.HoldTiller) != 0) Tiller(a, facing);
         if ((overlays & PoseOverlay.HoldOn) != 0) HoldOn(a, facing);
+        if ((overlays & PoseOverlay.Clutch) != 0) Clutch(a, facing);
+        if ((overlays & PoseOverlay.Hug) != 0) Hug(a, facing);
+        if ((overlays & PoseOverlay.ShoutCall) != 0) ShoutCall(a, facing);
         if ((overlays & PoseOverlay.HeadLook) != 0) HeadLook(a, facing);
+    }
+
+    /// <summary>Forearms folded in across the chest, shoulders a little rounded: somebody holding something precious.</summary>
+    static void Clutch(CharacterAnimator a, float facing)
+    {
+        Vector3 right = a.transform.right * facing;
+        var chest = a.Bone("Spine");
+        // Point the hands reach for: in front of the chest, close together. With no spine bone, fall back to a fixed pose.
+        if (chest != null)
+        {
+            Vector3 centre = chest.position + a.transform.forward * (0.22f * facing) + Vector3.up * 0.05f;
+            ReachBoth(a, centre + right * 0.07f, centre - right * 0.07f, Vector3.down);
+        }
+        Turn(a.Bone("Spine"), Quaternion.Euler(6f * facing, 0f, 0f));
+        Turn(a.Bone("Head"), Quaternion.Euler(10f * facing, 0f, 0f));
+    }
+
+    /// <summary>
+    /// Both arms around somebody standing in front, whose head is at LookTarget: hands meet behind their shoulders,
+    /// the head rests down beside theirs.
+    /// </summary>
+    static void Hug(CharacterAnimator a, float facing)
+    {
+        Vector3 right = a.transform.right * facing;
+        Vector3 around = a.LookTarget - a.transform.forward * (0.1f * facing) + Vector3.down * 0.25f;
+        ReachBoth(a, around + right * 0.2f, around - right * 0.2f, Vector3.down);
+        Turn(a.Bone("Spine"), Quaternion.Euler(10f * facing, 0f, 0f));
+        Turn(a.Bone("Neck"), Quaternion.Euler(14f * facing, 0f, 0f));
+        Turn(a.Bone("Head"), Quaternion.Euler(10f * facing, 0f, 12f));
+    }
+
+    /// <summary>Right arm up and out, chin lifted, left hand cupped near the mouth. A steady call, not a wave.</summary>
+    static void ShoutCall(CharacterAnimator a, float facing)
+    {
+        Set(a.Bone("UpperArmR"), Quaternion.Euler(0f, 0f, 62f));
+        Set(a.Bone("ForearmR"), Quaternion.Euler(0f, 0f, 14f));
+        Turn(a.Bone("Neck"), Quaternion.Euler(-14f * facing, 0f, 0f));
+        Turn(a.Bone("Head"), Quaternion.Euler(-12f * facing, 0f, 0f));
+        var head = a.Bone("Head");
+        if (head != null)
+        {
+            Vector3 mouth = head.position + a.transform.forward * (0.12f * facing) + Vector3.down * 0.06f;
+            var upperL = a.Bone("UpperArmL"); var foreL = a.Bone("ForearmL"); var handL = a.Bone("HandL");
+            if (upperL != null && foreL != null && handL != null)
+                Reach(upperL, foreL, handL, mouth, Vector3.down - a.transform.right * (0.4f * facing));
+        }
+    }
+
+    /// <summary>Solves both arms to two world points, elbows hanging down and in.</summary>
+    static void ReachBoth(CharacterAnimator a, Vector3 rightTarget, Vector3 leftTarget, Vector3 elbowHint)
+    {
+        var upperR = a.Bone("UpperArmR"); var foreR = a.Bone("ForearmR"); var handR = a.Bone("HandR");
+        var upperL = a.Bone("UpperArmL"); var foreL = a.Bone("ForearmL"); var handL = a.Bone("HandL");
+        if (upperR != null && foreR != null && handR != null) Reach(upperR, foreR, handR, rightTarget, elbowHint);
+        if (upperL != null && foreL != null && handL != null) Reach(upperL, foreL, handL, leftTarget, elbowHint);
     }
 
     /// <summary>Both hands on whatever they are holding. Applied after Limp, so a hurt person still keeps hold.</summary>

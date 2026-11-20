@@ -62,7 +62,6 @@ public class LoadoutScreen : MonoBehaviour
     public PackingStage Stage { get; private set; }
     /// <summary>The READY sequence is playing (LAUNCH was pressed).</summary>
     public bool Readying { get; private set; }
-    CutsceneSkipButton readySkip;
 
     // ------------------------------------------------------------------ lifecycle
     void Start()
@@ -173,19 +172,15 @@ public class LoadoutScreen : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>LAUNCH: the READY sequence on the packing stage (zip, buckle, the bag slung, READY; ~2 s, skippable),
-    /// then the mission loads.</summary>
+    /// <summary>LAUNCH: the READY sequence on the packing stage (zip, buckle, the bag slung, READY; about 2 s), then the
+    /// mission loads. READY is a short flourish inside the loadout, not a cutscene, so it has no SKIP button: that
+    /// button belongs to full-screen cutscenes and showed over the loadout the moment LAUNCH was pressed.</summary>
     void Launch()
     {
         if (SceneFlow.IsLoading || Readying) return;
         if (Stage == null) { Go(); return; }
         Readying = true;
-        readySkip = CutsceneSkipButton.Create(safe, () => Stage.FinishReady());
-        Stage.Ready(() =>
-        {
-            if (readySkip != null) Destroy(readySkip.gameObject);
-            Go();
-        });
+        Stage.Ready(Go);
     }
 
     void Go()

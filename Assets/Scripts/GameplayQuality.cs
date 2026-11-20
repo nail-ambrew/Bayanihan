@@ -6,8 +6,9 @@ using UnityEngine.Rendering.Universal;
 /// <summary>
 /// How much the missions draw, from the GRAPHICS setting (Low, Medium, High). Each phone build has only one Unity quality
 /// level (Mobile) and each PC build only one (PC), so the setting does its work here, at run time: a shorter view and
-/// thicker fog, fewer shadows, a harder house cull and less grass and undergrowth on Low. High changes nothing, so the PC
-/// picture is the one the map was built for. Change the numbers here to retune a preset (see "Running on phones" in
+/// thicker fog, fewer shadows, a harder house cull and less grass and undergrowth on Low. High changes almost nothing, so the
+/// PC picture is the one the map was built for: only the LOD bias is 1 rather than the PC level's 2, which took the hall start
+/// (the denser middle of the map) back under what the old start cost, with no visible difference in the start view. Change the numbers here to retune a preset (see "Running on phones" in
 /// Docs/Project/Overview.md for what each one costs).
 /// </summary>
 public struct GameplayQuality
@@ -18,7 +19,7 @@ public struct GameplayQuality
     public float fogFloor;
     /// <summary>Whether the gameplay camera draws shadows.</summary>
     public bool shadows;
-    /// <summary>The LOD bias (0 = the quality level's own: 1 on phones, 2 on PC). Lower drops the row houses and other LOD-culled objects out nearer.</summary>
+    /// <summary>The LOD bias (0 = the quality level's own: 1 on phones, 2 on PC; High sets 1 so PC draws what a phone's level does). Lower drops the row houses and other LOD-culled objects out nearer.</summary>
     public float lodBias;
     /// <summary>Multiplies every grass and undergrowth draw distance.</summary>
     public float foliageDistance;
@@ -34,7 +35,7 @@ public struct GameplayQuality
     { farClip = 280f, fogFloor = 0.0062f, shadows = true, lodBias = 0.7f, foliageDistance = 0.6f, foliageDensity = 0.7f, msaa = true };
 
     public static readonly GameplayQuality High = new GameplayQuality
-    { farClip = 0f, fogFloor = 0f, shadows = true, lodBias = 0f, foliageDistance = 1f, foliageDensity = 1f, msaa = true };
+    { farClip = 0f, fogFloor = 0f, shadows = true, lodBias = 1f, foliageDistance = 1f, foliageDensity = 1f, msaa = true };
 
     public static GameplayQuality For(int setting) => setting <= 0 ? Low : setting == 1 ? Medium : High;
 

@@ -48,7 +48,7 @@ public class MabuhayBotTests
 
         Vector3 flat = new Vector3(boat.transform.position.x, zone.bounds.center.y, boat.transform.position.z);
         Assert.IsTrue(zone.bounds.Contains(flat), "the boat did not get into the hall's drop-off zone: it is at " + boat.transform.position + ", the zone is " + zone.bounds);
-        Assert.Greater(Vector3.Distance(start, boat.transform.position), 60f, "the hall is a long way from the start");
+        Assert.Greater(Vector3.Distance(start, boat.transform.position), 8f, "the crew starts beside the hall: its drop-off is a short run away");
         Assert.IsFalse(RescueManager.Instance.GameOver);
     }
 

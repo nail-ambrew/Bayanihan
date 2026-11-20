@@ -187,7 +187,8 @@ public class MabuhayLevelTests
         Assert.IsTrue(water.Reached(centre) || water.DistanceToReached(centre, 3f) < 3f, "the boat cannot get into the hall's drop-off zone");
         float byWater = water.DistanceFromStart(centre);
         Assert.Less(byWater, 200f, "the hall is " + byWater.ToString("0") + " m from the start by water: further than the mission's clock allows for three trips");
-        Assert.Greater(byWater, 50f, "the hall is too close to the start to be a journey");
+        // The crew sets out from the hall (RescueBase_Spawn): the drop-off is a short run from the boat, but not the start itself.
+        Assert.Greater(byWater, 8f, "the boat starts inside the hall's drop-off");
         yield return null;
     }
 
@@ -537,8 +538,11 @@ public class MabuhayLevelTests
             foreach (var r in drawn) b.Encapsulate(r.bounds);
 
             Vector3 start = boat.transform.position;
-            var area = Rect.MinMaxRect(Mathf.Min(b.min.x, start.x) - 30f, Mathf.Min(b.min.z, start.z) - 30f,
-                                       Mathf.Max(b.max.x, start.x) + 30f, Mathf.Max(b.max.z, start.z) + 30f);
+            // The flood area is the lot, the start and room round them to go the long way: with the start beside the hall
+            // the boat's way to the church goes round a block, outside a box drawn tight round the two.
+            const float room = 150f;
+            var area = Rect.MinMaxRect(Mathf.Min(b.min.x, start.x) - room, Mathf.Min(b.min.z, start.z) - room,
+                                       Mathf.Max(b.max.x, start.x) + room, Mathf.Max(b.max.z, start.z) + room);
             var water = new BoatReach(area, 1f, BoatReach.DefaultRadius, 0f);
             Physics.SyncTransforms();
             water.Flood(start);
@@ -587,10 +591,13 @@ public class MabuhayLevelTests
     [UnityTest]
     public IEnumerator The_residents_nearest_the_start_are_the_ones_who_wear_out_fastest()
     {
-        // The girl adrift ahead of the boat goes critical first, so the crew meet her before anybody who can wait.
+        // The crew sets out from the hall, so the first residents they meet are the ones just west of it: the grandfather on
+        // his post and the hurt man adrift. The girl adrift farther along the street still goes critical before anybody who
+        // can wait, so the crew has a reason to press on to her.
         Vector3 start = boat.transform.position;
+        foreach (var near in new[] { "ador", "lito" })
+            Assert.Less(Vector3.Distance(start, Resident(near).transform.position), 25f, near + " should be close to the hall where the crew starts");
         var joy = Resident("joy");
-        Assert.Less(Vector3.Distance(start, joy.transform.position), 25f, "Joy should be close to the start");
 
         float joysMinutes = joy.Condition.Condition01 / joy.Condition.DrainPerMinute;
         foreach (var s in Survivor.All)
@@ -609,4 +616,22 @@ public class MabuhayLevelTests
         Assert.GreaterOrEqual(near, boat.capacity, "fewer than " + boat.capacity + " residents are within 60 m of the start");
         yield return null;
     }
+
+    [UnityTest]
+    public IEnumerator The_crew_starts_beside_the_hall_clear_of_its_drop_off_zone()
+    {
+        // The rescuers set out from the Barangay Hall, the evacuation area, not from a random spot on the street.
+        var marker = GameObject.Find("RescueBase_Spawn");
+        Assert.IsNotNull(marker, "the RescueBase_Spawn marker the intro and the start share");
+        Assert.Less(Vector3.Distance(Flat3(marker.transform.position), Flat3(boat.transform.position)), 0.5f, "the boat is at the marker (the boat floats a little above or below it)");
+
+        var zone = Hall().GetComponent<Collider>();
+        Vector3 start = boat.transform.position;
+        float outside = Vector3.Distance(zone.ClosestPoint(start), start);
+        Assert.GreaterOrEqual(outside, 5f, "the boat must start outside the drop-off, or its first passenger would be unloaded at once");
+        Assert.Less(Vector3.Distance(Flat3(zone.bounds.center), Flat3(start)), 30f, "and beside the hall");
+        yield return null;
+    }
+
+    static Vector3 Flat3(Vector3 v) => new Vector3(v.x, 0f, v.z);
 }

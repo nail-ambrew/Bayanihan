@@ -53,10 +53,36 @@ public class CutsceneAssets : ScriptableObject
     [TextArea] public string radioBulletinText =
         "Weather bulletin. Signal number three is raised over Cavite. Residents near the river, prepare to evacuate now.";
 
+    /// <summary>One spoken line of the story intro, found by <see cref="name"/> ("Ben", "Joy", "Captain"...).</summary>
+    [System.Serializable]
+    public struct NamedClip { public string name; public AudioClip clip; }
+
+    [Tooltip("The story intro's spoken lines (files VO_Intro_<name>); the Timeline's voice track plays them by name.")]
+    public NamedClip[] introVoices;
+
+    /// <summary>The intro's spoken line called <paramref name="lineName"/>, or null.</summary>
+    public AudioClip IntroVoice(string lineName)
+    {
+        if (introVoices == null) return null;
+        foreach (var v in introVoices) if (v.name == lineName) return v.clip;
+        return null;
+    }
+
+    [Header("Story intro sounds")]
+    [Tooltip("Timber and tin groaning as the water pushes on a house.")]
+    public AudioClip creak;
+    [Tooltip("A shanty giving way.")]
+    public AudioClip collapse;
+    public AudioClip dogBark;
+    [Tooltip("The power cutting out: a transformer thump and a drop in the hum.")]
+    public AudioClip powerOut;
+
     [Header("Music")]
     [Tooltip("The intro's rising cue: this track, from cueStart. Credited in Credits > Music.")]
     public AudioClip musicCue;
     public float musicCueStart = 0f;
+    [Tooltip("A sparse piano-and-strings bed under the tragedy (a placeholder: replace with a composed or licensed piece).")]
+    public AudioClip musicBed;
 
     static CutsceneAssets current;
 

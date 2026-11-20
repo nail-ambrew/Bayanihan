@@ -13,12 +13,12 @@ public class GameplayQualityTests
     public void TearDown() { InstancedFoliage.DensityScale = 1f; InstancedFoliage.QualityScale = 1f; }
 
     [Test]
-    public void High_changes_nothing_the_map_was_built_with()
+    public void High_keeps_the_picture_the_map_was_built_with_apart_from_a_gentler_LOD_bias()
     {
         var h = GameplayQuality.High;
         Assert.AreEqual(0f, h.farClip, "the camera's own far clip");
         Assert.AreEqual(0f, h.fogFloor, "the weather's own fog");
-        Assert.AreEqual(0f, h.lodBias, "the quality level's own LOD bias");
+        Assert.AreEqual(1f, h.lodBias, "a phone level's LOD bias (the PC level's own is 2, which drew about 16 % more at the hall start for nothing visible)");
         Assert.IsTrue(h.shadows && h.msaa);
         Assert.AreEqual(1f, h.foliageDistance);
         Assert.AreEqual(1f, h.foliageDensity);

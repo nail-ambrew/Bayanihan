@@ -91,7 +91,12 @@ Barangay Mabuhay is generated from real map data; nothing on it is placed by han
 180 models each carried an identical copy. Static batching therefore merges the rows. Each row unit has a cull-only
 `LODGroup` (`RowBuilder.CullBelowScreenHeight`, 1.5 % of the screen's height), so far houses are not drawn. From the
 boat's start, meshes in view go from 3.8M triangles and 6,175 renderers to 1.1M and 1,471 (19 Nov 2026, counted in the
-editor). That does not count the instanced grass and plants, or the shadow passes. The last build step then cuts
+editor, with the boat then starting 46 m along Bagumbayan Street). The crew now starts beside the Barangay Hall, in the denser middle
+of the map: measured the same way in the editor (Game view stats, High, shadows and grass included), the new start draws about
+2.7M triangles and 5.6k batches against 2.4M and 5.0k at the old one, about 12 % more. High's LOD bias was then lowered from the PC
+level's 2 to 1 (`GameplayQuality.High`), which measured about 16 % fewer triangles at the hall start (2.17M to 1.83M in one session)
+with no visible change in the start view, so the hall start now costs less than the old start did. The editor's frame statistics
+are noisy in the background, so treat these as rough. That does not count the instanced grass and plants, or the shadow passes. The last build step then cuts
 the whole-map meshes (roads, lot tints, streams, plinths) into 64 m tiles (`MeshTiler`), so only the tiles in view are
 drawn. On phones the GRAPHICS setting shortens the view, thins the grass and drops the houses nearer
 (`GameplayQuality`): see "Running on phones" in `Docs/Project/Overview.md`.

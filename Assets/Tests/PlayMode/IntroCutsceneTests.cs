@@ -59,7 +59,7 @@ public class IntroCutsceneTests
         var skip = Intro.manager.Overlay.Skip;
         Assert.IsNotNull(skip, "SKIP");
         Assert.IsTrue(skip.isActiveAndEnabled, "SKIP is on screen from the first frame");
-        Assert.That(Intro.manager.Duration, Is.InRange(20.0, 25.0), "20-25 seconds");
+        Assert.That(Intro.manager.Duration, Is.InRange(50.0, 58.0), "about a minute");
 
         float clock = RescueManager.Instance.TimeLeft;
         yield return WaitSeconds(1.5f);
@@ -68,14 +68,14 @@ public class IntroCutsceneTests
     }
 
     [UnityTest]
-    public IEnumerator The_story_has_seven_beats_in_order()
+    public IEnumerator The_story_has_five_beats_in_order()
     {
         yield return LaunchWithIntro();
         var timeline = (TimelineAsset)Intro.manager.Director.playableAsset;
         var beats = timeline.markerTrack.GetMarkers().OfType<SignalEmitter>()
                             .Where(e => e.asset != null && e.asset.name.StartsWith("Beat_"))
                             .OrderBy(e => e.time).Select(e => e.asset.name).ToList();
-        CollectionAssert.AreEqual(Enumerable.Range(1, 7).Select(i => "Beat_" + i).ToList(), beats);
+        CollectionAssert.AreEqual(Enumerable.Range(1, 5).Select(i => "Beat_" + i).ToList(), beats);
         foreach (var e in timeline.markerTrack.GetMarkers().OfType<SignalEmitter>())
             Assert.IsNotNull(e.asset, "every cue has its signal");
         foreach (var track in timeline.GetOutputTracks())
@@ -108,6 +108,63 @@ public class IntroCutsceneTests
         Assert.IsFalse(SceneManager.GetSceneByName(IntroFlow.SceneName).isLoaded, "the intro scene is gone");
         var brain = Camera.main.GetComponent<CinemachineBrain>();
         Assert.AreNotEqual(IntroFlow.SceneName, ((Component)brain.ActiveVirtualCamera).gameObject.scene.name, "the gameplay camera is live");
+        var marker = GameObject.Find("RescueBase_Spawn");
+        Assert.IsNotNull(marker, "the rescue base marker");
+        Assert.Less(Vector3.Distance(Object.FindFirstObjectByType<SimpleBoat>().transform.position, marker.transform.position), 1.5f,
+                    "the mission starts at the Barangay Hall, where the film ended");
+    }
+
+    /// <summary>Skips the film <paramref name="seconds"/> in and checks the mission is playable at once.</summary>
+    static IEnumerator SkipAt(double seconds)
+    {
+        yield return LaunchWithIntro();
+        yield return WaitUntil(() => Intro.manager.Director.time >= seconds, 80f, "the film to reach " + seconds + " s");
+        Intro.manager.Skip();
+        yield return WaitUntil(() => !CutsceneHold.Active, 2f, "the mission to be released");
+        Assert.IsFalse(InputHelper.GameplayLocked, "controls work after a skip at " + seconds + " s");
+        Assert.AreEqual(0f, FloodLevel.Offset, 0.0001f, "the flood is at mission level");
+        Assert.IsFalse(Intro != null && Intro.CastShown("HomeAll") && Intro.CastShown("Hall"), "the cast is gone");
+        foreach (var spot in Object.FindObjectsByType<CharacterSpot>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            Assert.IsFalse(spot.gameObject.scene.name == IntroFlow.SceneName && spot.gameObject.activeInHierarchy, spot.name + " is still on screen");
+    }
+
+    [UnityTest] public IEnumerator Skip_one_second_in_is_playable() { yield return SkipAt(1.0); }
+    [UnityTest] public IEnumerator Skip_in_the_tragedy_is_playable() { yield return SkipAt(30.0); }
+    [UnityTest] public IEnumerator Skip_during_the_hope_is_playable() { yield return SkipAt(45.0); }
+
+    [UnityTest]
+    public IEnumerator Everyone_in_the_story_stands_on_the_ground_or_a_roof_or_floats_on_the_water()
+    {
+        yield return LaunchWithIntro();
+        var spots = Intro.castRoot.GetComponentsInChildren<CharacterSpot>(true);
+        Assert.GreaterOrEqual(spots.Length, 11);
+        foreach (var spot in spots)
+        {
+            Vector3 at = spot.transform.position;
+            if (spot.floatOnWater)
+            {
+                Assert.That(at.y, Is.InRange(-1.6f, 0.6f), spot.name + " is not in the water");
+                continue;
+            }
+            var hits = Physics.RaycastAll(at + Vector3.up * 3f, Vector3.down, 12f, ~0, QueryTriggerInteraction.Ignore)
+                              .Where(h => h.collider.GetComponentInParent<WaterSurface>() == null && h.collider.GetComponentInParent<SimpleBoat>() == null
+                                          && h.collider.GetComponentInParent<Survivor>() == null && h.collider.GetComponentInParent<PlayerRescuer>() == null)
+                              .OrderBy(h => h.distance).ToArray();
+            Assert.IsNotEmpty(hits, spot.name + " has nothing under it");
+            Assert.AreEqual(hits[0].point.y, at.y, 0.35f, spot.name + " is floating or sunk (" + at.y.ToString("0.00") + " against ground at " + hits[0].point.y.ToString("0.00") + ")");
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator SKIP_is_on_screen_with_the_film_and_gone_once_the_mission_starts()
+    {
+        // SKIP belongs to the film, not to the loadout or the loading (PackingStageTests: none over READY).
+        yield return LaunchWithIntro();
+        Assert.IsNotNull(Intro.manager.Overlay.Skip, "SKIP with the film");
+        Intro.manager.Skip();
+        yield return WaitUntil(() => !CutsceneHold.Active, 2f, "the mission to be released");
+        yield return WaitSeconds(0.6f);
+        Assert.IsNull(Object.FindFirstObjectByType<CutsceneSkipButton>(), "no SKIP once the mission has started");
     }
 
     [UnityTest]
@@ -121,9 +178,9 @@ public class IntroCutsceneTests
         double length = Intro.manager.Duration;
 
         // Up to the last second.
-        yield return WaitUntil(() => Intro.manager.Director.time >= length - 1.2, 40f, "the last second");
+        yield return WaitUntil(() => Intro.manager.Director.time >= length - 1.2, 80f, "the last second");
         Assert.AreEqual(condition, resident.Condition01, 0.0001f, "nobody weakened during the intro");
-        Assert.GreaterOrEqual(Intro.BeatsSeen.Count, 7, "all seven beats played");
+        Assert.GreaterOrEqual(Intro.BeatsSeen.Count, 5, "all five beats played");
         CollectionAssert.AreEqual(Intro.BeatsSeen.OrderBy(b => b).ToList(), Intro.BeatsSeen, "in order");
 
         // Across the hand-over and a second after it, the camera moves smoothly: no cut, no pop.

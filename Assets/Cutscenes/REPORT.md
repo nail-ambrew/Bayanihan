@@ -1,6 +1,6 @@
 # Cinematics: report
 
-What was added for the menu loop, the loadout packing stage and the flood intro, what was changed, and what is a
+What was added for the menu loop, the loadout packing stage and the story intro, what was changed, and what is a
 placeholder to replace. How to use and change it all: `README.md`.
 
 ## Created
@@ -19,14 +19,15 @@ placeholder to replace. How to use and change it all: `README.md`.
 | `FlashLimiter.cs` | At most 3 flashes a second, none with Reduce Motion; `CinematicMotion` change event |
 | `CinematicQuality.cs` | Low / Medium / High cinematic presets |
 | `IntroFlow.cs` | Arms the intro on LAUNCH, loads it over the held mission, 8 s failsafe |
-| `IntroCutscene.cs` | Binds the intro to the map, holds the boat and residents, hands over to the gameplay camera |
+| `IntroCutscene.cs` | Binds the intro to the map, holds the boat and hides the mission's residents, shows and hides the story's cast groups on `Cast_Show_` / `Cast_Hide_` cues, power-out, hands over to the gameplay camera |
+| `IntroPropMotion.cs` | The few props that move on a cue: the family photo (falls, then drifts), the shanty and the tricycle (tilt and sink) |
 | `IntroDebrisPool.cs` | Pooled flood debris (16 kinds, capped by preset, 40 on High) |
 | `ShotMove.cs` | Timeline-timed camera (or object) moves |
 | `SirenLight.cs`, `LightFlicker.cs`, `FloatOnWater.cs`, `CharacterSpot.cs` | Siren lamp, sparking-wire light, surface riding, cutscene characters |
 | `MenuCinematic.cs` | The menu loop's runtime (camera takeover, sky, crew); `MenuBackdrop` loader |
 | `LogoFx.cs`, `MenuParallax.cs` | Logo pop and shimmer; button drift and vignette |
 | `PackingStage.cs` | The loadout's 3D packing stage, meter and READY sequence |
-| `Timeline/FloodLevelClip.cs`, `FloodLevelTrack.cs`, `StormClip.cs`, `StormTrack.cs`, `SubtitleClip.cs`, `SubtitleTrack.cs`, `RampBehaviour.cs` | Custom Timeline tracks |
+| `Timeline/FloodLevelClip.cs`, `FloodLevelTrack.cs`, `StormClip.cs`, `StormTrack.cs`, `SubtitleClip.cs` (speaker, line, translation), `SubtitleTrack.cs`, `RampBehaviour.cs` | Custom Timeline tracks |
 
 ### Editor code (`Assets/Scripts/Editor/Cutscenes/`)
 | File | Menu item |
@@ -43,7 +44,7 @@ placeholder to replace. How to use and change it all: `README.md`.
 | `Assets/Cutscenes/MainMenu/Scene_MenuCinematic.unity`, `Timelines/Cut_Menu_Loop.playable` | The menu loop (built) |
 | `Assets/Cutscenes/Shared/Shaders/FloodWater.shader` | Stylised muddy flood (gameplay and cutscenes) |
 | `Assets/Cutscenes/Shared/Materials/*` | Prop and particle materials, soft particle texture |
-| `Assets/Cutscenes/Intro/Prefabs/*` | Dog, storm drain, six rubbish kinds |
+| `Assets/Cutscenes/Intro/Prefabs/*` | Dog, storm drain, six rubbish kinds, family photo, shanty, tricycle, rescue gear |
 | `Assets/Cutscenes/Loadout/Models/*.glb` | Dry-bag and six items |
 | `Assets/Cutscenes/*/Audio/*.wav` | Placeholder sounds (below) |
 | `Assets/Audio/Bayanihan.mixer` | Music / SFX / Ambience / VO mixer |
@@ -52,7 +53,7 @@ placeholder to replace. How to use and change it all: `README.md`.
 | `Source Assets/Loadout/make_loadout_models.py` (outside the repo) | Generates the loadout models (Blender) |
 
 ### Tests
-`Tests/EditMode/CutsceneAssetTests.cs` (7); `Tests/PlayMode/CutsceneFoundationTests.cs` (21), `IntroCutsceneTests.cs` (7),
+`Tests/EditMode/CutsceneAssetTests.cs` (7); `Tests/PlayMode/CutsceneFoundationTests.cs` (21), `IntroCutsceneTests.cs` (12),
 `MenuCinematicTests.cs` (5), `PackingStageTests.cs` (4).
 
 ## Changed (existing files)
@@ -62,7 +63,10 @@ placeholder to replace. How to use and change it all: `README.md`.
 | `UI/GameSettings.cs` | `PlayIntro`, `ReduceMotion`, `Subtitles` (and in `Reset`) |
 | `UI/MenuPages.cs` | Three settings rows: PLAY INTRO, REDUCE MOTION, SUBTITLES |
 | `UI/MainMenuScreen.cs` | Loads the menu cinematic (still picture as fallback), logo FX, parallax, vignette |
-| `LoadoutScreen.cs` | Packing stage and 2x2 slots on the LOADOUT card; pack/unpack/deny calls; LAUNCH plays READY then arms the intro |
+| `LoadoutScreen.cs` | Packing stage and 2x2 slots on the LOADOUT card; pack/unpack/deny calls; LAUNCH plays READY (no SKIP: it is a 2 s flourish, not a cutscene) then arms the intro |
+| `Characters/CharacterPoses.cs` | New poses `Clutch`, `Hug`, `ShoutCall` (IK, no new clips) |
+| `Cutscenes/CutsceneAssets.cs`, `CutsceneOverlay.cs` | Intro voice lines and story sounds in the registry; two-line subtitle box |
+| `Editor/MabuhayLevelBuilder.cs`, `Editor/MabuhayMissionBuilder.cs` | The rescue crew starts at the Barangay Hall (`HallStartS`, the `RescueBase_Spawn` marker) |
 | `RescueManager.cs` | Clock waits while `CutsceneHold` is active |
 | `Rescue/SurvivorCondition.cs` | No condition drain while held |
 | `Rescue/FloodRise.cs` | Climb waits while held; adds `FloodLevel.Offset` |
@@ -76,7 +80,7 @@ placeholder to replace. How to use and change it all: `README.md`.
 | `Bayanihan.asmdef`, `Bayanihan.Editor.asmdef`, test asmdefs | Timeline / Cinemachine / URP references |
 | `ProjectSettings/EditorBuildSettings.asset` | The two cutscene scenes added |
 
-`MabuhayGameplay.unity`, the Manila map, sign-in, saves and mission rules are unchanged.
+`MabuhayGameplay.unity` was rebuilt for the hall start (everything else on the map is as before); the Manila map, sign-in, saves and mission rules are unchanged.
 
 ## Placeholders to replace
 
@@ -85,10 +89,14 @@ placeholder to replace. How to use and change it all: `README.md`.
 | Rain light/heavy, tin drips, rushing water, wind loops | `make_cutscene_audio.py` (synthesised noise) | Recorded ambience, same names, seamless loops |
 | Thunder x2, siren, whoosh, splash | same | Recorded or licensed effects |
 | Pack rustle, zip, buckle, denied thump, READY stamp | same | Foley |
-| Radio bulletin (VO) | macOS `say` (Samantha) with a radio filter | A real voice actor; update `CutsceneAssets.radioBulletinText` and the subtitle clips if the words change (Filipino line welcome) |
+| Radio bulletin (VO), now in Tagalog | macOS `say` (the Indonesian voice Damayanti, a stand-in: macOS has no Filipino voice) with a radio filter | A real voice actor; update `CutsceneAssets.radioBulletinText` and the subtitle clips if the words change |
+| The story's spoken lines `VO_Intro_*` (Ben, Nena1-3, Joy, BenShout, Neighbour1-2, Captain, Rescuer) | `make_cutscene_audio.py` (`say`, Damayanti, pitched per speaker, rough and fast on purpose) | Recorded Tagalog dialogue, same file names; lines and translations are in `IntroCutsceneBuilder.Lines` |
+| Creak, collapse, dog bark, power-out thump | same (synthesised) | Foley |
+| Music bed under the tragedy (`Music_Bed_Loop`) | same (synthesised piano and strings in A minor) | A composed or licensed piece (loops, about 22 s) |
 | Intro music cue | `To the Ends` (Kevin MacLeod, CC BY 4.0, already credited) from 0 s | A cue scored to the beats, or a chosen start in `musicCueStart` |
 | Dry-bag and six item models | `make_loadout_models.py` (Blender, simple shapes) | Final models, same names and part names |
-| Dog, storm drain, rubbish (bottle, trash bag, cardboard, plastic chair, bin, coconut frond), hall siren, downed pole and cable | `CutsceneKit` (Unity primitives) | Modelled props |
+| Dog, storm drain, rubbish (bottle, trash bag, cardboard, plastic chair, bin, coconut frond), hall siren, downed pole and cable, family photo, shanty, tricycle, rescue gear (vests, first-aid box, rope), the rescue beacon | `CutsceneKit` (Unity primitives) | Modelled props, same prefab names |
+| Hug, clutch and shout poses | `CharacterPoses` (procedural IK on the four existing clips) | Animation clips (hug, hold, call out) if the characters get a full animation set |
 | Mist, foam, spray, sparks, splash particles | `CutsceneKit.Particles` (soft dot) | Textured particles or VFX Graph (the project has no VFX Graph package) |
 
 ## Departures from the brief, and why

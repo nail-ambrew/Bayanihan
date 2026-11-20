@@ -76,6 +76,21 @@ public static class CutsceneAudioBuilder
         a.packDenied = Clip("Loadout", "Sfx_Pack_Denied");
         a.readyStamp = Clip("Loadout", "Sfx_Ready_Stamp");
         a.radioBulletin = Clip("Intro", "VO_Radio_Bulletin");
+        // The story intro's spoken lines: every VO_Intro_<name> file, by name.
+        a.introVoices = AssetDatabase.FindAssets("t:AudioClip VO_Intro_", new[] { Root + "/Intro/Audio" })
+            .Select(g => AssetDatabase.GUIDToAssetPath(g))
+            .Where(p => System.IO.Path.GetFileNameWithoutExtension(p).StartsWith("VO_Intro_"))
+            .OrderBy(p => p)
+            .Select(p => new CutsceneAssets.NamedClip
+            {
+                name = System.IO.Path.GetFileNameWithoutExtension(p).Substring("VO_Intro_".Length),
+                clip = AssetDatabase.LoadAssetAtPath<AudioClip>(p)
+            }).ToArray();
+        a.creak = Clip("Intro", "Sfx_Creak");
+        a.collapse = Clip("Intro", "Sfx_Collapse");
+        a.dogBark = Clip("Intro", "Sfx_DogBark");
+        a.powerOut = Clip("Intro", "Sfx_PowerOut");
+        a.musicBed = Clip("Intro", "Music_Bed_Loop");
         a.musicCue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Music/To the Ends.mp3");
         // the loadout's models (GLB from Source Assets/Loadout/make_loadout_models.py)
         a.backpack = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Loadout/Models/Pack_DryBag.glb");
@@ -85,7 +100,8 @@ public static class CutsceneAudioBuilder
         AssetDatabase.SaveAssets();
 
         int missing = new UnityEngine.Object[] { a.rainLight, a.rainHeavy, a.tinDrips, a.waterRush, a.wind, a.siren, a.whoosh, a.splash,
-            a.packRustle, a.packZip, a.packBuckle, a.packDenied, a.readyStamp, a.radioBulletin, a.musicCue }.Count(o => o == null);
+            a.packRustle, a.packZip, a.packBuckle, a.packDenied, a.readyStamp, a.radioBulletin, a.musicCue,
+            a.creak, a.collapse, a.dogBark, a.powerOut, a.musicBed }.Count(o => o == null) + (a.introVoices.Length < 9 ? 1 : 0);
         return mixerNote + "; " + imported + " clips set up; " + (missing == 0 ? "every slot filled" : missing + " slots EMPTY") +
                "; thunder x" + a.thunder.Length + ".";
     }

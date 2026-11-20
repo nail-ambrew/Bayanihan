@@ -206,6 +206,69 @@ public static class CutsceneKit
         return SavePrefab(root.gameObject, folder);
     }
 
+    /// <summary>The family photo Lola Nena will not leave without: a wooden frame round a faded print, 22 x 16 cm. A placeholder.</summary>
+    public static GameObject FamilyPhoto(string folder)
+    {
+        var wood = Lit("Mat_FrameWood", new Color(0.36f, 0.22f, 0.12f), 0.3f);
+        var print = Lit("Mat_PhotoPrint", new Color(0.78f, 0.7f, 0.58f), 0.1f);
+        var dark = Lit("Mat_PhotoFigures", new Color(0.25f, 0.2f, 0.17f), 0.1f);
+        var root = new GameObject("Prop_FamilyPhoto").transform;
+        Part(root, PrimitiveType.Cube, Vector3.zero, new Vector3(0.22f, 0.16f, 0.02f), wood);
+        Part(root, PrimitiveType.Cube, new Vector3(0, 0, -0.011f), new Vector3(0.19f, 0.13f, 0.004f), print);
+        foreach (float x in new[] { -0.05f, 0f, 0.05f })      // four small figures in a row: a family
+            Part(root, PrimitiveType.Capsule, new Vector3(x, -0.01f, -0.014f), new Vector3(0.025f, 0.03f, 0.004f), dark);
+        return SavePrefab(root.gameObject, folder);
+    }
+
+    /// <summary>A neighbour's shanty about 3 x 3 m and 2.4 m tall: plywood walls, a pitched tin roof, a door. A placeholder.</summary>
+    public static GameObject Shanty(string folder)
+    {
+        var ply = Lit("Mat_Plywood", new Color(0.55f, 0.42f, 0.28f));
+        var tin = Lit("Mat_TinRoof", new Color(0.5f, 0.52f, 0.54f), 0.55f);
+        var door = Lit("Mat_ShantyDoor", new Color(0.28f, 0.4f, 0.55f));
+        var root = new GameObject("Prop_Shanty").transform;
+        Part(root, PrimitiveType.Cube, new Vector3(0, 1.1f, 0), new Vector3(3f, 2.2f, 3f), ply);
+        Part(root, PrimitiveType.Cube, new Vector3(-0.85f, 2.45f, 0), new Vector3(1.9f, 0.06f, 3.4f), tin, new Vector3(0, 0, 22));
+        Part(root, PrimitiveType.Cube, new Vector3(0.85f, 2.45f, 0), new Vector3(1.9f, 0.06f, 3.4f), tin, new Vector3(0, 0, -22));
+        Part(root, PrimitiveType.Cube, new Vector3(0.4f, 0.95f, -1.51f), new Vector3(0.8f, 1.9f, 0.04f), door);
+        return SavePrefab(root.gameObject, folder);
+    }
+
+    /// <summary>A Filipino tricycle: a motorbike with a sidecar cab, 2.4 m long. A placeholder.</summary>
+    public static GameObject Tricycle(string folder)
+    {
+        var body = Lit("Mat_TricycleBody", new Color(0.8f, 0.18f, 0.12f), 0.5f);
+        var black = Lit("Mat_TricycleBlack", new Color(0.06f, 0.06f, 0.07f), 0.3f);
+        var steel = Lit("Mat_TricycleSteel", new Color(0.55f, 0.55f, 0.58f), 0.6f);
+        var root = new GameObject("Prop_Tricycle").transform;
+        Part(root, PrimitiveType.Cube, new Vector3(0.55f, 0.55f, -0.1f), new Vector3(0.95f, 0.7f, 1.3f), body);          // sidecar cab
+        Part(root, PrimitiveType.Cube, new Vector3(0.55f, 1.0f, -0.1f), new Vector3(1.05f, 0.05f, 1.45f), body);         // its roof
+        Part(root, PrimitiveType.Cube, new Vector3(-0.35f, 0.62f, -0.2f), new Vector3(0.28f, 0.28f, 0.9f), steel);       // the bike's frame
+        Part(root, PrimitiveType.Cube, new Vector3(-0.35f, 0.9f, 0.3f), new Vector3(0.5f, 0.05f, 0.05f), black);         // handlebar
+        foreach (var (x, z) in new[] { (-0.35f, 0.7f), (-0.35f, -0.9f), (0.55f, -0.55f) })
+            Part(root, PrimitiveType.Cylinder, new Vector3(x, 0.3f, z), new Vector3(0.6f, 0.05f, 0.6f), black, new Vector3(0, 0, 90));
+        return SavePrefab(root.gameObject, folder);
+    }
+
+    /// <summary>What the crew loads: three orange life vests on a crate, a first-aid box and a coil of rope. A placeholder.</summary>
+    public static GameObject RescueGear(string folder)
+    {
+        var orange = Lit("Mat_VestOrange", new Color(1f, 0.42f, 0.05f), 0.3f);
+        var crate = Lit("Mat_GearCrate", new Color(0.3f, 0.33f, 0.28f));
+        var white = Lit("Mat_FirstAidWhite", new Color(0.92f, 0.92f, 0.9f));
+        var red = Lit("Mat_FirstAidRed", new Color(0.8f, 0.1f, 0.1f));
+        var rope = Lit("Mat_RopeTan", new Color(0.7f, 0.6f, 0.4f));
+        var root = new GameObject("Prop_RescueGear").transform;
+        Part(root, PrimitiveType.Cube, new Vector3(0, 0.18f, 0), new Vector3(0.9f, 0.36f, 0.6f), crate);
+        for (int i = 0; i < 3; i++)
+            Part(root, PrimitiveType.Cube, new Vector3(-0.28f + i * 0.28f, 0.42f, 0), new Vector3(0.24f, 0.1f, 0.4f), orange, new Vector3(0, i * 8f, 0));
+        Part(root, PrimitiveType.Cube, new Vector3(0.75f, 0.12f, 0.1f), new Vector3(0.35f, 0.24f, 0.25f), white);
+        Part(root, PrimitiveType.Cube, new Vector3(0.75f, 0.245f, 0.1f), new Vector3(0.14f, 0.01f, 0.04f), red);
+        Part(root, PrimitiveType.Cube, new Vector3(0.75f, 0.245f, 0.1f), new Vector3(0.04f, 0.01f, 0.14f), red);
+        Part(root, PrimitiveType.Cylinder, new Vector3(-0.85f, 0.08f, 0.1f), new Vector3(0.4f, 0.08f, 0.4f), rope);
+        return SavePrefab(root.gameObject, folder);
+    }
+
     /// <summary>A roof-mounted emergency lamp with a turning beam.</summary>
     public static SirenLight Siren(Transform parent, Vector3 at)
     {

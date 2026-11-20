@@ -1,4 +1,4 @@
-# Cinematics: menu loop, loadout packing, flood intro
+# Cinematics: menu loop, loadout packing, story intro
 
 Three short pieces of cinema around the game, all additive: no gameplay, save or sign-in logic changed.
 
@@ -6,7 +6,7 @@ Three short pieces of cinema around the game, all additive: no gameplay, save or
 |---|---|---|---|
 | **Menu loop**: the storm behind the main menu | `MainMenu/Scene_MenuCinematic.unity`, `Cut_Menu_Loop.playable` | 20 s loop | Bayanihan > Cutscenes > **Build Menu Cinematic** |
 | **Loadout packing**: the 3D bag on the LOADOUT card, and READY | built at runtime by `PackingStage` (models in `Loadout/Models`) | <0.6 s per item, READY ~2 s | Bayanihan > Cutscenes > **Build Audio** (registers the models) |
-| **Flood intro**: seven beats before a Mabuhay mission | `Intro/Scene_IntroCutscene.unity`, `Cut_Intro.playable` | 24 s | Bayanihan > Cutscenes > **Build Intro** |
+| **Story intro**: five beats before a Mabuhay mission, about the Dela Cruz family | `Intro/Scene_IntroCutscene.unity`, `Cut_Intro.playable` | 55 s | Bayanihan > Cutscenes > **Build Intro** |
 
 Like the map, the cutscene scenes and Timelines are **generated**: change the builder (or its table), run its menu item,
 and the scene and Timeline are rewritten. Don't hand-edit them; a rebuild overwrites hand edits. The builders only *read*
@@ -28,7 +28,17 @@ and the scene and Timeline are rewritten. Don't hand-edit them; a rebuild overwr
   rain and flood at mission values. The hold is released, the HUD fades in, the intro scene unloads.
   The Manila map, or Play Intro off: straight to the mission, as before.
 
-**SKIP** is on every cutscene from its first frame (`CutsceneSkipButton`): the button, Esc, Space, Enter, or a gamepad's
+**The story.** *Before the storm* (0-12 s): dusk over Barangay Mabuhay, a PAGASA Signal No. 4 bulletin on the radio, Ben, his daughter Joy
+and his mother Lola Nena packing to leave; Lola Nena will not go without the family photo. *The storm hits* (12-22 s): the power cuts out,
+the creek overflows, a tricycle goes over, neighbours shout to get to the roof, the dog barks. *Tragedy* (22-40 s): the water is at the door,
+the family is on the roof, Joy asks if anyone is coming, the photo slips away, the neighbour's shanty gives way and Joy is carried off; Ben,
+clinging to a post, shouts for her; Lola Nena, alone, asks God if anyone is still coming. Nothing is shown of anyone being hurt.
+*Hope* (40-49 s): the Captain at the Barangay Hall radio calls the teams out; the crew load the boat; Lola Nena sees a light far off.
+*Handover* (49-55 s): "Kapit lang po. Parating na kami.", the title card, the boat sets out from the hall into play. The three family
+members end the film where the mission finds them (Nena on her roof, Ben on his post, Joy adrift), and the crew's start is the
+Barangay Hall (`RescueBase_Spawn`). Dialogue is Tagalog with English under it.
+
+**SKIP** is on every cutscene from its first frame (`CutsceneSkipButton`; the loadout's 2 s READY is a flourish, not a cutscene, and has none): the button, Esc, Space, Enter, or a gamepad's
 Start or B. It fades to black in 0.3 s with the sound (`ScreenFade`), then hands over at once. Key presses in the first
 0.2 s and 3 frames are ignored, so the Enter that launched the mission can't also skip.
 
@@ -42,7 +52,7 @@ whatever happens.
 |---|---|---|
 | PLAY INTRO | ON | The flood intro before a Mabuhay mission |
 | REDUCE MOTION | OFF | The menu loop holds a still frame; no camera shake, logo pop, shimmer, button drift, bag shake or chromatic aberration; **no lightning flashes** (the thunder is still heard) |
-| SUBTITLES | ON | Subtitles for the radio bulletin |
+| SUBTITLES | ON | Subtitles for the radio bulletin and every spoken line (Tagalog, with the English translation under it) |
 
 The rows sit on the existing settings page, which already scrolls, so there is no separate CINEMATIC tab.
 Lightning never flashes more than **3 times a second** (`FlashLimiter`).
@@ -51,8 +61,11 @@ Lightning never flashes more than **3 times a second** (`FlashLimiter`).
 
 ### Retime shots
 - **Intro**: edit the `Beats` table at the top of `Scripts/Editor/Cutscenes/IntroCutsceneBuilder.cs` (start and end of
-  each beat), and the shot times in `MakeShots` (each `Add(name, start, end, ...)`). The flood level and storm clips
-  are in `FillTimeline`. Then Bayanihan > Cutscenes > Build Intro.
+  each beat), and the shot times in `MakeShots` (each `Add(name, start, end, ...)`). The flood level and storm clips,
+  the spoken lines (`Lines`) and the cues (who is where, the photo, the shanty) are in `FillTimeline`. Then Bayanihan >
+  Cutscenes > Build Intro. Every shot's camera is kept out of walls by the builder (`Clear`: it raises a camera that is inside a house
+  or cannot see its subject); the build log lists any shot it could not fix. Keep the film under about 57 s: `CutsceneHold` lets go
+  after 60 s (`MaxSeconds`).
 - **Menu**: edit `Shots`, the `Add(...)` calls and `StillFrame` in `MenuCinematicBuilder.cs`, then Build Menu Cinematic.
 - For a one-off try-out you can drag clips in the Timeline window (Window > Sequencing > Timeline, select the
   `IntroDirector` or `MenuDirector`), but a rebuild puts the builder's times back.
@@ -102,7 +115,9 @@ so nothing is scaled twice. The intro lowers the background music (`MusicPlayer.
 
 Signals in `Intro/Signals` are acted on by `CutsceneCueReceiver` by name: `Cue_Lightning`, `Cue_Thunder`,
 `Cue_TitleHit`, `Cue_Letterbox_In/_Out`, `Cue_Splash`, `Cue_Whoosh`, `Cue_Siren_On/_Off`, `Cue_Music_Duck/_Unduck`, and
-`Cue_Debris`. `Beat_1`..`Beat_7` mark the intro's beats. Add a signal with a new name and listen to
+`Cue_Debris`. `Beat_1`..`Beat_5` mark the intro's beats. `IntroCutscene` acts on `Cast_Show_<group>` / `Cast_Hide_<group>`
+(HomeAll, RoofNena, RoofBen, RoofJoy, WaterJoy, PostBen, Hall, Beacon), `Cue_PowerOut`, `Cue_PhotoDrop`, `Cue_ShantyFall`,
+`Cue_TricycleTip`, `Cue_Creak`, `Cue_DogBark` and `Cue_JoySplash`. Add a signal with a new name and listen to
 `CutsceneCueReceiver.Cue` to hang your own action on it.
 
 ## Performance (measured in the Editor on a Mac, High quality)
@@ -113,7 +128,8 @@ Signals in `Intro/Signals` are acted on by `CutsceneCueReceiver` by name: `Cue_L
 | Intro (per shot) | 270k–1.4M | 260–1,670 | 10–21 ms |
 | Mission (for comparison) | ~3.5M | ~2,800 | 13–16 ms |
 
-The menu meets the 150k / 200 budget. The intro plays **inside the real map**, so it draws what the map draws near the
+The story intro is built from the same map (nothing is added to the map scene; the cast is about eight characters and a few primitive props),
+so it costs what the map costs where it is staged. The menu meets the 150k / 200 budget. The intro plays **inside the real map**, so it draws what the map draws near the
 camera. That is already under half of the mission's cost, but it is over the spec's 150k-triangle / 200-draw-call
 budget, which no shot over the full map can meet. To get there, the map itself needs lighter buildings and LODs, which
 is a gameplay change outside this work. During the intro, grass and undergrowth draw at 30–50 % of their usual distance
@@ -126,8 +142,9 @@ target mid-range PC.
 - PlayMode:
   - `CutsceneFoundationTests`: SKIP and its keys, fade, watchdog, mission hold, HUD fade, subtitles, letterbox,
     signals, reduce motion, flash limit.
-  - `IntroCutsceneTests`: held start, 7 beats, skip hand-over, play-through with no camera jump, debris cap.
+  - `IntroCutsceneTests`: held start, 5 beats, skip hand-over at the hall, skip at 1 s / 30 s / 45 s, play-through with no camera jump,
+    the cast standing on ground, roofs or water, SKIP only with the film, debris cap.
   - `MenuCinematicTests`: replaces the still picture, loops, reduce motion, logo, triangle budget.
-  - `PackingStageTests`: pack and unpack under 0.6 s, denied, READY ~2 s, skip.
+  - `PackingStageTests`: pack and unpack under 0.6 s, denied, READY ~2 s (no SKIP over it).
 
 See `REPORT.md` for every file created or changed and the placeholder list.

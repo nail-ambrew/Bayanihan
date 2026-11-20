@@ -89,14 +89,14 @@ public class PackingStageTests
         Press("Button_LAUNCH");
         yield return null;
         Assert.IsTrue(screen.Readying, "READY is playing");
-        Assert.IsNotNull(Object.FindFirstObjectByType<CutsceneSkipButton>(), "with SKIP on screen");
+        Assert.IsNull(Object.FindFirstObjectByType<CutsceneSkipButton>(), "READY is not a cutscene: no SKIP over the loadout");
         Assert.IsFalse(SceneFlow.IsLoading, "the mission waits for it");
         yield return WaitUntil(() => SceneFlow.IsLoading, 4f, "the mission to load");
         Assert.That(Time.unscaledTime - at, Is.InRange(1.7f, 2.6f), "about two seconds");
     }
 
     [UnityTest]
-    public IEnumerator Skip_cuts_ready_short()
+    public IEnumerator FinishReady_cuts_ready_short()
     {
         Press("Button_RECOMMENDED_PACK");
         yield return null;
@@ -104,8 +104,9 @@ public class PackingStageTests
         Press("Button_LAUNCH");
         yield return WaitSeconds(0.3f);
         Assert.IsFalse(SceneFlow.IsLoading);
-        Object.FindFirstObjectByType<CutsceneSkipButton>().Press();
-        Assert.IsTrue(SceneFlow.IsLoading, "the mission loads in the same frame as SKIP");
+        // There is no SKIP button on READY any more; FinishReady stays for code that needs to end it early.
+        screen.Stage.FinishReady();
+        Assert.IsTrue(SceneFlow.IsLoading, "the mission loads in the same frame as FinishReady");
         Assert.IsFalse(screen.Stage.ReadyRunning);
         Assert.Less(Time.unscaledTime - launched, PackingStage.ReadySeconds - 0.5f, "well before READY would have ended");
     }
