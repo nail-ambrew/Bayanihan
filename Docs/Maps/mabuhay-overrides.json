@@ -1,6 +1,5 @@
 {
   "about": "Hand-curated facts about Barangay Mabuhay that OpenStreetMap does not hold. fetch_mabuhay_osm.py reads this file and never writes it, so a refresh from OpenStreetMap keeps everything here. Keys under 'landmarks' are OpenStreetMap ids (n = node, w = way, r = relation); any field given here replaces what the script worked out. Only set \"evacuation\": \"designated\" and \"verified\": true once the barangay or Carmona CDRRMO has confirmed a site, and say who confirmed it and when in \"source\".",
-
   "landmarks": {
     "w620109194": {
       "category": "barangay_hall",
@@ -49,9 +48,14 @@
     "n7137693186": {
       "category": "water_supply",
       "note": "Carmona Water District. It is tagged as a shop in OpenStreetMap."
+    },
+    "n10230935465": {
+      "lat": 14.3104431,
+      "lon": 121.0497659,
+      "source": "Position given by the project owner on 19 Nov 2026 from Google Maps (on Hebron Street near Mabuhay Elementary School); OpenStreetMap puts it about 300 m away.",
+      "note": "The Feast Carmona: layout (-16.1, -132.1), at Hebron Street's corner with P. Diaz Street."
     }
   },
-
   "extraSites": [
     {
       "id": "x-carmona-evacuation-center",

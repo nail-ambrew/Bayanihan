@@ -20,6 +20,8 @@ public class GrassField : MonoBehaviour
     public List<Vector4> instances = new List<Vector4>();
     [Tooltip("World height of the patches' base (the map's ground).")]
     public float groundY = -1f;
+    [Tooltip("Where the ground is not flat: each patch's height above groundY, one per instance. Empty = all on groundY.")]
+    public List<float> heights = new List<float>();
     [Tooltip("Patches further than this from the camera are not drawn.")]
     public float drawDistance = 170f;
 
@@ -38,17 +40,24 @@ public class GrassField : MonoBehaviour
     {
         tiles.Clear();
         int kinds = Mathf.Max(1, (patches?.Length ?? 0) * Mathf.Max(1, materials?.Length ?? 0));
-        foreach (var v in instances)
+        bool sloped = heights != null && heights.Count == instances.Count;
+        for (int i = 0; i < instances.Count; i++)
         {
+            var v = instances[i];
+            float y = groundY + (sloped ? heights[i] : 0f);
             var key = new Vector2Int(Mathf.FloorToInt(v.x / Tile), Mathf.FloorToInt(v.y / Tile));
             if (!tiles.TryGetValue(key, out var b))
             {
                 tiles[key] = b = new Bucket(kinds);
-                b.bounds = new Bounds(new Vector3((key.x + 0.5f) * Tile, groundY + 1.5f, (key.y + 0.5f) * Tile), new Vector3(Tile + 8f, 4f, Tile + 8f));
+                b.bounds = new Bounds(new Vector3((key.x + 0.5f) * Tile, y + 1.5f, (key.y + 0.5f) * Tile), new Vector3(Tile + 8f, 4f, Tile + 8f));
             }
+            else b.bounds.Encapsulate(new Bounds(new Vector3((key.x + 0.5f) * Tile, y + 1.5f, (key.y + 0.5f) * Tile), new Vector3(Tile + 8f, 4f, Tile + 8f)));
             int kind = Mathf.Clamp((int)v.w, 0, kinds - 1);
-            (b.byKind[kind] ??= new List<Matrix4x4>()).Add(Matrix4x4.TRS(new Vector3(v.x, groundY, v.y), Quaternion.Euler(0f, v.z, 0f), Vector3.one));
+            (b.byKind[kind] ??= new List<Matrix4x4>()).Add(Matrix4x4.TRS(new Vector3(v.x, y, v.y), Quaternion.Euler(0f, v.z, 0f), Vector3.one));
         }
+        // Shuffled once so the GRAPHICS setting can thin a tile by drawing the first part of each list.
+        foreach (var kv in tiles)
+            foreach (var list in kv.Value.byKind) if (list != null) InstancedFoliage.Shuffle(list, kv.Key.x * 73856093 ^ kv.Key.y * 19349663);
         built = instances.Count;
     }
 
@@ -63,7 +72,7 @@ public class GrassField : MonoBehaviour
         if (cam == null) return;
         GeometryUtility.CalculateFrustumPlanes(cam, planes);
         Vector3 eye = cam.transform.position;
-        float reach = drawDistance * InstancedFoliage.DistanceScale + Tile;
+        float reach = drawDistance * InstancedFoliage.DistanceScale * InstancedFoliage.QualityScale + Tile;
 
         int mats = materials.Length;
         foreach (var t in tiles.Values)
@@ -74,10 +83,11 @@ public class GrassField : MonoBehaviour
             for (int k = 0; k < t.byKind.Length; k++)
             {
                 var list = t.byKind[k];
-                if (list == null || list.Count == 0) continue;
+                int drawn = list == null ? 0 : InstancedFoliage.DrawnOf(list.Count);
+                if (drawn == 0) continue;
                 var mesh = patches[(k / mats) % patches.Length];
                 var rp = new RenderParams(materials[k % mats]) { shadowCastingMode = ShadowCastingMode.Off, receiveShadows = true, worldBounds = t.bounds };
-                Graphics.RenderMeshInstanced(rp, mesh, 0, list);
+                Graphics.RenderMeshInstanced(rp, mesh, 0, list, drawn);
             }
         }
     }

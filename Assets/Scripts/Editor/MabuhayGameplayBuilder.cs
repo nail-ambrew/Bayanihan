@@ -42,11 +42,12 @@ public static class MabuhayGameplayBuilder
     // ------------------------------------------------------------------ the settings the play map is built from
 
     /// <summary>
-    /// How many times real size the map is drawn: houses, lots, streets and trees. The crew, the boat, the props and the
-    /// metre of flood stay real-sized, so at 1 a two-storey house is barely taller than a rescuer standing in the boat.
-    /// The mission is laid out from the layout at this scale (MabuhayLevelBuilder), so its distances grow with it.
+    /// How many times real size the map is drawn: houses, lots, streets and trees. Real size (1), so the houses, the
+    /// streets, the crew and the boat are all in proportion. It was 2 while the houses were few and stood on flat ground;
+    /// the dense rows and the terrain (TerrainBuilder) now give the map its height. The mission is laid out from the layout
+    /// at this scale (MabuhayLevelBuilder), so its distances follow it.
     /// </summary>
-    public const float MapScale = 2f;
+    public const float MapScale = 1f;
 
     /// <summary>The map's own settings, made from the default ones the first time: colliders on, a metre under the water.</summary>
     public static BarangayMockSettings EnsureSettings()
@@ -97,6 +98,9 @@ public static class MabuhayGameplayBuilder
 
         var root = BarangayMockBuilder.Build(settings);
         if (root == null) return "Cannot build: see the Console.";
+        // The houses and shops in continuous rows along every street, in place of one house per outline: before the
+        // level, so the residents find their roofs on them.
+        string rows = RowBuilder.Build(scene, settings);
 
         var mission = MabuhayMissionBuilder.Build();
         var level = MabuhayLevelBuilder.Build(scene, settings, mission);
@@ -104,18 +108,29 @@ public static class MabuhayGameplayBuilder
         // The bridges and what stands along the streets, then the walls round the compounds, both clear of the mission.
         string streets = RoadBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         string walls = CompoundWallBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
-        // The empty land filled with houses and shops, clear of the protected zones, the streets and the mission.
-        string infill = InfillBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
+        // Rows that cut the boat off from a resident, the hall or a compound's grounds are taken out again (the rows fill
+        // the land, so the building kit's infill is no longer used).
+        int reopened = RowBuilder.KeepReach(scene, settings);
+        string infill = rows + " " + reopened + " taken out again to keep the boat's ways open. " + RowBuilder.Census(scene, settings);
         // Last: the plants keep clear of the boat's start, the hall, the residents and the hazards the level has just laid out.
         string foliage = FoliageBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
         // Then the jeepneys, roof sheets, buckets, concrete and people, which look for room among the houses and the plants.
         string props = PropBuilder.Build(scene, settings, FoliageBuilder.KeepClearOf(scene));
+        // Very last: the real lie of the land. Everything above was laid out flat; this bends and lifts it all onto the
+        // terrain, keeping the mission's route at the depth it was laid out for.
+        string terrain = TerrainBuilder.Build(scene, settings);
+        // The terrain makes some lanes too shallow for the boat: open the ways again on the finished ground.
+        int reopenedOnTerrain = RowBuilder.KeepReach(scene, settings);
+        terrain += " " + reopenedOnTerrain + " more row units taken out to keep the boat's ways open on the terrain. " + RowBuilder.Census(scene, settings);
+        // Sorted by category (Terrain, Roads, Residential, Commercial, Landmarks) and the NavMesh baked: nothing may be
+        // built after this.
+        terrain += "\n" + MapFinisher.Finish(scene, settings);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         AddToBuildSettings();
         foreach (var trouble in level.problems) Debug.LogWarning("MabuhayGameplayBuilder: " + trouble);
-        return root.GetComponent<BarangayMockInfo>().summary + "\n" + streets + "\n" + walls + "\n" + infill + "\n" + foliage + "\n" + props + "\n" + level;
+        return root.GetComponent<BarangayMockInfo>().summary + "\n" + streets + "\n" + walls + "\n" + infill + "\n" + foliage + "\n" + props + "\n" + terrain + "\n" + level;
     }
 
     public const string MurkyWaterPath = "Assets/Materials/Water_Mabuhay.mat";

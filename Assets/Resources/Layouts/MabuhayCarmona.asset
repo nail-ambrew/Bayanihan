@@ -37476,13 +37476,16 @@ MonoBehaviour:
     name: The Feast Carmona
     category: 23
     positionKnown: 1
-    position: {x: -143.55, y: 186.01}
+    position: {x: -16.11, y: -132.06}
     footprint: []
     insideBarangay: 1
     evacuationRole: 0
     verified: 0
-    source: 
-    note: 
+    source: Position given by the project owner on 19 Nov 2026 from Google Maps (on
+      Hebron Street near Mabuhay Elementary School); OpenStreetMap puts it about
+      300 m away.
+    note: 'The Feast Carmona: layout (-16.1, -132.1), at Hebron Street''s corner
+      with P. Diaz Street.'
     osmTag: amenity=place_of_worship
   - id: n10239200996
     name: Caridad Martinez Blvd
@@ -38658,4 +38661,4 @@ MonoBehaviour:
   licence: ODbL-1.0 (https://opendatacommons.org/licenses/odbl/)
   snapshotDate: 2026-10-17T05:20:03Z
   sourceFile: Docs/Maps/mabuhay-carmona.geojson
-  revision: 3
+  revision: 4

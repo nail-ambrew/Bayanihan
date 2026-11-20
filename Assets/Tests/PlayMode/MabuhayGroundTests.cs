@@ -38,7 +38,10 @@ public class MabuhayGroundTests
     /// <summary>The map's region in world metres, from the drawn ground.</summary>
     Rect World()
     {
-        var b = map.Find("Ground").GetComponentInChildren<Renderer>().bounds;
+        // The ground is in chunks (TerrainBuilder): the region is all of them together.
+        var all = map.Find(MapGroups.Ground).GetComponentsInChildren<Renderer>();
+        var b = all[0].bounds;
+        foreach (var r in all) b.Encapsulate(r.bounds);
         return Rect.MinMaxRect(b.min.x, b.min.z, b.max.x, b.max.z);
     }
 
@@ -74,7 +77,7 @@ public class MabuhayGroundTests
     public IEnumerator Every_street_of_the_map_has_its_surface_and_every_bridge_its_bridge()
     {
         var area = World();
-        var bridges = map.Find("Street Furniture/Bridges");
+        var bridges = map.Find(MapGroups.StreetFurniture + "/Bridges");
         Assert.IsNotNull(bridges, "the bridges are laid");
         int checkedRoads = 0, surfaced = 0, bridgeWays = 0, bridged = 0;
         var missing = new List<string>();
@@ -109,10 +112,11 @@ public class MabuhayGroundTests
     [UnityTest]
     public IEnumerator The_streets_read_from_the_boat_and_keep_off_the_mission()
     {
-        var furniture = map.Find("Street Furniture");
+        var furniture = map.Find(MapGroups.StreetFurniture);
         var poles = furniture.Find("Utility Poles");
-        Assert.Greater(poles.childCount, 100, "utility poles along the streets");
-        Assert.Greater(furniture.Find("Wires").childCount, 50, "wired one to the next");
+        // At real size (MabuhayGameplayBuilder.MapScale 1) the streets are half the length they were at 2x, so about half the poles.
+        Assert.Greater(poles.childCount, 60, "utility poles along the streets");
+        Assert.Greater(furniture.Find("Wires").childCount, 30, "wired one to the next");
         Assert.Greater(furniture.Find("Street Lamps").childCount, 10, "lamps on the main roads");
         foreach (Transform pole in poles)
             Assert.Greater(pole.GetComponentInChildren<Renderer>().bounds.max.y, 5f, pole.name + " stands well above the flood");
@@ -138,7 +142,7 @@ public class MabuhayGroundTests
     [UnityTest]
     public IEnumerator Compounds_are_walled_with_ways_in_and_the_boat_still_gets_everywhere()
     {
-        var walls = map.Find("Compound Walls");
+        var walls = map.Find(MapGroups.CompoundWalls);
         Assert.IsNotNull(walls);
         var names = walls.Cast<Transform>().Select(t => t.name).ToList();
         Assert.GreaterOrEqual(names.Count, 5, "walls round the compounds: " + string.Join(", ", names));

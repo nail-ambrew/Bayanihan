@@ -35,9 +35,16 @@ public class IntroCutscene : MonoBehaviour
     public AudioSource sirenSound;
     [Tooltip("The cutscene's own look: depth of field, film grain, chromatic aberration, a stronger vignette.")]
     public Volume look;
-    [Tooltip("Where the child looks out (a window or an upper floor).")]
-    public Transform childSpot;
-    public string childId = "C01";
+    [Tooltip("The story's cast: one child object per place a character stands in the story (HomeAll, RoofBen, WaterJoy, Hall...), " +
+             "each holding CharacterSpots. Cast_Show_<name> / Cast_Hide_<name> cues show and hide them, so the actors can be in " +
+             "different places from one shot to the next without anybody walking across the map.")]
+    public Transform castRoot;
+    [Tooltip("The photo that slips out of Lola Nena's hands (Cue_PhotoDrop).")]
+    public IntroPropMotion photo;
+    [Tooltip("The neighbour's shanty that gives way (Cue_ShantyFall).")]
+    public IntroPropMotion shanty;
+    [Tooltip("The tricycle that tips over in the flood (Cue_TricycleTip).")]
+    public IntroPropMotion tricycle;
     [Tooltip("The spray when the boat is launched (Cue_Splash).")]
     public ParticleSystem splash;
     [Tooltip("Effects scaled by the quality preset.")]
@@ -47,7 +54,7 @@ public class IntroCutscene : MonoBehaviour
 
     public bool Started { get; private set; }
     public bool Ended { get; private set; }
-    /// <summary>The last beat reached (1..7), from the Beat_N signals.</summary>
+    /// <summary>The last beat reached (1..5), from the Beat_N signals.</summary>
     public int Beat { get; private set; }
     public readonly List<int> BeatsSeen = new List<int>();
 
@@ -89,7 +96,7 @@ public class IntroCutscene : MonoBehaviour
         Hold();
         ApplySettings();
         if (debris != null) debris.Prepare(quality.debrisCap);
-        SpawnChild();
+        PrepareCast();
         if (cues != null) cues.Cue += OnCue;
 
         manager.Finished += OnFinished;
@@ -203,29 +210,82 @@ public class IntroCutscene : MonoBehaviour
         }
     }
 
-    void SpawnChild()
+    /// <summary>
+    /// Every actor is made while the screen is still black (so no shot has a hitch when somebody first appears), then each
+    /// group is hidden until its Cast_Show cue.
+    /// </summary>
+    void PrepareCast()
     {
-        if (childSpot == null || CharacterLibrary.Instance == null) return;
-        var entry = CharacterLibrary.Instance.Find(childId);
-        if (entry == null) return;
-        var child = CharacterRig.Spawn(entry, childSpot, CharacterPose.Idle);
-        if (child != null) child.LookTarget = childSpot.position + childSpot.forward * 10f;
+        if (castRoot == null) return;
+        foreach (Transform group in castRoot)
+        {
+            group.gameObject.SetActive(true);
+            foreach (var spot in group.GetComponentsInChildren<CharacterSpot>(true)) spot.Spawn();
+            group.gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>Shows or hides one of the cast's places (by the child object's name).</summary>
+    public void SetCast(string group, bool show)
+    {
+        if (castRoot == null) return;
+        var g = castRoot.Find(group);
+        if (g != null) g.gameObject.SetActive(show);
+    }
+
+    /// <summary>Is this cast group on screen now (for tests)?</summary>
+    public bool CastShown(string group)
+    {
+        var g = castRoot != null ? castRoot.Find(group) : null;
+        return g != null && g.gameObject.activeSelf;
+    }
+
+    // The power cutting out: every light the map has goes down, so the street goes dark.
+    readonly List<(Light light, float intensity)> dimmed = new List<(Light, float)>();
+    float powerOutAt = -1f;
+
+    void PowerOut()
+    {
+        if (powerOutAt >= 0f) return;
+        powerOutAt = Time.unscaledTime;
+        foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+        {
+            if (l.type == LightType.Directional || l.gameObject.scene == gameObject.scene) continue;
+            if (l.GetComponentInParent<SimpleBoat>() != null || l.GetComponentInParent<PlayerRescuer>() != null) continue;
+            dimmed.Add((l, l.intensity));
+        }
+    }
+
+    void RestoreLights()
+    {
+        foreach (var d in dimmed) if (d.light != null) d.light.intensity = d.intensity;
+        dimmed.Clear();
+        powerOutAt = -1f;
     }
 
     void OnCue(string cue)
     {
-        if (cue.StartsWith("Beat_") && int.TryParse(cue.Substring(5, 1), out int b)) { Beat = b; BeatsSeen.Add(b); }
+        if (cue.StartsWith("Beat_") && int.TryParse(cue.Substring(5), out int b)) { Beat = b; BeatsSeen.Add(b); }
+        var a = CutsceneAssets.Current;
+        if (cue.StartsWith("Cast_Show_")) { SetCast(cue.Substring("Cast_Show_".Length), true); return; }
+        if (cue.StartsWith("Cast_Hide_")) { SetCast(cue.Substring("Cast_Hide_".Length), false); return; }
         switch (cue)
         {
             case "Cue_Debris": if (debris != null) debris.Release(); break;
             case "Cue_Splash": if (splash != null) splash.Play(true); break;
             case "Cue_Siren_On": if (siren != null) siren.SetOn(true); if (sirenSound != null && !sirenSound.isPlaying) sirenSound.Play(); break;
             case "Cue_Siren_Off": if (siren != null) siren.SetOn(false); if (sirenSound != null) sirenSound.Stop(); break;
+            case "Cue_PowerOut": PowerOut(); CutsceneAudio.PlayOneShot(a.powerOut, CutsceneAudio.Bus.Sfx, 0.9f); break;
+            case "Cue_PhotoDrop": if (photo != null) photo.Play(); break;
+            case "Cue_ShantyFall": if (shanty != null) shanty.Play(); CutsceneAudio.PlayOneShot(a.collapse, CutsceneAudio.Bus.Sfx, 1f); break;
+            case "Cue_TricycleTip": if (tricycle != null) tricycle.Play(); break;
+            case "Cue_JoySplash": CutsceneAudio.PlayOneShot(a.splash, CutsceneAudio.Bus.Sfx, 1f); break;
+            case "Cue_Creak": CutsceneAudio.PlayOneShot(a.creak, CutsceneAudio.Bus.Sfx, 0.8f); break;
+            case "Cue_DogBark": CutsceneAudio.PlayOneShot(a.dogBark, CutsceneAudio.Bus.Sfx, 0.8f); break;
         }
     }
 
-    // Residents in the water are held where the mission starts; until the flood is up to them they would hang in
-    // the air, so they are not drawn until it is (those on roofs always are).
+    // The mission's residents are held where the mission starts and not drawn while the film plays.
     readonly List<(Renderer r, bool was)> hidden = new List<(Renderer, bool)>();
     bool residentsShown = true;
 
@@ -238,7 +298,6 @@ public class IntroCutscene : MonoBehaviour
             hidden.Clear();
             foreach (var s in FindObjectsByType<Survivor>(FindObjectsSortMode.None))
             {
-                if (s.situation == Situation.Rooftop) continue;
                 foreach (var r in s.GetComponentsInChildren<Renderer>()) { hidden.Add((r, r.enabled)); r.enabled = false; }
             }
         }
@@ -253,7 +312,14 @@ public class IntroCutscene : MonoBehaviour
     {
         if (!Started || Ended) return;
         double t = director.time, length = director.duration;
-        ShowResidents(FloodLevel.Offset > -0.25f);
+        // The mission's own residents wait out the film, unseen: the story's cast stand in for them, and they appear at the
+        // hand-over exactly where the cast ended (Nena on her roof, Ben at his post, Joy adrift).
+        ShowResidents(false);
+        if (powerOutAt >= 0f)
+        {
+            float k = Mathf.Clamp01((Time.unscaledTime - powerOutAt) / 0.7f);
+            foreach (var d in dimmed) if (d.light != null) d.light.intensity = d.intensity * (1f - k);
+        }
 
         // The boat sits where the mission starts, on the water (or the street, before the water is that high).
         if (boat != null)
@@ -314,6 +380,9 @@ public class IntroCutscene : MonoBehaviour
         if (boat != null) boat.transform.SetPositionAndRotation(boatPos, boatRot);
         if (debris != null) debris.Clear();
         if (siren != null) siren.SetOn(false);
+        RestoreLights();
+        if (castRoot != null) foreach (Transform group in castRoot) group.gameObject.SetActive(false);
+        foreach (var prop in new[] { photo, shanty, tricycle }) if (prop != null) prop.RestoreStart();
         ShowResidents(true);
 
         foreach (var s in shots) if (s != null) s.gameObject.SetActive(false);

@@ -591,6 +591,11 @@ def build(raw, overrides):
                 if not member_pts:
                     continue
                 pos = (sum(p[0] for p in member_pts) / len(member_pts), sum(p[1] for p in member_pts) / len(member_pts))
+        # A position given by hand (lat and lon in the override) wins over OpenStreetMap's: for a place OSM puts in the
+        # wrong spot. A footprint from OSM no longer fits it, so the place is drawn on its own.
+        if override.get("lat") is not None and override.get("lon") is not None:
+            pos = proj.to_m(override["lat"], override["lon"])
+            footprint = None
         in_barangay = inside(pos, rings_m)
         if not in_barangay and category not in ESSENTIAL_OUTSIDE and not override:
             continue

@@ -71,7 +71,8 @@ public static class MabuhayMissionBuilder
 
         d.residents = new List<ResidentSpec>
         {
-            // The Dela Cruz family, near where the boat starts: a girl adrift, a man on a post, her grandmother on a roof.
+            // The Dela Cruz family, at the west end of the street, the longest run from the hall where the crew starts: a girl
+            // adrift, a man on a post, her grandmother on a roof. The intro follows this family through the flood.
             Spec("joy",   "Joy Dela Cruz",    "Dela Cruz",   CharacterCategory.Kid,   "C01", Situation.OpenWater, Need.Lifebuoy,                 0.85f),
             Spec("ben",   "Ben Dela Cruz",    "Dela Cruz",   CharacterCategory.Adult, "C16", Situation.Clinging,  Need.Lifebuoy,                 1.00f),
             Spec("nena",  "Nena Dela Cruz",   "Dela Cruz",   CharacterCategory.Elder, "C26", Situation.Rooftop,   Need.Rope,                     0.90f),

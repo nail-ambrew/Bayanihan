@@ -52,8 +52,11 @@ This folder is `Game/` inside `~/Documents/Bayanihan` (see the README there). Th
 
 ## Facts that are easy to get wrong
 
-- The ground is at y = -1 and the flood at y = 0 (it rises up to +0.6). Anything under 1 m on the ground is hidden.
+- The flood is at y = 0 (it rises up to +0.6). The ground *level* is y = -1, but on Mabuhay the terrain rises and falls
+  from it (`MapHeightField.Sample`, made by `TerrainBuilder`). It is held at -1 along the mission route, deeper in the
+  east and the creek valley, and dry in the west and south. Anything under 1 m on flooded ground is hidden.
   `FloodLevel.Offset` moves the flood for cutscenes (0 = mission level).
+- Mabuhay is drawn at real size (`MabuhayGameplayBuilder.MapScale` = 1): houses, streets and the crew are in proportion.
 - Layer 8 is **Debris** (floating debris and the jam; the chase camera ignores it). Layer 30 is the loadout's packing
   stage.
 - Mission streets: Bagumbayan (`w668009058`) and A. Mapalad (`w145889435`). Nothing is placed on them.
@@ -63,8 +66,11 @@ This folder is `Game/` inside `~/Documents/Bayanihan` (see the README there). Th
   water. Anything that hands over to gameplay must land on whichever is live.
 - `CutsceneHold.Active` freezes the mission clock, residents' condition, the flood's climb, the controls and the HUD.
 - The menu cinematic must not become the active scene: `SceneFlow.Reload` reloads the active scene.
-- Performance: gameplay draws about 3.5M triangles and 2,800 batches, mostly the map and its instanced foliage. New
-  work should not add to that; see `Assets/Cutscenes/README.md` for the measured figures.
+- The finished Mabuhay map is sorted under `BarangayMock` into Terrain, Roads, Residential, Commercial, Landmarks,
+  Foliage and Props (`MapFinisher`, last step of the build). Find groups with `MapGroups` paths, not old names.
+- Performance: Mabuhay's rows are about 6,600 houses. They share one material and cull below 1.5 % of screen height.
+  From the boat's start, meshes in view are about 1.1M triangles (plus instanced grass and plants, and the shadows). That
+  is fine on PC and far too much for a low-end phone. New work should not add to it; see `Docs/Systems/Map and Props.md`.
 
 ## Working with the Editor
 

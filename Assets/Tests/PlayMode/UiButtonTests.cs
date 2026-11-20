@@ -311,6 +311,32 @@ public class UiButtonTests
     }
 
     [UnityTest]
+    public IEnumerator After_ABORT_the_main_menu_buttons_can_be_clicked()
+    {
+        // Abort from the pause menu leaves the mission for the main menu. Everything there must be reachable at once:
+        // no question, pause or overlay left over from the mission may sit on the buttons.
+        yield return MabuhayTestHelpers.LoadMabuhay();
+        yield return null;
+        var menu = Object.FindFirstObjectByType<PauseMenu>(FindObjectsInactive.Include);
+        menu.Open();
+        yield return null;
+        Tap("Menu_ABORT", menu.transform);
+        yield return null;
+        Tap("Button_YES", Find("Dialog", menu.transform));
+
+        yield return WaitUntil(() => SceneManager.GetActiveScene().name == SceneFlow.MainMenu && !SceneFlow.IsLoading, 30f, "the main menu");
+        yield return null;
+        yield return null;
+
+        Assert.IsFalse(GamePause.IsPaused, "the game is not left paused");
+        Assert.AreEqual(1f, Time.timeScale, 1e-4f, "time runs");
+        Assert.IsFalse(AudioListener.pause, "the sound is not left paused");
+        Assert.IsFalse(InputHelper.GameplayLocked, "the menu is not locked");
+        Assert.IsFalse(SceneFlow.IsLoading, "the loading screen has gone");
+        AssertEveryButtonTakesAClickAtItsCentre(Safe("MainMenuCanvas"), "Main menu after abort");
+    }
+
+    [UnityTest]
     public IEnumerator Full_report_and_stats_swap_back_and_forth()
     {
         yield return LoadGameplay();

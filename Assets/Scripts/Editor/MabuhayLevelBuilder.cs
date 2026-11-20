@@ -20,7 +20,8 @@ using UnityEngine.SceneManagement;
 ///    houses.
 ///  - A. Mapalad Street leaves it by a short spur at the west end and runs east between two rows of houses: a lane 6 to 9 m
 ///    wide that dead-ends 160 m in. The debris jam is in it.
-/// The boat starts on Bagumbayan Street near its west end and the hall is 90 m along it.
+/// The boat starts on Bagumbayan Street just west of the hall's drop-off, facing the residents (the rescue crew sets out
+/// from the evacuation area, and the first trip runs west to them).
 /// </summary>
 public static class MabuhayLevelBuilder
 {
@@ -35,7 +36,13 @@ public static class MabuhayLevelBuilder
 
     // ------------------------------------------------------------------ where things go (metres along Bagumbayan Street)
     // s counts from the street's south end, up the spur, round the corner and along the street towards the hall.
-    const float StartS = 46f;                // the boat
+    const float StartS = 46f;                // the old boat start; the first trip's wreckage and Nena's roof are still laid out from it
+    // The rescue crew sets out from the Barangay Hall, the evacuation area where everyone is registered. The hall's drop-off
+    // zone covers about s 121 to 133, so this is just west of it (outside the trigger and its 2 m margin) with the boat
+    // facing west, down the street towards the residents.
+    const float HallStartS = 112f;
+    /// <summary>The marker the boat's start pose is written to, so the gameplay start and the intro's last shot agree.</summary>
+    public const string SpawnName = "RescueBase_Spawn";
     const float JoyS = 62f, JoySide = 5f;    // adrift, north of the street
     const float BenS = 66f;                  // a post on the south kerb
     const float WireS = 86f;                 // the cable comes down across the street
@@ -319,12 +326,17 @@ public static class MabuhayLevelBuilder
 
     // ------------------------------------------------------------------ the boat and the swimmer
 
-    /// <summary>The boat starts on Bagumbayan Street heading for the hall, the swimmer 1.4 m off its side.</summary>
+    /// <summary>The boat starts on Bagumbayan Street beside the Barangay Hall, facing the residents, with the rescuer at the
+    /// helm. The pose is also written to a marker (<see cref="SpawnName"/>) for the intro to read.</summary>
     static void PlaceBoat(Scenery s, Street street)
     {
-        Vector2 at = street.At(StartS);
-        Vector2 tangent = street.Tangent(StartS);
+        Vector2 at = street.At(HallStartS);
+        Vector2 tangent = -street.Tangent(HallStartS);       // s counts towards the hall, so west is the other way
         float yaw = MapGeometry.Heading(tangent);
+
+        var marker = new GameObject(SpawnName).transform;
+        marker.SetParent(s.anchors, false);
+        marker.SetPositionAndRotation(W(at, 0.06f), Quaternion.Euler(0f, yaw, 0f));
 
         // Which end of this boat is the bow is SimpleBoat's business (Bow Direction), so aim from there.
         Quaternion rotation = Quaternion.LookRotation(D(tangent)) * Quaternion.Inverse(Quaternion.LookRotation(s.boat.LocalBow));
@@ -895,6 +907,15 @@ public static class MabuhayLevelBuilder
         s.result.notes.Add("The boat's start reaches " + cells + " cells of water.");
         if (cells < 1000) s.result.problems.Add("the boat is hemmed in at its start (" + cells + " cells).");
 
+        // The crew starts beside the hall, not in it: inside the drop-off the first passenger would be unloaded at once.
+        var zoneCollider = s.evac.GetComponentInChildren<Collider>();
+        if (zoneCollider != null)
+        {
+            float outside = Vector3.Distance(zoneCollider.ClosestPoint(s.boat.transform.position), s.boat.transform.position);
+            s.result.notes.Add("The boat starts " + outside.ToString("0.0") + " m outside the hall's drop-off zone.");
+            if (outside < 5f) s.result.problems.Add("the boat starts only " + outside.ToString("0.0") + " m from the hall's drop-off zone (needs 5 m).");
+        }
+
         Vector2 zone = new Vector2(s.evac.transform.position.x, s.evac.transform.position.z);
         float toHall = reach.DistanceToReached(zone, 3f);
         if (float.IsInfinity(toHall)) s.result.problems.Add("the boat cannot reach the hall's drop-off zone.");
@@ -905,6 +926,8 @@ public static class MabuhayLevelBuilder
             var anchor = s.anchors.Find(spec.anchor);
             if (anchor == null) { s.result.problems.Add("no anchor for " + spec.displayName + "."); continue; }
             Vector2 xz = new Vector2(anchor.position.x, anchor.position.z);
+            float fromBoat = Vector2.Distance(xz, new Vector2(s.boat.transform.position.x, s.boat.transform.position.z));
+            if (fromBoat < 6f) s.result.problems.Add(spec.displayName + " is only " + fromBoat.ToString("0.0") + " m from the start: they would be picked up before the player does anything.");
             float d = reach.DistanceToReached(xz, 30f);
             bool needsLine = spec.situation == Situation.Rooftop || spec.situation == Situation.Trapped;
             if (!needsLine)

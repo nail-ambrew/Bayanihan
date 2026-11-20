@@ -57,10 +57,16 @@ public class CutsceneOverlay : MonoBehaviour
         subtitleBox.anchorMin = new Vector2(0.5f, 0f);
         subtitleBox.anchorMax = new Vector2(0.5f, 0f);
         subtitleBox.pivot = new Vector2(0.5f, 0f);
-        subtitleBox.sizeDelta = new Vector2(560, 34);
+        // Room for two lines: the spoken line and its English translation under it.
+        subtitleBox.sizeDelta = new Vector2(640, 60);
         var back = UiKit.Panel("Backing", subtitleBox, new Color(0, 0, 0, 0.55f), 6f);
         UiKit.Stretch(back.rectTransform);
         subtitle = UiKit.Label("Line", subtitleBox, "", UiTheme.BodySize + 2, Color.white, TextAnchor.MiddleCenter);
+        subtitle.textWrappingMode = TextWrappingModes.Normal;
+        subtitle.overflowMode = TextOverflowModes.Overflow;
+        subtitle.enableAutoSizing = true;
+        subtitle.fontSizeMin = 10;
+        subtitle.fontSizeMax = UiTheme.BodySize + 2;
         UiKit.Inset(subtitle.rectTransform, 12, 4, 12, 4);
         subtitleBox.gameObject.SetActive(false);
 

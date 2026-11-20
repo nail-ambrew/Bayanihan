@@ -54,7 +54,22 @@ public static class FoliageBuilder
                 var local = root.transform.InverseTransformPoint(c);
                 infillBoxes.Add((new Vector2(local.x, local.z), new Vector2(mb.extents.x, mb.extents.z) * b.localScale.x, b.localEulerAngles.y));
             }
-        var plan = FoliagePlanner.Plan(layout, ground, mock, lib, flora, clearOnLayout, region, infillBoxes);
+        // The continuous rows (RowBuilder), when the map has them, stand in for the houses on the layout's outlines.
+        bool rows = false;
+        var buildings = root.transform.Find("Buildings");
+        if (buildings != null)
+            foreach (Transform b in buildings)
+            {
+                if (!b.name.StartsWith(RowBuilder.NamePrefix)) continue;
+                var mf = b.GetComponentInChildren<MeshFilter>();
+                if (mf == null || mf.sharedMesh == null) continue;
+                rows = true;
+                var mb = mf.sharedMesh.bounds;
+                var c = b.TransformPoint(mb.center);
+                var local = root.transform.InverseTransformPoint(c);
+                infillBoxes.Add((new Vector2(local.x, local.z), new Vector2(mb.extents.x, mb.extents.z), b.localEulerAngles.y));
+            }
+        var plan = FoliagePlanner.Plan(layout, ground, mock, lib, flora, clearOnLayout, region, infillBoxes, outlineHouses: !rows);
 
         var group = new GameObject(GroupName).transform;
         group.SetParent(root.transform, false);

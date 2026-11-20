@@ -23,10 +23,10 @@ public class CutsceneAssetTests
     }
 
     [Test]
-    public void The_intro_timeline_is_twenty_to_twenty_five_seconds_with_seven_beats_in_order()
+    public void The_intro_timeline_is_fifty_to_fifty_eight_seconds_with_five_beats_in_order()
     {
         var t = Load(IntroCutsceneBuilder.TimelinePath);
-        Assert.That(t.duration, Is.InRange(20.0, 25.0));
+        Assert.That(t.duration, Is.InRange(50.0, 58.0), "the story intro: about a minute, under CutsceneHold's 60 s safety limit");
         var tracks = t.GetOutputTracks().ToList();
         Assert.IsTrue(tracks.OfType<CinemachineTrack>().Any(), "cameras");
         Assert.IsTrue(tracks.OfType<FloodLevelTrack>().Any(), "flood level");
@@ -37,9 +37,16 @@ public class CutsceneAssetTests
         var emitters = t.markerTrack.GetMarkers().OfType<SignalEmitter>().ToList();
         Assert.IsTrue(emitters.All(e => e.asset != null), "every signal emitter has its signal");
         var beats = emitters.Where(e => e.asset.name.StartsWith("Beat_")).OrderBy(e => e.time).ToList();
-        CollectionAssert.AreEqual(Enumerable.Range(1, 7).Select(i => "Beat_" + i), beats.Select(b => b.asset.name));
+        CollectionAssert.AreEqual(Enumerable.Range(1, IntroCutsceneBuilder.Beats.Length).Select(i => "Beat_" + i), beats.Select(b => b.asset.name));
         for (int i = 0; i < beats.Count; i++)
             Assert.AreEqual(IntroCutsceneBuilder.Beats[i].start, beats[i].time, 0.05, "beat " + (i + 1) + " starts on its table time");
+
+        // lightning never flashes more than three times a second: the cues are kept at least a third of a second apart
+        var strikes = emitters.Where(e => e.asset.name == "Cue_Lightning").OrderBy(e => e.time).Select(e => e.time).ToList();
+        Assert.GreaterOrEqual(strikes.Count, 3, "the storm has lightning");
+        for (int i = 1; i < strikes.Count; i++) Assert.Greater(strikes[i] - strikes[i - 1], 0.34, "lightning at " + strikes[i] + " s follows too soon");
+        foreach (var name in new[] { "Cast_Show_HomeAll", "Cast_Show_Hall", "Cue_PhotoDrop", "Cue_ShantyFall", "Cue_PowerOut", "Cue_TitleHit" })
+            Assert.IsTrue(emitters.Any(e => e.asset.name == name), "the film cues " + name);
 
         // the flood ends at mission level, so the hand-over has no jump
         var flood = tracks.OfType<FloodLevelTrack>().First().GetClips().OrderBy(c => c.end).Last();
@@ -71,8 +78,14 @@ public class CutsceneAssetTests
             Assert.IsNotNull(intro.debris, "debris pool");
             Assert.IsNotNull(intro.siren, "siren");
             Assert.IsNotNull(intro.look, "look volume");
-            Assert.IsNotNull(intro.childSpot, "child spot");
-            Assert.IsTrue(intro.shots.Length >= 7 && intro.shots.All(s => s != null), "shots");
+            Assert.IsNotNull(intro.castRoot, "the cast");
+            Assert.IsNotNull(intro.photo, "the photo");
+            Assert.IsNotNull(intro.shanty, "the shanty");
+            Assert.IsNotNull(intro.tricycle, "the tricycle");
+            foreach (var group in new[] { "HomeAll", "RoofNena", "RoofBen", "RoofJoy", "WaterJoy", "PostBen", "Hall", "Beacon" })
+                Assert.IsNotNull(intro.castRoot.Find(group), "cast group " + group);
+            Assert.GreaterOrEqual(intro.castRoot.GetComponentsInChildren<CharacterSpot>(true).Length, 11, "the family in each place and the crew");
+            Assert.IsTrue(intro.shots.Length >= 15 && intro.shots.All(s => s != null), "shots");
             Assert.IsTrue(intro.debris.extraKinds.Length >= 6 && intro.debris.extraKinds.All(k => k != null), "six kinds of rubbish");
             AssertShotsResolve(intro.manager.GetComponent<PlayableDirector>());
         }

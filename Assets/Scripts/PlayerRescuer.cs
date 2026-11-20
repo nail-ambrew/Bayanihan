@@ -781,8 +781,13 @@ public class PlayerRescuer : MonoBehaviour
             var c = overlaps[i];
             if (c == boat.Hull || c == body) continue;
             // The street under shallow flood water is not in the way: the legs just reach the bottom. Anything that
-            // stands up out of it (a wall, a post, a parked jeepney) still is.
+            // stands up out of it (a wall, a post, a parked jeepney) still is. For anything spread over the ground it is
+            // measured at the swimmer's own spot, not by the collider's box: sloping ground's box takes in the dry hill beside
+            // the flooded street, and a street's surface is one collider over the whole map.
             if (c.bounds.max.y < feet.y - 0.5f) continue;
+            if (Mathf.Max(c.bounds.size.x, c.bounds.size.z) > 20f && c.Raycast(new Ray(new Vector3(feet.x, c.bounds.max.y + 1f, feet.z), Vector3.down), out var under, c.bounds.size.y + 2f)
+                && under.point.y < feet.y - 0.5f)
+                continue;
             return false;
         }
         return true;

@@ -44,5 +44,31 @@ MonoBehaviour:
   radioBulletin: {fileID: 8300000, guid: 4fbbe80823e824c67943f93fd788a76f, type: 3}
   radioBulletinText: Weather bulletin. Signal number three is raised over Cavite.
     Residents near the river, prepare to evacuate now.
+  introVoices:
+  - name: Ben
+    clip: {fileID: 8300000, guid: 2036a3678a12c404d8f898b662716d00, type: 3}
+  - name: BenShout
+    clip: {fileID: 8300000, guid: 6d11bb9cc426a4ef286b6aa991bdf633, type: 3}
+  - name: Captain
+    clip: {fileID: 8300000, guid: 119089c2da8c1403391e7fc778eb6f17, type: 3}
+  - name: Joy
+    clip: {fileID: 8300000, guid: b28cbab542f8b4ac696d69413a26d732, type: 3}
+  - name: Neighbour1
+    clip: {fileID: 8300000, guid: 836311bd85ca34024a27c371987e41f6, type: 3}
+  - name: Neighbour2
+    clip: {fileID: 8300000, guid: f9ff560c5f8b94b02ac93391b4d7d19f, type: 3}
+  - name: Nena1
+    clip: {fileID: 8300000, guid: a72d1466c10e24d8e9d80398a2a51664, type: 3}
+  - name: Nena2
+    clip: {fileID: 8300000, guid: d6e3c7bfb510148b987b7f8958cbeff7, type: 3}
+  - name: Nena3
+    clip: {fileID: 8300000, guid: 329a12bd47b2346ab8363e60b82486f7, type: 3}
+  - name: Rescuer
+    clip: {fileID: 8300000, guid: 751609ab11bac49d590392b0988b290e, type: 3}
+  creak: {fileID: 8300000, guid: f96a911792ba3494eae8d8c0d004e252, type: 3}
+  collapse: {fileID: 8300000, guid: 2b53fa24d0a4b4a3f8330e4aaa280aea, type: 3}
+  dogBark: {fileID: 8300000, guid: 73ebd52b207d646d18b006dad40ebcee, type: 3}
+  powerOut: {fileID: 8300000, guid: a40ee6bc722af4912a96a0e01e28b996, type: 3}
   musicCue: {fileID: 8300000, guid: 3919ca6b9e3e96e41b2a4addfc021c86, type: 3}
   musicCueStart: 0
+  musicBed: {fileID: 8300000, guid: 6b422d854f871427c85950b5e66c0e01, type: 3}

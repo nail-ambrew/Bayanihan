@@ -228,9 +228,12 @@ public static class RoadBuilder
             Vector2? lastPole = null;
             Walk(line, c.kit.poleGap * 0.5f, c.kit.poleGap, (at, dir) =>
             {
-                Vector2 spot = at + MapGeometry.Left(dir) * (half + 0.5f);
+                // On the street's own edge (the sidewalk or the gutter), as Philippine poles stand, with the houses' fronts
+                // right behind. The post and its cross-arm are checked apart, so a one-storey roof under the arm is fine.
+                Vector2 spot = at + MapGeometry.Left(dir) * (half - 0.35f);
                 var rot = Quaternion.LookRotation(new Vector3(dir.x, 0f, dir.y));
-                if (!c.area.Contains(spot) || !ClearOfMission(c, spot, 5f) || Blocked(c, spot, new Vector3(1.3f, 4.5f, 0.3f), rot, 0.3f))
+                if (!c.area.Contains(spot) || !ClearOfMission(c, spot, 5f) || Blocked(c, spot, new Vector3(0.25f, 3.4f, 0.25f), rot, 0.3f)
+                    || Blocked(c, spot, new Vector3(1.3f, 0.6f, 0.3f), rot, 6.6f))
                 {
                     lastPole = null;
                     return;
@@ -252,7 +255,7 @@ public static class RoadBuilder
                 Walk(line, c.kit.lampGap * 0.5f, c.kit.lampGap, (at, dir) =>
                 {
                     Vector2 outward = -MapGeometry.Left(dir);
-                    Vector2 spot = at + outward * (half + 0.4f);
+                    Vector2 spot = at + outward * (half - 0.3f);
                     var rot = Quaternion.LookRotation(new Vector3(-outward.x, 0f, -outward.y));
                     if (!c.area.Contains(spot) || !ClearOfMission(c, spot, 5f) || Blocked(c, spot, new Vector3(0.3f, 3.5f, 0.3f), rot, 0.3f)) return;
                     Put(c, "Street Lamps", c.kit.lamp, spot, c.roadY, rot, Vector3.one, "street lamps");

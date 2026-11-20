@@ -379,7 +379,7 @@ public static class BarangayMockPlanner
                 var lot = MapGeometry.MinimumRectangle(MapGeometry.CounterClockwise(l.footprint));
                 var lf = FaceStreet(lot, l.id);
                 LotScale(style.model, style, lf, out float lx, out float lz);
-                AddModel(l, style.model, lot.centre, lf.front, lx, lz);
+                AddModel(l, style.model, lot.centre, lf.front, lx, lz, true);
                 signHeight = GameHeight(style.model.size.y * Mathf.Clamp(Mathf.Sqrt(lx * lz), 0.7f, 1.25f));
                 ClearUnder(l, lot.centre, lf, style.model, lx, lz, signHeight);
                 plan.notes.Add(l.Label + ": " + style.model.name + " scaled " + lx.ToString("0.00") + " x " + lz.ToString("0.00") +
@@ -525,7 +525,7 @@ public static class BarangayMockPlanner
 
             if (style.realSize && style.model != null && style.model.prefab != null)
             {
-                AddModel(l, style.model, l.position, f.front, 1f, 1f);
+                AddModel(l, style.model, l.position, f.front, 1f, 1f, true);
                 plan.notes.Add(l.Label + ": no building at its position, so its own model stands there at real size.");
                 return style.model.size.y;
             }
@@ -576,7 +576,7 @@ public static class BarangayMockPlanner
             // A real-size model stands on the layout's own position, not on the centre of whichever building it overlaps;
             // one scaled to its lot is centred on the lot.
             Vector2 at = style.realSize && !style.fitToLot ? l.position : rect.centre;
-            AddModel(l, model, at, f.front, sx, sz);
+            AddModel(l, model, at, f.front, sx, sz, true);
             plan.notes.Add(what + ": " + model.name + " model fitted at " + sx.ToString("0.00") + " x " + sz.ToString("0.00") +
                            (style.fitToLot ? " to fill its " + Mathf.RoundToInt(rect.sizeU) + " x " + Mathf.RoundToInt(rect.sizeV) + " m lot." : ". Swap in the real model when it is made."));
             height = GameHeight(model.size.y * Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.2f));
@@ -692,13 +692,17 @@ public static class BarangayMockPlanner
         /// one way or the other, chosen by the building's id so the same plan is made every time.
         /// </summary>
         /// <summary>
-        /// Landmarks whose front is set by hand, in degrees (0 = north, 90 = east, the way the map's +X points). The planner
-        /// turns everything else to face the nearest street; these are the ones it gets wrong for the game's view.
+        /// Landmarks whose front faces a road named here rather than the nearest one, by their layout id. Each stands square
+        /// and parallel to that road (see <see cref="AlignToRoad"/>).
         /// </summary>
-        public static readonly Dictionary<string, float> FrontOverrides = new Dictionary<string, float>
+        public static readonly Dictionary<string, string> FrontRoads = new Dictionary<string, string>
         {
-            { "r10749238", 90f },      // Iglesia Ni Cristo: faces right (east) across its lot
+            { "r10749238", "Purificacion Street" },     // Iglesia Ni Cristo: its entrance on the main road, across a forecourt
+            { "n10230935465", "Hebron Street" },        // The Feast Carmona: on Hebron Street, by Mabuhay Elementary School
         };
+
+        /// <summary>Kept for old callers: no landmark's front is set by angle any more.</summary>
+        public static readonly Dictionary<string, float> FrontOverrides = new Dictionary<string, float>();
 
         Facing FaceStreet(MapGeometry.OrientedRect rect, string id)
         {
@@ -753,14 +757,114 @@ public static class BarangayMockPlanner
             });
         }
 
-        void AddModel(MapLandmark l, PlaceholderModel model, Vector2 position, Vector2 front, float sx, float sz)
+        void AddModel(MapLandmark l, PlaceholderModel model, Vector2 position, Vector2 front, float sx, float sz, bool alignToRoad = false)
         {
+            if (alignToRoad) AlignToRoad(l, model, ref position, ref front, ref sx, ref sz);
             plan.placements.Add(new MockPlacement
             {
                 kind = PlacementKind.Model, sourceId = l.id, category = l.category, modelName = model.name, prefab = model.prefab,
                 modelSize = model.size, position = position, yaw = MapGeometry.Heading(front),
                 scale = GameScale(new Vector3(sx, Mathf.Clamp(Mathf.Sqrt(sx * sz), 0.7f, 1.25f), sz))
             });
+        }
+
+        /// <summary>
+        /// Turns a landmark square to its road, its front parallel to it: the road named in <see cref="FrontRoads"/>, or the
+        /// nearest street. A landmark with a named road is also moved up to it: one with a lot to the lot's edge on that
+        /// side, with a paved forecourt between it and the street; one with only a point (no lot) to just behind the
+        /// road's edge, on the point's side of the road. Either way it is slid along the road, if need be, until no other
+        /// street runs through it.
+        /// </summary>
+        void AlignToRoad(MapLandmark l, PlaceholderModel model, ref Vector2 position, ref Vector2 front, ref float sx, ref float sz)
+        {
+            FrontRoads.TryGetValue(l.id ?? "", out string named);
+            if (!NearestRoad(position, named, out Vector2 closest, out Vector2 along, out MapRoad road)) return;
+            Vector2 toRoad = closest - position;
+            if (toRoad.sqrMagnitude < 1e-4f) return;
+            var normal = MapGeometry.Left(along);
+            var newFront = Vector2.Dot(normal, toRoad) >= 0f ? normal : -normal;
+            // A turn of more than 45 degrees puts the frontage along the other side of the lot.
+            if (Mathf.Abs(Vector2.Dot(newFront, front)) < 0.7071f) { float t = sx; sx = sz; sz = t; }
+            front = newFront;
+            if (string.IsNullOrEmpty(named)) return;
+
+            float halfDepth = model.size.z * sz * lib.buildingWidthScale * 0.5f, halfWidth = model.size.x * sx * lib.buildingWidthScale * 0.5f;
+            float roadHalf = lib.roadWidths.For(road.roadClass) * 0.5f;
+            Vector2 side = new Vector2(front.y, -front.x);
+            if (l.footprint != null && l.footprint.Count >= 3)
+            {
+                // To the lot's edge on the road's side.
+                float exit = 0f;
+                for (float t = 0f; t < 200f; t += 0.5f)
+                    if (MapGeometry.Contains(l.footprint, position + front * t)) exit = t; else if (t > exit + 1f) break;
+                float move = Mathf.Max(0f, exit - halfDepth);
+                position += front * move;
+                // The forecourt: from the front wall to the street's edge, as wide as the building.
+                float gap = Vector2.Dot(closest - position, front) - halfDepth - roadHalf;
+                if (gap > 1f)
+                {
+                    Vector2 a = position + front * halfDepth, b = position + front * (halfDepth + gap);
+                    plan.placements.Add(new MockPlacement
+                    {
+                        kind = PlacementKind.Grounds, sourceId = l.id + "-forecourt", category = l.category,
+                        outline = MapGeometry.CounterClockwise(new List<Vector2> { a - side * halfWidth, a + side * halfWidth, b + side * halfWidth, b - side * halfWidth }),
+                        colour = new Color(0.62f, 0.61f, 0.58f),
+                    });
+                    plan.notes.Add(l.Label + ": faces " + named + " across a " + gap.ToString("0.0") + " m forecourt.");
+                }
+            }
+            else
+            {
+                // Just behind the road's edge, on the side the point is on.
+                Vector2 along2 = closest + side * Vector2.Dot(position - closest, side);
+                position = along2 - front * (roadHalf + 1.5f + halfDepth);
+                plan.notes.Add(l.Label + ": faces " + named + ", " + 1.5f + " m back from its edge.");
+            }
+
+            // Slide along the road until no other street runs through the building (a corner site).
+            for (int step = 0; step < 30; step++)
+            {
+                Vector2 push = Vector2.zero;
+                foreach (var r in layout.roads)
+                {
+                    if (r == road || r.points.Count < 2 || r.roadClass == RoadClass.Footway || r.name == named) continue;
+                    float reach = lib.roadWidths.For(r.roadClass) * 0.5f + 0.5f;
+                    for (int i = 0; i + 1 < r.points.Count; i++)
+                    {
+                        Vector2 a = r.points[i], b = r.points[i + 1];
+                        for (float t = 0f; t <= 1f; t += 0.1f)
+                        {
+                            Vector2 q = Vector2.Lerp(a, b, t), d = q - position;
+                            float u = Vector2.Dot(d, side), v = Vector2.Dot(d, front);
+                            if (Mathf.Abs(u) < halfWidth + reach && Mathf.Abs(v) < halfDepth + reach) push -= side * Mathf.Sign(u == 0f ? 1f : u);
+                        }
+                    }
+                }
+                if (push == Vector2.zero) break;
+                position += side * Mathf.Sign(Vector2.Dot(push, side)) * 1f;
+            }
+        }
+
+        /// <summary>The nearest point on a road (one with this name, or any street but a footpath), and its direction.</summary>
+        bool NearestRoad(Vector2 p, string named, out Vector2 closest, out Vector2 along, out MapRoad road)
+        {
+            closest = p; along = Vector2.right; road = null;
+            float best = string.IsNullOrEmpty(named) ? 40f : 400f;
+            foreach (var r in layout.roads)
+            {
+                if (r.points.Count < 2) continue;
+                if (!string.IsNullOrEmpty(named) ? r.name != named : r.roadClass == RoadClass.Footway) continue;
+                for (int i = 0; i + 1 < r.points.Count; i++)
+                {
+                    Vector2 a = r.points[i], ab = r.points[i + 1] - a;
+                    float len2 = ab.sqrMagnitude;
+                    if (len2 < 1e-6f) continue;
+                    var c = a + ab * Mathf.Clamp01(Vector2.Dot(p - a, ab) / len2);
+                    float d = Vector2.Distance(p, c) - lib.roadWidths.For(r.roadClass) * 0.5f;
+                    if (d < best) { best = d; closest = c; along = ab.normalized; road = r; }
+                }
+            }
+            return road != null;
         }
 
         /// <summary>A model's fitted scale, made roomier for the game's characters (see <see cref="PlaceholderLibrary.buildingHeightScale"/>).</summary>

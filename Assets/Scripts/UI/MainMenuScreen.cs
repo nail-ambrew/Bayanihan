@@ -36,6 +36,9 @@ public class MainMenuScreen : MonoBehaviour
         UiKit.MenuItem(menu, "SETTINGS", () => Open(MenuPages.Settings(safe, ClosePage, SignOut)), 38f, 174f);
         UiKit.MenuItem(menu, "CREDITS", () => Open(MenuPages.Credits(safe, ClosePage)), 38f, 174f);
         UiKit.MenuItem(menu, "QUIT", AskQuit, 38f, 174f);
+
+        // The menu lines come in one after another, top to bottom, so the eye is led down the list.
+        for (int i = 0; i < menu.childCount; i++) UiMotion.Of(menu.GetChild(i).gameObject).Enter(0.07f * i);
     }
 
     /// <summary>The still background after all, if the cinematic has not started within a few seconds.</summary>
@@ -63,6 +66,8 @@ public class MainMenuScreen : MonoBehaviour
     {
         if (page != null) Destroy(page);
         page = next;
+        // A page slides in from the right, over the menu, as it opens.
+        UiMotion.Of(next).Enter(slideFrom: new Vector2(60f, 0f));
     }
 
     /// <summary>The page's back arrow, Esc and Android's Back: the page goes and its menu line is no longer lit.</summary>

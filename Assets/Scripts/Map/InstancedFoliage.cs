@@ -59,8 +59,38 @@ public class InstancedFoliage : MonoBehaviour
     /// </summary>
     public static float DistanceScale = 1f;
 
+    /// <summary>
+    /// Multiplies every plant and grass draw distance as well, from the GRAPHICS setting (<see cref="GameplayQuality"/>);
+    /// kept apart from <see cref="DistanceScale"/> so a cinematic putting that back to 1 does not undo the setting.
+    /// </summary>
+    public static float QualityScale = 1f;
+
+    /// <summary>
+    /// The share of plants and grass tufts drawn (0..1), from the GRAPHICS setting. Each tile's list is shuffled once, so
+    /// drawing the first part of it thins the whole tile evenly.
+    /// </summary>
+    public static float DensityScale = 1f;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetScale() => DistanceScale = 1f;
+    static void ResetScale() { DistanceScale = 1f; QualityScale = 1f; DensityScale = 1f; }
+
+    /// <summary>
+    /// How many of a tile's <paramref name="count"/> instances of one kind to draw at the current density. Rounded, so a
+    /// kind with only one or two in a tile can drop out of it entirely: each kind in a tile is a draw call of its own, and
+    /// on Low the draw calls matter more than the plants.
+    /// </summary>
+    public static int DrawnOf(int count) => DensityScale >= 1f ? count : Mathf.Min(count, Mathf.RoundToInt(count * DensityScale));
+
+    /// <summary>Shuffles a tile's instances the same way every time, so a thinned tile always keeps the same ones.</summary>
+    public static void Shuffle(List<Matrix4x4> list, int seed)
+    {
+        var rng = new System.Random(seed);
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
 
     void OnEnable() => built = -1;
 
@@ -106,6 +136,9 @@ public class InstancedFoliage : MonoBehaviour
                 list.Add(m * parts[part].local);
             }
         }
+        // Every part of a plant gets the same order (same seed and length), so thinning never leaves a trunk without its leaves.
+        foreach (var kv in tiles)
+            foreach (var list in kv.Value.byPart.Values) Shuffle(list, kv.Key.x * 73856093 ^ kv.Key.y * 19349663);
         built = plants.Count;
     }
 
@@ -124,14 +157,16 @@ public class InstancedFoliage : MonoBehaviour
         foreach (var t in tiles.Values)
         {
             Vector3 c = t.bounds.center;
-            float reach = t.reach * DistanceScale + Tile;
+            float reach = t.reach * DistanceScale * QualityScale + Tile;
             if (new Vector2(c.x - eye.x, c.z - eye.z).sqrMagnitude > reach * reach) continue;
             if (!GeometryUtility.TestPlanesAABB(planes, t.bounds)) continue;
             foreach (var kv in t.byPart)
             {
+                int drawn = DrawnOf(kv.Value.Count);
+                if (drawn == 0) continue;
                 var part = parts[kv.Key];
                 var rp = new RenderParams(part.material) { shadowCastingMode = part.shadows ? ShadowCastingMode.On : ShadowCastingMode.Off, receiveShadows = true, worldBounds = t.bounds };
-                Graphics.RenderMeshInstanced(rp, part.mesh, part.submesh, kv.Value);
+                Graphics.RenderMeshInstanced(rp, part.mesh, part.submesh, kv.Value, drawn);
             }
         }
     }
