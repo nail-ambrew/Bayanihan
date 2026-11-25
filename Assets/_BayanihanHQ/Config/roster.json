@@ -1,0 +1,14 @@
+{
+  "agents": [
+    { "key": "lead",                 "name": "Kap. Dado", "role": "Lead / Orchestrator",   "color": "#F09A47", "desk": 0 },
+    { "key": "map-level-builder",    "name": "Lito",      "role": "Map & Level Builder",   "color": "#4E9C2C", "desk": 1 },
+    { "key": "gameplay-scripter",    "name": "Bea",       "role": "Gameplay Scripter",     "color": "#2E6CC2", "desk": 2 },
+    { "key": "physics-colliders",    "name": "Jun",       "role": "Physics & Colliders",   "color": "#7A4FC2", "desk": 3 },
+    { "key": "vfx-environment",      "name": "Tala",      "role": "VFX & Environment",     "color": "#2BB3C0", "desk": 4 },
+    { "key": "ui-frontend",          "name": "Mika",      "role": "UI / Front-end",        "color": "#E05A9A", "desk": 5 },
+    { "key": "backend-data",         "name": "Rey",       "role": "Backend & Data",        "color": "#E9C12F", "desk": 6 },
+    { "key": "audio",                "name": "Lorna",     "role": "Audio",                 "color": "#E07A2E", "desk": 7 },
+    { "key": "animation-characters", "name": "Kiko",      "role": "Animation & Characters","color": "#C23C32", "desk": 8 },
+    { "key": "qa-tester",            "name": "Nena",      "role": "QA / Tester",           "color": "#6B8A99", "desk": 9 }
+  ]
+}
